@@ -15,7 +15,15 @@ rules for code written in it, and applies here too. Everyone taking part follows
 - **Security issues:** don't open an issue; see [SECURITY.md](SECURITY.md).
 
 Issues labelled `good first issue` are small and well described; `help wanted` ones are open to anyone.
-Comment on an issue before starting it, so two people don't do the same work.
+To take one, comment on it; the maintainer assigns it to you, so two people don't do the same work. If
+you can't finish, say so and it goes back to the list.
+
+### What happens to your issue
+
+New issues are labelled `needs-triage` and get a first reply within three days. The maintainer
+reproduces it or asks for what's missing, then either keeps it open (labelled `good first issue` or
+`help wanted` if anyone can take it, or assigned if someone is on it) or closes it with a reason
+(`duplicate`, `wontfix`, `invalid`). Questions are moved to Discussions.
 
 ## Making a change
 
@@ -37,9 +45,6 @@ pnpm check            # types, lint, format, boundaries, tests
 - Touched the installer (`packages/create-bareship/`, [ADR 0018](docs/decisions/0018-create-bareship.md))?
   Keep it free of dependencies and run `scripts/ci/check-create.sh`, which creates apps through both npm
   packages. Its version always matches the root `package.json`.
-- Releasing a new version to npm: maintainers follow [docs/packaging.md › Publish](docs/packaging.md#publish).
-  Triage, labels and merging: [docs/maintaining.md](https://github.com/psingh2907/bareship/blob/main/docs/maintaining.md).
-
 - User-visible change? Add a line under **Unreleased** in [CHANGELOG.md](CHANGELOG.md).
 
 ## Opening a pull request
@@ -52,17 +57,35 @@ pnpm check            # types, lint, format, boundaries, tests
    are squash-merged, so the title becomes the commit on `main`, and a check fails until it fits.
    Add `!` for a breaking change (`feat(i18n)!: …`).
 4. **Fill in the template:** why (link the issue with `Closes #12`), what changed, how you tested it on
-   which platforms, and screenshots for anything on screen.
+   which platforms, and screenshots for anything on screen. Leave **Allow edits by maintainers** ticked,
+   so small fixes (a title, a changelog line) don't need a round trip.
 5. **Open it as a draft** if you want early feedback, and mark it ready when the checks pass.
-6. **Checks:** CI runs `pnpm check` and the release-bundle check on every pull request. The slow iOS and
-   Android builds run only when a maintainer adds the `native` label
+6. **Checks:** CI runs `pnpm check`, the release-bundle check and the title check, and all must pass to
+   merge. On your first pull request they show "awaiting approval" until the maintainer starts them, a
+   GitHub safeguard for workflows from forks; after that they run on every push. The slow iOS and Android
+   builds run only when a maintainer adds the `native` label
    ([ADR 0014](docs/decisions/0014-opt-in-native-ci.md)), so mention it if you changed native code.
 7. **Review:** expect a first reply within three days. Push fixes as new commits rather than force-pushing,
    so the review can show what changed; they're squashed on merge anyway. Update from `main` when GitHub
-   says the branch is out of date.
+   says the branch is out of date (the **Update branch** button does it). Reply to or resolve each review
+   comment: open conversations block the merge.
 
 Don't base one pull request on another. If you must, say so at the top of the second and wait until the
 first is merged before merging it: GitHub retargets it to `main` only once the first branch is deleted.
+
+### After it's merged
+
+- The maintainer squash-merges it, so `main` gets one commit with your title (sometimes reworded) and you
+  as its author. The linked issue closes by itself.
+- Delete the branch in your fork; GitHub deletes branches only in this repository.
+- It reaches npm with the next release. Your changelog line ships with it, credited to you, and the
+  GitHub release lists your pull request.
+
+A pull request that's waiting on you for 30 days is closed with a note; reopen it whenever you're back.
+
+Maintainers: triage, labels and the merge checklist are in
+[docs/maintaining.md](https://github.com/psingh2907/bareship/blob/main/docs/maintaining.md); releasing is
+in [docs/packaging.md › Publish](docs/packaging.md#publish).
 
 ## Editing the website
 

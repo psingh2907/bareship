@@ -28,6 +28,19 @@ Within three days of a new issue:
    else could take it, assign yourself if you're doing it, or close it with a reason label and a sentence.
 3. A question in an issue: answer it, then move it to Discussions (**Convert to discussion**).
 
+When someone comments that they'll take an issue, assign it to them (contributors can't assign
+themselves). Nothing after two weeks? Ask; with no answer in another week, unassign it with a friendly note.
+
+## Outside pull requests
+
+A first-time contributor's workflows wait for approval (Settings → Actions → General: "Require approval
+for first-time contributors"). Before **Approve and run**, read the diff: anything under `.github/`,
+`scripts/ci/` or a `package.json` script runs on GitHub's machines. The Labeler is the exception: it runs
+without approval because it never runs the pull request's code.
+
+Then review as for any pull request. If only something small is off (the title, a changelog line), fix it
+yourself rather than asking for another round, when they allowed edits by maintainers.
+
 ## Your own changes
 
 Work goes through pull requests too, so the history on GitHub shows what changed and why:
@@ -46,6 +59,7 @@ Pull requests are **squash-merged**, with the pull request title as the commit m
 deleted on merge. Before pressing the button:
 
 - [ ] The CI and title checks pass (both required on `main`). Native code changed? The `native` builds ran.
+- [ ] Review conversations are resolved (required on `main`).
 - [ ] The title reads well as a line in `git log` and the changelog.
 - [ ] User-visible change? `CHANGELOG.md` has a line under Unreleased.
 - [ ] Changed a convention? `AGENTS.md`, the generators and an ADR are updated.
@@ -64,9 +78,11 @@ entry, then **Generate release notes** to append the merged pull requests groupe
 What the flow above relies on (Settings in GitHub):
 
 - **General → Pull Requests:** squash merging only, default message "Pull request title and description",
-  "Automatically delete head branches" on.
-- **Rules → Protect main:** no deletion, no force push, pull requests required, required checks
-  "Types, lint, tests, boundaries" and "Conventional Commit title".
+  "Always suggest updating pull request branches" and "Automatically delete head branches" on.
+- **Rules → Protect main:** no deletion, no force push, pull requests required (no approvals, since
+  GitHub doesn't let you approve your own), squash only, review conversations resolved, required checks
+  "Types, lint, tests, boundaries" and "Conventional Commit title". No bypass, the maintainer included.
+- **Actions → General:** "Require approval for first-time contributors" (GitHub's default).
 - **Features:** Issues and Discussions on.
 - **Code security:** secret scanning with push protection, private vulnerability reporting and Dependabot
   security updates on. Renovate opens the routine dependency updates (`renovate.json`).

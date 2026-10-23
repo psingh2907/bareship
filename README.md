@@ -347,9 +347,19 @@ independent; the rest of the app keeps working without it.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). In short: read [AGENTS.md](AGENTS.md), run `pnpm check`, use
-Conventional Commits, and propose a new ADR rather than changing a recorded decision. Everyone follows the
-[code of conduct](CODE_OF_CONDUCT.md). Report security issues privately ([SECURITY.md](SECURITY.md)).
+Contributions are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) covers the whole path: what to open first,
+how to make and test a change, and how a pull request gets reviewed, merged and released.
+
+- **Questions and ideas:** [Discussions](https://github.com/psingh2907/bareship/discussions).
+- **Bugs and docs problems:** [open an issue](https://github.com/psingh2907/bareship/issues/new/choose).
+- **Something to work on:** issues labelled
+  [good first issue](https://github.com/psingh2907/bareship/labels/good%20first%20issue) or
+  [help wanted](https://github.com/psingh2907/bareship/labels/help%20wanted). Comment on one to take it.
+- **Pull requests:** read [AGENTS.md](AGENTS.md), run `pnpm check`, and title the pull request as a
+  Conventional Commit (`fix(feed): …`). Changing a recorded decision needs a new ADR.
+
+Everyone follows the [code of conduct](CODE_OF_CONDUCT.md). Report security issues privately
+([SECURITY.md](SECURITY.md)).
 
 ## License
 
