@@ -1,6 +1,6 @@
 name: Feature or change
 description: Suggest something the template should include or do differently.
-labels: [enhancement]
+labels: [enhancement, needs-triage]
 body:
   - type: textarea
     id: problem

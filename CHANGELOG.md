@@ -6,6 +6,9 @@ changes.
 
 ## Unreleased
 
+- The pull request template asks why (with the linked issue), how it was tested on each platform and for
+  screenshots, and a new `Pull request title` workflow checks that titles are Conventional Commits, since
+  a squash merge turns the title into the commit on `main`.
 - Every dependency in `package.json` is pinned to an exact version (it already was in the lockfile), and
   `pnpm add` now saves exact versions (`savePrefix: ''` in `pnpm-workspace.yaml`), as AGENTS.md asks.
 - ESLint, Prettier and Jest skip `.claude/`, so `pnpm check` no longer lints and tests the copies of the

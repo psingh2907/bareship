@@ -6,10 +6,16 @@ rules for code written in it, and applies here too. Everyone taking part follows
 
 ## Before you start
 
+- **Questions and ideas:** ask in [Discussions](https://github.com/psingh2907/bareship/discussions).
 - **Bugs:** open an issue with the steps to reproduce, the platform and the versions (`npx react-native info`).
-- **Changes to a decision** (a library, a pattern, a convention): open an issue first. Decisions are recorded
-  in [docs/decisions/](docs/decisions/README.md); a change gets a new ADR rather than an edit to the old one.
+- **Typos and small doc fixes:** open a pull request straight away, no issue needed.
+- **Anything bigger, and changes to a decision** (a library, a pattern, a convention): open an issue first and
+  wait for a reply, so you don't build something that can't be merged. Decisions are recorded in
+  [docs/decisions/](docs/decisions/README.md); a change gets a new ADR rather than an edit to the old one.
 - **Security issues:** don't open an issue; see [SECURITY.md](SECURITY.md).
+
+Issues labelled `good first issue` are small and well described; `help wanted` ones are open to anyone.
+Comment on an issue before starting it, so two people don't do the same work.
 
 ## Making a change
 
@@ -32,8 +38,31 @@ pnpm check            # types, lint, format, boundaries, tests
   Keep it free of dependencies and run `scripts/ci/check-create.sh`, which creates apps through both npm
   packages. Its version always matches the root `package.json`.
 - Releasing a new version to npm: maintainers follow [docs/packaging.md › Publish](docs/packaging.md#publish).
+  Triage, labels and merging: [docs/maintaining.md](https://github.com/psingh2907/bareship/blob/main/docs/maintaining.md).
 
-Fill in the pull request template: what changed, and how you tested it (which platforms, which devices).
+- User-visible change? Add a line under **Unreleased** in [CHANGELOG.md](CHANGELOG.md).
+
+## Opening a pull request
+
+1. **Fork** the repository (maintainers branch in it directly) and branch from an up-to-date `main`. Name the
+   branch after the change: `fix/offline-retry`, `docs/quick-start-windows`.
+2. **Keep it to one change.** A fix, a refactor it needed and an unrelated typo are three pull requests.
+   Small pull requests get reviewed the same day; a 100-file one waits.
+3. **Title it as a Conventional Commit:** `fix(offline): retry queued likes after sign-in`. Pull requests
+   are squash-merged, so the title becomes the commit on `main`, and a check fails until it fits.
+   Add `!` for a breaking change (`feat(i18n)!: …`).
+4. **Fill in the template:** why (link the issue with `Closes #12`), what changed, how you tested it on
+   which platforms, and screenshots for anything on screen.
+5. **Open it as a draft** if you want early feedback, and mark it ready when the checks pass.
+6. **Checks:** CI runs `pnpm check` and the release-bundle check on every pull request. The slow iOS and
+   Android builds run only when a maintainer adds the `native` label
+   ([ADR 0014](docs/decisions/0014-opt-in-native-ci.md)), so mention it if you changed native code.
+7. **Review:** expect a first reply within three days. Push fixes as new commits rather than force-pushing,
+   so the review can show what changed; they're squashed on merge anyway. Update from `main` when GitHub
+   says the branch is out of date.
+
+Don't base one pull request on another. If you must, say so at the top of the second and wait until the
+first is merged before merging it: GitHub retargets it to `main` only once the first branch is deleted.
 
 ## Editing the website
 

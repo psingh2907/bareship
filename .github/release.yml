@@ -1,0 +1,19 @@
+# Groups GitHub's generated release notes (Releases → Draft a new release → Generate release notes) by the
+# labels on merged pull requests. The CHANGELOG.md entry stays the main text. Not part of an app made from
+# the template.
+changelog:
+  exclude:
+    labels: [skip-changelog]
+  categories:
+    - title: Breaking changes
+      labels: [breaking]
+    - title: The app
+      labels: ['area: app', 'area: native']
+    - title: Installer
+      labels: ['area: installer']
+    - title: Docs and website
+      labels: ['area: docs', 'area: site']
+    - title: Dependencies
+      labels: ['area: deps']
+    - title: Other
+      labels: ['*']

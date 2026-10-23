@@ -1,0 +1,29 @@
+# Pull requests are squash-merged and the title becomes the commit on main, so the title has to be a
+# Conventional Commit, like the commits commitlint checks locally (commitlint.config.mjs).
+name: Pull request title
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions: {}
+
+jobs:
+  title:
+    name: Conventional Commit title
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check the title
+        env:
+          # Through the environment, never inline: the title is untrusted input.
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          types='build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test'
+          if [[ "$TITLE" =~ ^($types)(\([a-z0-9./-]+\))?!?:\ [^[:space:]].{0,98}$ ]]; then
+            echo "OK: $TITLE"
+          else
+            echo "::error::\"$TITLE\" isn't a Conventional Commit. Use type(scope): summary, for example" \
+              "\"fix(offline): retry queued likes after sign-in\". Types: ${types//|/, }."
+            exit 1
+          fi

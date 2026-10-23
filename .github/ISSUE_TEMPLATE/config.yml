@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Question or idea
+    url: https://github.com/psingh2907/bareship/discussions
+    about: Ask how to do something, or float an idea before it becomes a feature request.
   - name: Security vulnerability
     url: https://github.com/psingh2907/bareship/security/advisories/new
     about: Report it privately, not in an issue (SECURITY.md).

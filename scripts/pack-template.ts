@@ -38,7 +38,11 @@ const NOT_IN_APP = [
   /^CONTRIBUTING\.md$/,
   /^SECURITY\.md$/,
   /^CODE_OF_CONDUCT\.md$/,
+  /^docs\/maintaining\.md$/,
   /^\.github\/ISSUE_TEMPLATE\//,
+  /^\.github\/CODEOWNERS$/,
+  /^\.github\/(labeler|release)\.yml$/, // the template repo's labels
+  /^\.github\/workflows\/labeler\.yml$/,
   /^\.github\/workflows\/portfolio\.yml$/, // redeploys the maintainer's portfolio
   /^website\//, // the template's website, not part of an app
   /^assets\/screenshots\//, // the README's screenshots

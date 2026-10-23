@@ -1,0 +1,24 @@
+name: Docs or website
+description: Something in the docs or on bareship.praveensingh.co.in is wrong, missing or unclear.
+labels: ['area: docs', needs-triage]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: The URL, or the file in the repository.
+      placeholder: https://bareship.praveensingh.co.in/start/quick-start/
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's wrong
+      description: What you read, what you expected, or what you couldn't find.
+    validations:
+      required: true
+  - type: textarea
+    id: fix
+    attributes:
+      label: Suggested fix
+      description: The wording you'd use, if you have it. Small fixes are welcome as a pull request instead.
