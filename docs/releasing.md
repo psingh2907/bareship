@@ -61,9 +61,9 @@ the checkout is thrown away; locally, discard the change to `project.pbxproj` af
 
 ## Continuous integration
 
-CI is paused while the template is built, and has no release job yet. When you add one, run the same
-lanes with the credentials above as secrets (`fastlane android beta`, `fastlane ios beta`). On CI, match
-is read-only, so certificates are created once from a laptop.
+The CI workflow checks pull requests and builds the app, but has no release job. When you add one, run
+the same lanes with the credentials above as secrets (`fastlane android beta`, `fastlane ios beta`). On
+CI, match is read-only, so certificates are created once from a laptop.
 
 ## Notes
 

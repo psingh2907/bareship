@@ -74,7 +74,7 @@ add each service when you need it ([going live](docs/going-live.md)).
 
 > **Status: 0.3.2, on npm and as a GitHub template.** `npx create-bareship` creates an app in one command. An
 > app made from the npm package builds and runs on iOS and Android, and the fastlane release builds pass on
-> both. Next: turning CI back on in this repository. See the [roadmap](#roadmap) and
+> both. CI checks every pull request. Next: proving the native CI builds. See the [roadmap](#roadmap) and
 > [known limitations](#known-limitations).
 
 ## Why this template
@@ -220,8 +220,8 @@ add your own features, screens and API calls with `pnpm gen` ([generators](docs/
   updates.
 - GitHub Actions: types, lint, format, boundaries and tests on every PR. Android and iOS builds are opt-in:
   label a PR `native`, run the workflow by hand, or set the repository variable `NATIVE_BUILDS=true` to build
-  on every push to `main` ([ADR 0014](docs/decisions/0014-opt-in-native-ci.md)). Paused in this repository
-  for now, see [known limitations](#known-limitations).
+  on every push to `main` ([ADR 0014](docs/decisions/0014-opt-in-native-ci.md)). The native builds haven't
+  passed in this repository yet, see [known limitations](#known-limitations).
 
 **For AI agents**
 
@@ -303,10 +303,11 @@ independent; the rest of the app keeps working without it.
 
 - **No end-to-end or performance tests yet.** Maestro flows, Reassure render baselines, startup metrics
   and a bundle report are postponed.
-- **CI is switched off in this repository for now.** The checks job passed when it last ran. The fixes for
-  the native jobs (a `.ruby-version` for iOS; swap, two Gradle workers and time limits for the Android
-  builds, which ran out of memory on 8 GB runners) are in the workflow but haven't run yet. GitHub's macOS
-  image has Xcode 26.x, not 27, so the iOS job is unproven too. Run `pnpm check` locally.
+- **The native CI builds haven't passed yet.** The checks job runs on every pull request and is required
+  to merge. The fixes for the native jobs (a `.ruby-version` for iOS; swap, two Gradle workers and time
+  limits for the Android builds, which ran out of memory on 8 GB private runners) are in the workflow but
+  haven't run on the larger public runners yet. GitHub's macOS image has Xcode 26.x, not 27, so the iOS job
+  is unproven too.
 - **Over-the-air updates have a port but no adapter.** Pick a provider (for example hot-updater) and add
   one.
 - **Right-to-left is opt-in and not yet right on iOS.** No shipped language is right-to-left. If you add
@@ -336,7 +337,8 @@ independent; the rest of the app keeps working without it.
 
 | Item | Status |
 | --- | --- |
-| Turn CI back on in this repository, after fixing the Android build's memory use | Next |
+| CI checks on every pull request, required to merge | Done |
+| Native CI builds passing: Android memory use, Xcode 27 on the macOS runner | Next |
 | Right-to-left text alignment on iOS | Next |
 | Screen titles that follow a language switch without a restart, and the iOS back-button label | Next |
 | End-to-end tests with Maestro | Postponed |

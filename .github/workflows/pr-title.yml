@@ -20,10 +20,12 @@ jobs:
           TITLE: ${{ github.event.pull_request.title }}
         run: |
           types='build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test'
-          if [[ "$TITLE" =~ ^($types)(\([a-z0-9./-]+\))?!?:\ [^[:space:]].{0,98}$ ]]; then
+          # The summary starts in lower case, as commitlint's subject-case rule requires.
+          if [[ "$TITLE" =~ ^($types)(\([a-z0-9./-]+\))?!?:\ [^[:space:]A-Z].{0,98}$ ]]; then
             echo "OK: $TITLE"
           else
-            echo "::error::\"$TITLE\" isn't a Conventional Commit. Use type(scope): summary, for example" \
-              "\"fix(offline): retry queued likes after sign-in\". Types: ${types//|/, }."
+            echo "::error::\"$TITLE\" isn't a Conventional Commit. Use type(scope): summary, with the" \
+              "summary in lower case, for example \"fix(offline): retry queued likes after sign-in\"." \
+              "Types: ${types//|/, }."
             exit 1
           fi

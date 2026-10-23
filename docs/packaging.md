@@ -101,9 +101,9 @@ version. To publish a new version:
 
 The Portfolio workflow needs:
 
-- **GitHub Actions turned on for the repository** (Settings → Actions → General). While CI is paused, keep
-  the CI workflow itself disabled (`gh workflow disable CI`) rather than turning Actions off: with Actions
-  off, the Portfolio workflow never runs and nothing reports it.
+- **GitHub Actions turned on for the repository** (Settings → Actions → General). To pause CI, disable
+  the CI workflow itself (`gh workflow disable CI`) rather than turning Actions off: with Actions off, the
+  Portfolio workflow never runs and nothing reports it.
 - **The `PORTFOLIO_DEPLOY_HOOK` secret set to a Deploy Hook of the portfolio's Vercel project**
   (`praveensingh`: Settings → Git → Deploy Hooks, branch `main`), not of the `bareship` website project.
   A hook from the wrong project still makes the run pass, but it redeploys the website instead. To change
