@@ -26,7 +26,7 @@ export function PostCard({ post, onPress, onToggleLike, expanded, likePending }:
   const likes = t('feed.likes', { count: post.likeCount });
 
   return (
-    <View style={styles.card}>
+    <View style={styles.card} testID={`post-card-${post.id}`}>
       <Pressable
         role={onPress ? 'button' : undefined}
         aria-label={`${post.author.name}. ${post.body}`}

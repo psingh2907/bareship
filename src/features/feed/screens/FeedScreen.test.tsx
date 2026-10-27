@@ -8,6 +8,10 @@ import { renderWithProviders } from '@/test/render';
 
 import { FeedScreen } from './FeedScreen';
 
+// Every post has a like button, so like-button queries are scoped to one post's card.
+const post = (id: string) => screen.getByTestId(`post-card-${id}`);
+const findPost = (id: string) => screen.findByTestId(`post-card-${id}`);
+
 describe('FeedScreen', () => {
   beforeEach(async () => {
     await signInDemoUser();
@@ -32,14 +36,13 @@ describe('FeedScreen', () => {
   it('likes a post optimistically and keeps the server result', async () => {
     const user = userEvent.setup();
     await renderWithProviders(<FeedScreen />);
-    const like = await screen.findByTestId('like-p_2');
-    expect(like).toHaveAccessibleName('Like');
+    const like = within(await findPost('p_2')).getByRole('button', { name: 'Like' });
     expect(within(like).getByText('7 likes')).toBeOnTheScreen();
 
     await user.press(like);
 
-    await waitFor(() => expect(screen.getByTestId('like-p_2')).toHaveAccessibleName('Unlike'));
-    expect(within(screen.getByTestId('like-p_2')).getByText('8 likes')).toBeOnTheScreen();
+    const unlike = await within(post('p_2')).findByRole('button', { name: 'Unlike' });
+    expect(within(unlike).getByText('8 likes')).toBeOnTheScreen();
   });
 
   it('likes while offline: shows it at once as waiting, then syncs on reconnect', async () => {
@@ -49,19 +52,23 @@ describe('FeedScreen', () => {
     });
     const user = userEvent.setup();
     await renderWithProviders(<FeedScreen />);
-    await screen.findByTestId('like-p_2');
+    await findPost('p_2');
     await act(async () => onlineManager.setOnline(false));
 
-    await user.press(screen.getByTestId('like-p_2'));
-    expect(screen.getByTestId('like-p_2')).toHaveAccessibleName('Unlike');
-    expect(within(screen.getByTestId('like-p_2')).getByText('8 likes')).toBeOnTheScreen();
-    expect(await screen.findByTestId('like-pending-p_2')).toBeOnTheScreen();
+    await user.press(within(post('p_2')).getByRole('button', { name: 'Like' }));
+    const unlike = within(post('p_2')).getByRole('button', { name: 'Unlike' });
+    expect(within(unlike).getByText('8 likes')).toBeOnTheScreen();
+    expect(await within(post('p_2')).findByText('Waiting to sync')).toBeOnTheScreen();
     expect(requests).toBe(0);
 
     await act(async () => onlineManager.setOnline(true));
-    await waitFor(() => expect(screen.queryByTestId('like-pending-p_2')).not.toBeOnTheScreen());
+    await waitFor(() =>
+      expect(within(post('p_2')).queryByText('Waiting to sync')).not.toBeOnTheScreen(),
+    );
     expect(requests).toBe(1);
-    expect(within(screen.getByTestId('like-p_2')).getByText('8 likes')).toBeOnTheScreen();
+    expect(
+      within(within(post('p_2')).getByRole('button', { name: 'Unlike' })).getByText('8 likes'),
+    ).toBeOnTheScreen();
     server.events.removeAllListeners();
   });
 
@@ -69,10 +76,11 @@ describe('FeedScreen', () => {
     server.use(mock.post('*/posts/:id/like', () => HttpResponse.json({}, { status: 400 })));
     const user = userEvent.setup();
     await renderWithProviders(<FeedScreen />);
-    await user.press(await screen.findByTestId('like-p_2'));
+    await user.press(within(await findPost('p_2')).getByRole('button', { name: 'Like' }));
 
     expect(await screen.findByText("Couldn't save your like. Try again.")).toBeOnTheScreen();
-    expect(within(screen.getByTestId('like-p_2')).getByText('7 likes')).toBeOnTheScreen();
+    const like = within(post('p_2')).getByRole('button', { name: 'Like' });
+    expect(within(like).getByText('7 likes')).toBeOnTheScreen();
   });
 
   it('shows an error with retry when the first load fails', async () => {

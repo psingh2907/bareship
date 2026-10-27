@@ -18,14 +18,14 @@ bundles: `pnpm exec react-native bundle --platform android --dev false --minify 
 | Barrel `index.ts` files in `shared/ui`, `shared/api`, `data`, `entities/*` (2026-10-11) | `bundle-barrel-exports` | Removed; 29 files import from the defining module. Android release bundle 3,831 → 3,824 KB. `no-restricted-imports` rejects folder imports (`@/shared/i18n` and `@/shared/ports` define their contents and stay), and `app/` may import a feature only through its `index.ts` |
 | React Compiler lint rules weren't enabled (2026-10-11) | `js-react-compiler` | The eslint-plugin-react-hooks 7 compiler rules are on as errors; no violations. `react-compiler-healthcheck@1.0.0`: 55 of 55 components compile, no incompatible libraries |
 | Legacy `accessibility*` props (2026-10-11) | `react-native-testing` (rule 10) | ARIA props on React Native's components and on our own (`Icon`, `Image` and `SegmentedControl` take `aria-label`). Headings use `role="heading"`. `no-restricted-syntax` rejects the old props; the wrappers around react-native-svg, FastImage and the bottom sheet keep them, because those libraries don't translate `aria-*` |
+| Feed rows with and without images shared one recycling pool (2026-10-27) | `js-lists-flatlist-flashlist` | `FeedScreen` passes `getItemType` (`image` / `text`), so a recycled row keeps its layout |
+| Tests queried like buttons by `testID` (2026-10-27) | `react-native-testing` | `FeedScreen.test.tsx` finds them with `getByRole('button', { name })`, scoped to one post's card. `testID` stays on non-semantic views and for Maestro |
 
 ## Pending: fix when touching the area
 
 | Item | Skill reference | Notes |
 | --- | --- | --- |
-| Feed rows with and without images share one recycling pool | `js-lists-flatlist-flashlist` | Add `getItemType={post => (post.imageUrl ? 'image' : 'text')}` |
 | Bottom sheets on iOS can render under native-stack modals | `js-bottomsheet` | `containerComponent` with `FullWindowOverlay` on iOS; check on device |
-| Tests query by `testID` where an accessible role exists | `react-native-testing` | Prefer `getByRole(…, { name })`; keep `testID` for Maestro and non-semantic views |
 | No startup (TTI) measurement | `native-measure-tti` | Phase 4: `react-native-performance` markers, cold starts only |
 | Bundle size isn't tracked per PR | `bundle-analyze-js` | Phase 4: report the size in CI (no failing budget, per the questionnaire) |
 
