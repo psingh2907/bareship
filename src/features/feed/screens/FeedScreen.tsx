@@ -49,6 +49,8 @@ export function FeedScreen() {
       <FlashList
         data={posts}
         keyExtractor={post => post.id}
+        // Rows with and without an image recycle from separate pools, so a recycled row keeps its layout.
+        getItemType={post => (post.imageUrl ? 'image' : 'text')}
         renderItem={({ item }) => (
           <PostCard
             post={item}
