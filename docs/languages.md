@@ -50,8 +50,9 @@ Follow the steps above and set `rtl: true` on the entry, for example
 
 - Switching to or from it changes the layout direction. React Native applies a new direction only at
   launch, so Settings asks the user to restart.
-- Check every screen on both iOS and Android before you ship. On iOS, text inside rows doesn't yet follow
-  a right-to-left layout everywhere; fix that first.
+- Text aligns to the start of the layout on both platforms: the `Text` primitive defaults to
+  `textAlign: 'start'`. Use `align="start"`, `"end"` or `"center"`, never `left` or `right`.
+- Check every screen on both iOS and Android before you ship.
 
 Tests keep right-to-left working while no shipped language uses it: they switch the direction with the
 flag and check that directional icons mirror.

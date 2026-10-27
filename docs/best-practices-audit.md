@@ -20,12 +20,12 @@ bundles: `pnpm exec react-native bundle --platform android --dev false --minify 
 | Legacy `accessibility*` props (2026-10-11) | `react-native-testing` (rule 10) | ARIA props on React Native's components and on our own (`Icon`, `Image` and `SegmentedControl` take `aria-label`). Headings use `role="heading"`. `no-restricted-syntax` rejects the old props; the wrappers around react-native-svg, FastImage and the bottom sheet keep them, because those libraries don't translate `aria-*` |
 | Feed rows with and without images shared one recycling pool (2026-10-27) | `js-lists-flatlist-flashlist` | `FeedScreen` passes `getItemType` (`image` / `text`), so a recycled row keeps its layout |
 | Tests queried like buttons by `testID` (2026-10-27) | `react-native-testing` | `FeedScreen.test.tsx` finds them with `getByRole('button', { name })`, scoped to one post's card. `testID` stays on non-semantic views and for Maestro |
+| Bottom sheets on iOS rendered under native-stack modals (2026-10-27) | `js-bottomsheet` | Reproduced on the iOS 27 simulator (a sheet opened from a modal stayed behind it). `Sheet` passes `containerComponent` with `FullWindowOverlay` on iOS; the sheet now shows above the modal, and Close and drag-to-dismiss work |
 
 ## Pending: fix when touching the area
 
 | Item | Skill reference | Notes |
 | --- | --- | --- |
-| Bottom sheets on iOS can render under native-stack modals | `js-bottomsheet` | `containerComponent` with `FullWindowOverlay` on iOS; check on device |
 | No startup (TTI) measurement | `native-measure-tti` | Phase 4: `react-native-performance` markers, cold starts only |
 | Bundle size isn't tracked per PR | `bundle-analyze-js` | Phase 4: report the size in CI (no failing budget, per the questionnaire) |
 

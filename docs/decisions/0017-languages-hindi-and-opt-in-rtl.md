@@ -34,8 +34,9 @@ right-to-left support ready for apps that need it.
 ## Consequences
 
 - Right-to-left is no longer seen on a device in the demo. Unit tests and the lint rule cover the code,
-  but an app that adds an RTL language must check it on iOS and Android. The open iOS alignment issue
-  (text not following the RTL layout) has to be fixed before such an app ships.
+  but an app that adds an RTL language must check it on iOS and Android. The iOS alignment issue (text
+  not following the RTL layout) was fixed on 2026-10-27: the `Text` primitive defaults to
+  `textAlign: 'start'`, which React Native resolves against the layout direction on both platforms.
 - Switching between English and Hindi takes effect at once, with no restart, so text has to follow a
   language change while the app runs. Formatted dates and times now come from `useFormat()`, because the
   React Compiler cached plain `formatRelative(date)` calls in the old language; lint enforces it. Screen

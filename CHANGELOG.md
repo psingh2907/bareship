@@ -9,6 +9,10 @@ changes.
 - Switching the language updates the title of a screen pushed over the tabs (the component showroom)
   and its iOS back-button label at once, without a restart. The back label is now the tab underneath
   ("Settings") instead of the route name "Main".
+- Right-to-left layouts align text to the start on iOS too. iOS aligned text by its own script, so
+  English or Hindi text stayed on the left in a mirrored row; the `Text` primitive now defaults to
+  `textAlign: 'start'`, and `align` takes `start`, `end`, `center`, `justify` or `auto`.
+- Bottom sheets opened from a screen presented as a modal show above it on iOS (`FullWindowOverlay`).
 - The feed recycles rows with and without an image separately (`getItemType`), and its tests find like
   buttons by role and name instead of `testID`.
 - The pull request template asks why (with the linked issue), how it was tested on each platform and for

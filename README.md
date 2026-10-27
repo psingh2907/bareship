@@ -310,8 +310,8 @@ independent; the rest of the app keeps working without it.
   is unproven too.
 - **Over-the-air updates have a port but no adapter.** Pick a provider (for example hot-updater) and add
   one.
-- **Right-to-left is opt-in and not yet right on iOS.** No shipped language is right-to-left. If you add
-  one, text inside rows on iOS doesn't follow the mirrored layout yet ([languages](docs/languages.md)).
+- **Right-to-left is opt-in.** No shipped language is right-to-left, so tests and lint cover it, not the
+  demo. If you add one, check it on both platforms ([languages](docs/languages.md)).
 - **The demo build is Android-only.** iOS needs a signed build, so use the simulator.
 - **Firebase is tested without real projects.** The fallbacks are tested on devices; Crashlytics on iOS
   hasn't run against a real Firebase config yet.
@@ -339,7 +339,7 @@ independent; the rest of the app keeps working without it.
 | --- | --- |
 | CI checks on every pull request, required to merge | Done |
 | Native CI builds passing: Android memory use, Xcode 27 on the macOS runner | Next |
-| Right-to-left text alignment on iOS | Next |
+| Right-to-left text alignment on iOS | Done |
 | Screen titles that follow a language switch without a restart, and the iOS back-button label | Done |
 | End-to-end tests with Maestro | Postponed |
 | Performance tooling: Reassure render baselines, startup metrics, a bundle report | Postponed |
