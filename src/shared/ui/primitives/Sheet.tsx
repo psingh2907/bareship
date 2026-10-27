@@ -5,6 +5,8 @@ import {
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import { type ReactNode, type Ref, useCallback } from 'react';
+import { Platform } from 'react-native';
+import { FullWindowOverlay } from 'react-native-screens';
 import { useUnistyles } from 'react-native-unistyles';
 
 export type SheetRef = BottomSheetModal;
@@ -14,6 +16,13 @@ export type SheetProps = {
   children: ReactNode;
   onDismiss?: () => void;
 };
+
+// On iOS the sheet's portal sits under native-stack modals, so a sheet opened from a modal screen would
+// render behind it. FullWindowOverlay puts it above every native view. Android doesn't need it.
+const container =
+  Platform.OS === 'ios'
+    ? ({ children }: { children?: ReactNode }) => <FullWindowOverlay>{children}</FullWindowOverlay>
+    : undefined;
 
 /** Modal bottom sheet sized to its content. Open with `ref.current?.present()`. */
 export function Sheet({ ref, children, onDismiss }: SheetProps) {
@@ -34,6 +43,7 @@ export function Sheet({ ref, children, onDismiss }: SheetProps) {
       ref={ref}
       enableDynamicSizing
       onDismiss={onDismiss}
+      containerComponent={container}
       backdropComponent={backdrop}
       backgroundStyle={{ backgroundColor: theme.colors.surface }}
       handleIndicatorStyle={{ backgroundColor: theme.colors.border }}
