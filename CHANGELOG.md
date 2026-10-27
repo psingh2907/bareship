@@ -6,6 +6,11 @@ changes.
 
 ## Unreleased
 
+- Switching the language updates the title of a screen pushed over the tabs (the component showroom)
+  and its iOS back-button label at once, without a restart. The back label is now the tab underneath
+  ("Settings") instead of the route name "Main".
+- The feed recycles rows with and without an image separately (`getItemType`), and its tests find like
+  buttons by role and name instead of `testID`.
 - The pull request template asks why (with the linked issue), how it was tested on each platform and for
   screenshots, and a new `Pull request title` workflow checks that titles are Conventional Commits, since
   a squash merge turns the title into the commit on `main`.

@@ -1,6 +1,11 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStaticNavigation, type StaticParamList } from '@react-navigation/native';
+import {
+  createStaticNavigation,
+  getFocusedRouteNameFromRoute,
+  type StaticParamList,
+} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import type { ParseKeys } from 'i18next';
 
 import { useIsSignedIn, useIsSignedOut } from '@/entities/session/session-store';
 import { ForgotPasswordScreen, LoginScreen, RegisterScreen } from '@/features/auth';
@@ -8,7 +13,7 @@ import { FeedScreen, PostScreen } from '@/features/feed'; // @example:home-impor
 import { OnboardingScreen, useNeedsOnboarding, useOnboardingDone } from '@/features/onboarding';
 import { SettingsScreen } from '@/features/settings';
 import { ShowroomScreen } from '@/features/showroom'; // @example
-import { i18n } from '@/shared/i18n'; // @example
+import { i18n, useTranslation } from '@/shared/i18n';
 import { Home, Settings } from '@/shared/ui/icons';
 
 import { TabIcon, TranslatedText } from './labels';
@@ -42,6 +47,20 @@ const Tabs = createBottomTabNavigator({
     },
   },
 });
+
+// The focused tab's title names the Main route, so a screen pushed over the tabs gets it as its iOS back
+// label instead of "Main". The first entry is the tab that shows first.
+const TAB_TITLES = [
+  ['Feed', 'feed.title'], // @example:home-title
+  ['Settings', 'settings.title'],
+] as const satisfies readonly (readonly [string, ParseKeys])[];
+
+function tabTitle(route: Parameters<typeof getFocusedRouteNameFromRoute>[0]) {
+  // Until the tabs report a focused route, the first tab is the one showing.
+  const name = getFocusedRouteNameFromRoute(route);
+  const [, key] = TAB_TITLES.find(([tab]) => tab === name) ?? TAB_TITLES[0];
+  return i18n.t(key);
+}
 
 // Gates. While the session is "unknown" (still restoring) no group matches and the splash stays up.
 // Call every hook unconditionally (no `&&` between hook calls).
@@ -78,7 +97,7 @@ const RootStack = createNativeStackNavigator({
     SignedIn: {
       if: useShowSignedIn,
       screens: {
-        Main: { screen: Tabs, linking: '' },
+        Main: { screen: Tabs, linking: '', options: ({ route }) => ({ title: tabTitle(route) }) },
         // @example-start
         Post: {
           screen: PostScreen,
@@ -94,7 +113,7 @@ const RootStack = createNativeStackNavigator({
               Showroom: {
                 screen: ShowroomScreen,
                 layout: offlineLayout,
-                options: { headerShown: true, title: i18n.t('settings.showroom') },
+                options: () => ({ headerShown: true, title: i18n.t('settings.showroom') }),
               },
             }
           : {}),
@@ -104,9 +123,16 @@ const RootStack = createNativeStackNavigator({
   },
 });
 
-export const Navigation = createStaticNavigation(RootStack);
+// Options functions (string titles, back labels) run when the navigator renders. Re-rendering it on a
+// language switch keeps them in the new language without a restart.
+const LocalizedRootStack = RootStack.with(function LocalizedNavigator({ Navigator }) {
+  useTranslation();
+  return <Navigator />;
+});
 
-type RootStackParamList = StaticParamList<typeof RootStack>;
+export const Navigation = createStaticNavigation(LocalizedRootStack);
+
+type RootStackParamList = StaticParamList<typeof LocalizedRootStack>;
 
 // Makes useNavigation().navigate(route, params) type-checked anywhere, without imports.
 declare global {

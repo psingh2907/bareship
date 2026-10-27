@@ -46,6 +46,7 @@ const REPLACEMENTS: Record<string, string> = {
         tabBarButtonTestID: 'tab-home',
       },
     },`,
+  'home-title': "  ['Home', 'home.title'],",
   'settings-icons': "import { Bell, LogOut, Trash2 } from '@/shared/ui/icons';",
   'queued-writes-empty': `// No queued writes yet. Add one line per module that defines one, under this directive:
 // /* eslint-disable no-restricted-imports */

@@ -340,7 +340,7 @@ independent; the rest of the app keeps working without it.
 | CI checks on every pull request, required to merge | Done |
 | Native CI builds passing: Android memory use, Xcode 27 on the macOS runner | Next |
 | Right-to-left text alignment on iOS | Next |
-| Screen titles that follow a language switch without a restart, and the iOS back-button label | Next |
+| Screen titles that follow a language switch without a restart, and the iOS back-button label | Done |
 | End-to-end tests with Maestro | Postponed |
 | Performance tooling: Reassure render baselines, startup metrics, a bundle report | Postponed |
 | An Expo (CNG) version that shares the same `src/` | Later |
