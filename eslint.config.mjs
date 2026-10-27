@@ -58,7 +58,7 @@ const SYNTAX_RULES = [
   {
     selector: "Property[key.name='textAlign'] Literal[value=/^(left|right)$/]",
     message:
-      "Leave textAlign unset, or use 'auto' or 'center', so text follows the reading direction (ADR 0017).",
+      "Use textAlign 'start', 'end' or 'center' (or leave it unset), so text follows the reading direction (ADR 0017).",
   },
 ];
 
