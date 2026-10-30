@@ -41,6 +41,7 @@ export const software = {
   sameAs: [
     'https://www.npmjs.com/package/create-bareship',
     'https://www.npmjs.com/package/bareship',
+    'https://reactnative.directory/package/create-bareship',
     'https://github.com/psingh2907/bareship',
   ],
   programmingLanguage: 'TypeScript',
