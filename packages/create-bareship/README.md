@@ -1,5 +1,8 @@
 # create-bareship
 
+[![npm](https://img.shields.io/npm/v/create-bareship)](https://www.npmjs.com/package/create-bareship)
+[![Listed on React Native Directory](https://img.shields.io/badge/React_Native_Directory-listed-61dafb)](https://reactnative.directory/package/create-bareship)
+
 Creates an app from [Bareship](https://github.com/psingh2907/bareship), an offline-first, bare React Native
 template for teams and AI agents, in one command:
 

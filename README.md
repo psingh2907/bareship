@@ -15,6 +15,7 @@
   <img src="https://img.shields.io/badge/TypeScript-6_strict-3178c6" alt="TypeScript 6 strict">
   <img src="https://img.shields.io/badge/platforms-iOS_%7C_Android-lightgrey" alt="iOS and Android">
   <a href="https://www.npmjs.com/package/create-bareship"><img src="https://img.shields.io/npm/v/create-bareship" alt="npm version"></a>
+  <a href="https://reactnative.directory/package/create-bareship"><img src="https://img.shields.io/badge/React_Native_Directory-listed-61dafb" alt="Listed on React Native Directory"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
 </p>
 
