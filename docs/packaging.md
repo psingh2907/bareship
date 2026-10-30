@@ -30,7 +30,8 @@ The template tarball contains:
 
 Both packages show the repository's README on npm, screenshots included, with its relative links pointed
 at GitHub. `create-bareship` is the page to link to: it's the command people run. Edit `README.md`, not
-`packages/create-bareship/README.md`, which only describes the folder on GitHub.
+`packages/create-bareship/README.md`, which is what GitHub shows for the folder (React Native Directory
+links there).
 
 When someone runs `init`, the CLI copies `template/`, replaces every `BareshipApp` and `bareshipapp` (Xcode
 project and schemes, bundle ids, the Android package, URL schemes, `package.json`'s name) with the new
