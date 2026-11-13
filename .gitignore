@@ -97,3 +97,8 @@ dist/
 fastlane/.env
 fastlane/.env.*
 !fastlane/.env.example
+
+# Claude Code: per-developer settings and preview servers (the shared .claude/skills stay committed)
+.claude/settings.local.json
+.claude/launch.json
+.claude/worktrees/

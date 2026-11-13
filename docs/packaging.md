@@ -90,7 +90,9 @@ version. To publish a new version:
 3. `pnpm pack-template`, then `scripts/ci/check-template-init.sh` and `scripts/ci/check-create.sh`.
 4. Check what each tarball holds against git: `tar tzf dist/npm/bareship-<version>.tgz` should list only
    files from `git ls-files` (plus the generated `package.json`, `README.md`, `TEMPLATE-LICENSE` and
-   `bin/`), and nothing untracked; `pack-template` also packs untracked files that aren't ignored.
+   `bin/`), and nothing untracked. `pack-template` also packs untracked files that aren't ignored (so a check
+   before committing sees new files), and lists each one it packs: before publishing, that list must be
+   empty. Per-developer Claude Code files (`.claude/launch.json`, `.claude/settings.local.json`) are ignored.
 5. Publish the template first, so the installer never points at a version that isn't there:
    `npm publish dist/npm/bareship-<version>.tgz --access public`, then
    `npm publish dist/npm/create-bareship-<version>.tgz --access public`. Each asks for the account's 2FA code.

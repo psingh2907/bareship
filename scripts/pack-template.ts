@@ -67,6 +67,14 @@ function files(): string[] {
     .filter(file => !NOT_IN_APP.some(pattern => pattern.test(file)));
 }
 
+/** The packed files git doesn't track yet (new files, or local ones that should be ignored). */
+function untrackedFiles(packed: string[]): string[] {
+  const tracked = new Set(
+    execFileSync('git', ['ls-files', '-c', '-z'], { cwd: ROOT, encoding: 'utf8' }).split('\0'),
+  );
+  return packed.filter(file => !tracked.has(file));
+}
+
 /**
  * The repository's README for an npm page (ADR 0018): both packages show it, screenshots and all. npm
  * resolves relative links against the package's own folder, so they point at the files on GitHub instead.
@@ -96,6 +104,14 @@ function main() {
   rmSync(CLI_OUT, { recursive: true, force: true });
 
   const appFiles = files();
+  // `git ls-files -o` packs files you haven't committed yet, so a pre-commit check sees new files. Before a
+  // publish, nothing in this list should be a surprise (docs/packaging.md › Publish).
+  const untracked = untrackedFiles(appFiles);
+  if (untracked.length > 0) {
+    console.warn(`! Packing ${untracked.length} file(s) git doesn't track yet:`);
+    for (const file of untracked) console.warn(`    ${file}`);
+    console.warn('  Commit them, or ignore them, before publishing.');
+  }
   for (const file of appFiles) {
     // npm leaves out .gitignore files; the CLI renames _gitignore back.
     const target = file.replace(/(^|\/)\.gitignore$/, '$1_gitignore');
