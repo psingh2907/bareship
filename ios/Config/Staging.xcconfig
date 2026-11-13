@@ -5,4 +5,5 @@ BUNDLE_ID_SUFFIX = .staging
 APP_DISPLAY_NAME = BareshipApp Staging
 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon-Staging
 APP_URL_SCHEME = bareshipapp-staging
+GOOGLE_URL_SCHEME = bareshipapp-staging
 

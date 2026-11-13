@@ -47,6 +47,11 @@ const pages = () => [
     label: 'Languages',
   },
   {
+    from: 'docs/social-sign-in.md',
+    to: 'build/social-sign-in',
+    label: 'Apple and Google sign-in',
+  },
+  {
     from: 'docs/app-icon-and-splash.md',
     to: 'build/app-icon-and-splash',
     label: 'App icon and splash',

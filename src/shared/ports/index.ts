@@ -96,3 +96,31 @@ export interface Updates {
   /** Restarts into the downloaded update. Only call after check() returned 'update-ready'. */
   apply(): Promise<void>;
 }
+
+export type SocialProvider = 'apple' | 'google';
+
+/** What a provider returns. The backend checks `idToken` against the provider's public keys. */
+export type SocialCredential = {
+  provider: SocialProvider;
+  /** A JWT signed by Apple or Google. */
+  idToken: string;
+  /** Apple: the raw nonce; the token carries its SHA-256 hash. */
+  nonce?: string;
+  /** Apple: a one-time code the backend can trade for a refresh token (needed to revoke on deletion). */
+  authorizationCode?: string;
+  /** Apple sends the name only on the first sign-in, so pass it on to the backend then. */
+  name?: string;
+};
+
+/**
+ * Sign in with Apple and Google (react-native-google-signin and react-native-apple-authentication;
+ * expo-apple-authentication in Track B). ADR 0020.
+ */
+export interface SocialSignIn {
+  /** Providers configured for this build and supported on this device, in display order. */
+  providers(): SocialProvider[];
+  /** Shows the provider's sheet. Resolves null when the user cancels. */
+  signIn(provider: SocialProvider): Promise<SocialCredential | null>;
+  /** Forgets the provider's own session, so the account chooser shows next time. */
+  signOut(): Promise<void>;
+}

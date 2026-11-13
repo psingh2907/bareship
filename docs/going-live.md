@@ -11,6 +11,7 @@ links and push local. This page lists what you add before release, and what each
 | [Push on iOS](#turn-on-push-for-ios) | Push delivery on iPhone | Firebase, a paid Apple Developer team |
 | [A link domain](#open-web-links-in-the-app) | `https://` links that open the app | A domain you control, plus the two above for iOS |
 | [Remote Config keys](#force-an-update-or-pause-the-app) | Forced updates and maintenance mode | Firebase |
+| [Apple and Google sign-in](social-sign-in.md) | "Continue with Apple" and "Sign in with Google" buttons | Google Cloud OAuth clients (free); a paid Apple Developer team for Apple; `POST /auth/social` on your backend |
 
 Set your bundle id first if you haven't: `pnpm bootstrap --bundle-id com.acme.shop` (see the README; a copy
 of the GitHub repository also needs `--name AcmeShop`). Every bundle id below is yours, with `.dev` and

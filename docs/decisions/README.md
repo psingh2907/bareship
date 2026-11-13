@@ -27,5 +27,6 @@ this bare template and "Track B" a later Expo version sharing its `src/` ([0001]
 | [0017](0017-languages-hindi-and-opt-in-rtl.md) | Ship English and Hindi; right-to-left is a switch per language | Accepted |
 | [0018](0018-create-bareship.md) | A one-command installer: `create-bareship` | Accepted |
 | [0019](0019-logo-sail-b.md) | The logo is a boat whose mainsail is a B | Accepted |
+| [0020](0020-sign-in-with-apple-and-google.md) | Sign in with Apple and Google behind a port | Accepted |
 
 New ADRs copy [template.md](template.md). Never edit an accepted ADR's decision; supersede it with a new one.

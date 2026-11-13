@@ -121,6 +121,9 @@ importers:
       '@hookform/resolvers':
         specifier: 5.9.1
         version: 5.9.1(@sinclair/typebox@0.34.52)(ajv@8.20.0)(joi@17.13.8)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.2.3))(superstruct@2.0.2)(zod@4.6.5)
+      '@invertase/react-native-apple-authentication':
+        specifier: 2.5.1
+        version: 2.5.1
       '@react-native-community/netinfo':
         specifier: 12.0.1
         version: 12.0.1(react-native@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
@@ -139,6 +142,9 @@ importers:
       '@react-native-firebase/remote-config':
         specifier: 26.4.0
         version: 26.4.0(@react-native-firebase/analytics@26.4.0(@react-native-firebase/app@26.4.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)))(@react-native-firebase/app@26.4.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3))
+      '@react-native-google-signin/google-signin':
+        specifier: 17.0.0
+        version: 17.0.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
       '@react-navigation/bottom-tabs':
         specifier: 7.20.0
         version: 7.20.0(e465926f8389b5b4ccfa648525252f70)
@@ -1936,6 +1942,10 @@ packages:
       '@types/node':
         optional: true
 
+  '@invertase/react-native-apple-authentication@2.5.1':
+    resolution: {integrity: sha512-KPKKc0wtRYpH4J0RkDfHzoKSZ+dYPEHmCXhpPdgHsT2MbK5AIkW1cYurjhAgev/kL7nOHFmWITjY1At5WhFEMQ==}
+    engines: {node: '>=14'}
+
   '@isaacs/ttlcache@1.4.1':
     resolution: {integrity: sha512-RQgQ4uQ+pLbqXfOmieB91ejmLwvSgv9nLx6sT6sD83s7umBypgg+OIBOBbEUiJXrfpnp9j0mRhYYdzp9uqq3lA==}
     engines: {node: '>=12'}
@@ -2203,6 +2213,16 @@ packages:
     peerDependencies:
       '@react-native-firebase/analytics': 26.4.0
       '@react-native-firebase/app': 26.4.0
+
+  '@react-native-google-signin/google-signin@17.0.0':
+    resolution: {integrity: sha512-FAnq5tkoq01np7jCzGjBYK1QPS61hJxjLJHJyJjQN3gaTwAZiGll18Xn3nygITMsZ/WoJ0jmskuHSG/oknUskQ==}
+    peerDependencies:
+      expo: '>=52.0.40'
+      react: '*'
+      react-native: '*'
+    peerDependenciesMeta:
+      expo:
+        optional: true
 
   '@react-native/asset-utils@0.87.1':
     resolution: {integrity: sha512-FeFnbn9ENPs7IVBzZt1bBWfiRGvT4q+CsWwXGFyKVW/1ol3ylBRuTtXBGHIAmcNN4fUR60nSXsCN19pzNHkPgA==}
@@ -5097,6 +5117,7 @@ packages:
 
   react-native-edge-to-edge@1.8.2:
     resolution: {integrity: sha512-9yhI/RpaXVkMqFKNHz72A7Vi8KrT6BqDcY8HOdck/so+qH0fq1EkIeNTSLplnoFW84DcLn2D7s9L/xfYSN8gyQ==}
+    deprecated: This package is deprecated. Set edgeToEdgeEnabled=true in android/gradle.properties instead.
     peerDependencies:
       react: '*'
       react-native: '*'
@@ -7802,6 +7823,8 @@ snapshots:
     optionalDependencies:
       '@types/node': 26.6.4
 
+  '@invertase/react-native-apple-authentication@2.5.1': {}
+
   '@isaacs/ttlcache@1.4.1': {}
 
   '@istanbuljs/load-nyc-config@1.1.0':
@@ -8240,6 +8263,11 @@ snapshots:
       react-native-fetch-api: 3.0.0
       text-encoding: 0.7.0
       web-streams-polyfill: 4.3.0
+
+  '@react-native-google-signin/google-signin@17.0.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)':
+    dependencies:
+      react: 19.2.3
+      react-native: 0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.2.3)(supports-color@8.1.1)
 
   '@react-native/asset-utils@0.87.1': {}
 

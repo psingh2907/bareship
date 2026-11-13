@@ -1,4 +1,11 @@
-import type { Analytics, CrashReporter, FeatureFlags, Logger, Updates } from '@/shared/ports';
+import type {
+  Analytics,
+  CrashReporter,
+  FeatureFlags,
+  Logger,
+  SocialSignIn,
+  Updates,
+} from '@/shared/ports';
 
 /** Crash reporter that forwards to the logger until Crashlytics is configured (Phase 3). */
 export function createLoggingCrashReporter(logger: Logger): CrashReporter {
@@ -35,6 +42,15 @@ export function createStaticFlags(
     getString: read,
     getNumber: read,
     refresh: async () => {},
+  };
+}
+
+/** No sign-in provider configured for this build: the buttons stay hidden (ADR 0020). */
+export function createNoSocialSignIn(): SocialSignIn {
+  return {
+    providers: () => [],
+    signIn: async () => null,
+    signOut: async () => {},
   };
 }
 

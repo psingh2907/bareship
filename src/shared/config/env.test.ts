@@ -15,7 +15,22 @@ describe('parseEnv', () => {
       API_MOCKS: false,
       APP_SCHEME: 'myapp-staging',
       APP_LINK_DOMAIN: '',
+      GOOGLE_WEB_CLIENT_ID: '',
+      GOOGLE_IOS_CLIENT_ID: '',
+      IOS_APPLE_SIGN_IN: false,
     });
+  });
+
+  it('reads the sign-in settings (ADR 0020) and rejects a non-boolean Apple switch', () => {
+    const base = { APP_ENV: 'prod', API_URL: 'https://api.example.com', APP_SCHEME: 'myapp' };
+    const env = parseEnv({
+      ...base,
+      GOOGLE_WEB_CLIENT_ID: 'web.apps.googleusercontent.com',
+      IOS_APPLE_SIGN_IN: 'true',
+    });
+    expect(env.GOOGLE_WEB_CLIENT_ID).toBe('web.apps.googleusercontent.com');
+    expect(env.IOS_APPLE_SIGN_IN).toBe(true);
+    expect(() => parseEnv({ ...base, IOS_APPLE_SIGN_IN: 'yes' })).toThrow(/IOS_APPLE_SIGN_IN/);
   });
 
   it('accepts a bare link domain and rejects a URL or a bad scheme', () => {

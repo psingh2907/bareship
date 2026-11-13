@@ -37,7 +37,7 @@
     <td><img src="https://raw.githubusercontent.com/psingh2907/bareship/main/assets/screenshots/ios/05-dark-feed.jpg" alt="iOS: dark theme" width="150"></td>
     <td><img src="https://raw.githubusercontent.com/psingh2907/bareship/main/assets/screenshots/ios/06-hindi-feed.jpg" alt="iOS: the feed in Hindi" width="150"></td>
     <td><img src="https://raw.githubusercontent.com/psingh2907/bareship/main/assets/screenshots/ios/04-settings.png" alt="iOS: settings" width="150"></td>
-    <td><img src="https://raw.githubusercontent.com/psingh2907/bareship/main/assets/screenshots/ios/02-sign-in.png" alt="iOS: sign-in with the demo account" width="150"></td>
+    <td><img src="https://raw.githubusercontent.com/psingh2907/bareship/main/assets/screenshots/ios/02-sign-in.png" alt="iOS: sign-in with the demo account, Apple and Google" width="150"></td>
   </tr>
   <tr>
     <td align="center"><sub>Feed</sub></td>
@@ -52,14 +52,14 @@
     <td><img src="https://raw.githubusercontent.com/psingh2907/bareship/main/assets/screenshots/android/07-offline.jpg" alt="Android: offline, with a like waiting to sync" width="150"></td>
     <td><img src="https://raw.githubusercontent.com/psingh2907/bareship/main/assets/screenshots/android/05-dark-feed.jpg" alt="Android: dark theme" width="150"></td>
     <td><img src="https://raw.githubusercontent.com/psingh2907/bareship/main/assets/screenshots/android/06-hindi-feed.jpg" alt="Android: the feed in Hindi" width="150"></td>
-    <td><img src="https://raw.githubusercontent.com/psingh2907/bareship/main/assets/screenshots/android/04-settings.png" alt="Android: settings" width="150"></td>
+    <td><img src="https://raw.githubusercontent.com/psingh2907/bareship/main/assets/screenshots/android/02-sign-in.png" alt="Android: sign-in with the demo account and Google" width="150"></td>
   </tr>
   <tr>
     <td align="center"><sub>Feed</sub></td>
     <td align="center"><sub>Offline, waiting to sync</sub></td>
     <td align="center"><sub>Dark theme</sub></td>
     <td align="center"><sub>Hindi</sub></td>
-    <td align="center"><sub>Settings</sub></td>
+    <td align="center"><sub>Sign-in</sub></td>
   </tr>
 </table>
 
@@ -178,7 +178,8 @@ add your own features, screens and API calls with `pnpm gen` ([generators](docs/
 
 **App**
 
-- Sign-in, registration, forgot password and onboarding, gated in the navigator.
+- Sign-in, registration, forgot password and onboarding, gated in the navigator. Sign in with Apple and
+  Google appear once you add their ids ([guide](docs/social-sign-in.md)).
 - A feed with cursor pagination, pull to refresh, skeletons and optimistic likes, plus a post screen.
 - Settings: theme (light, dark, system), language, notifications, sign-out and account deletion.
 - Design system on Unistyles 3: tokens, light and dark themes, and about 15 accessible primitives (Button,
@@ -313,6 +314,9 @@ independent; the rest of the app keeps working without it.
   one.
 - **Right-to-left is opt-in.** No shipped language is right-to-left, so tests and lint cover it, not the
   demo. If you add one, check it on both platforms ([languages](docs/languages.md)).
+- **Sign in with Apple hasn't run against a real Apple team.** The build, the button and the mock flow are
+  tested; the real flow needs a paid Apple account. On Android, the free Google sign-in library uses
+  Google's deprecated Sign-In API ([guide](docs/social-sign-in.md#known-limitations)).
 - **The demo build is Android-only.** iOS needs a signed build, so use the simulator.
 - **Firebase is tested without real projects.** The fallbacks are tested on devices; Crashlytics on iOS
   hasn't run against a real Firebase config yet.
@@ -342,6 +346,7 @@ independent; the rest of the app keeps working without it.
 | Native CI builds passing: Android memory use, Xcode 27 on the macOS runner | Next |
 | Right-to-left text alignment on iOS | Done |
 | Screen titles that follow a language switch without a restart, and the iOS back-button label | Done |
+| Sign in with Apple and Google ([ADR 0020](docs/decisions/0020-sign-in-with-apple-and-google.md)) | Done |
 | End-to-end tests with Maestro | Postponed |
 | Performance tooling: Reassure render baselines, startup metrics, a bundle report | Postponed |
 | An Expo (CNG) version that shares the same `src/` | Later |

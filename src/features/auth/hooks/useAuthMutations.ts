@@ -2,9 +2,10 @@ import { useMutation } from '@tanstack/react-query';
 
 import { useSession } from '@/entities/session/session-store';
 import { isApiError } from '@/shared/api/errors';
+import type { SocialProvider } from '@/shared/ports';
 import { services } from '@/shared/services/services';
 
-import { login, register, requestPasswordReset } from '../api';
+import { login, register, requestPasswordReset, socialSignIn } from '../api';
 
 export function useLogin() {
   const signIn = useSession(state => state.signIn);
@@ -24,6 +25,30 @@ export function useRegister() {
     onSuccess: async session => {
       await signIn(session);
       services().analytics.track('sign_up');
+    },
+  });
+}
+
+/**
+ * Sign in with Apple or Google: the provider's sheet, then the backend. New accounts are created on
+ * the first sign-in, so this serves both the sign-in and register screens. Resolves null on cancel.
+ */
+export function useSocialSignIn() {
+  const signIn = useSession(state => state.signIn);
+  return useMutation({
+    mutationFn: async (provider: SocialProvider) => {
+      const credential = await services().social.signIn(provider);
+      if (!credential) return null;
+      return socialSignIn(credential);
+    },
+    onSuccess: async (session, provider) => {
+      if (!session) return;
+      await signIn(session);
+      services().analytics.track('login', { method: provider });
+    },
+    onError: (error, provider) => {
+      // Server errors are expected; a provider failing (bad client id, missing SHA-1) is a setup bug.
+      if (!isApiError(error)) services().crash.recordError(error, { phase: 'social', provider });
     },
   });
 }

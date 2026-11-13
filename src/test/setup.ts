@@ -66,6 +66,74 @@ jest.mock('react-native-keychain', () => {
   };
 });
 
+// Sign in with Apple / Google (ADR 0020): native buttons become pressable views, sign-in calls are jest.fn.
+jest.mock('@invertase/react-native-apple-authentication', () => {
+  // Mirrors the library's runtime shape (2.5.1): constants live on `appleAuth` and `AppleButton`, not as
+  // the named enums its typings declare, so code using those enums fails here too.
+  const React = require('react');
+  const { Pressable } = require('react-native');
+  const AppleButton = ({ onPress, testID }: { onPress: () => void; testID?: string }) =>
+    React.createElement(Pressable, { onPress, testID, role: 'button', 'aria-label': 'Apple' });
+  AppleButton.Style = {
+    DEFAULT: 'White',
+    WHITE: 'White',
+    WHITE_OUTLINE: 'WhiteOutline',
+    BLACK: 'Black',
+  };
+  AppleButton.Type = {
+    DEFAULT: 'SignIn',
+    SIGN_IN: 'SignIn',
+    CONTINUE: 'Continue',
+    SIGN_UP: 'SignUp',
+  };
+  return {
+    appleAuth: {
+      isSupported: true,
+      performRequest: jest.fn(),
+      Error: { CANCELED: '1001' },
+      Operation: { LOGIN: 1 },
+      Scope: { EMAIL: 0, FULL_NAME: 1 },
+    },
+    AppleButton,
+  };
+});
+jest.mock('@react-native-google-signin/google-signin', () => {
+  const React = require('react');
+  const { Pressable } = require('react-native');
+  const GoogleSigninButton = ({
+    onPress,
+    disabled,
+    testID,
+  }: {
+    onPress: () => void;
+    disabled?: boolean;
+    testID?: string;
+  }) =>
+    React.createElement(Pressable, {
+      onPress,
+      disabled,
+      testID,
+      role: 'button',
+      'aria-label': 'Google',
+      'aria-disabled': disabled,
+    });
+  GoogleSigninButton.Size = { Icon: 0, Standard: 1, Wide: 2 };
+  GoogleSigninButton.Color = { Dark: 'dark', Light: 'light' };
+  return {
+    GoogleSignin: {
+      configure: jest.fn(),
+      hasPlayServices: jest.fn(async () => true),
+      signIn: jest.fn(),
+      signOut: jest.fn(async () => null),
+    },
+    GoogleSigninButton,
+    isCancelledResponse: (response: { type: string }) => response.type === 'cancelled',
+    isErrorWithCode: (error: unknown) =>
+      typeof error === 'object' && error !== null && 'code' in error,
+    statusCodes: { SIGN_IN_CANCELLED: 'SIGN_IN_CANCELLED' },
+  };
+});
+
 jest.mock('@d11/react-native-fast-image', () => {
   const React = require('react');
   const { Image } = require('react-native');
