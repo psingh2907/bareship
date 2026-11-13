@@ -7,6 +7,7 @@ import {
   createLoggingAnalytics,
   createLoggingCrashReporter,
   createNoopUpdates,
+  createNoSocialSignIn,
   createStaticFlags,
 } from '@/shared/adapters/noop-adapters';
 import { createNotifyKitPush } from '@/shared/adapters/notify-kit-push';
@@ -21,6 +22,7 @@ import type {
   Logger,
   Push,
   SecureStore,
+  SocialSignIn,
   Updates,
 } from '@/shared/ports';
 
@@ -40,6 +42,7 @@ export type Services = {
   updates: Updates;
   appInfo: AppInfo;
   push: Push;
+  social: SocialSignIn;
 };
 
 function createDefaultServices(): Services {
@@ -51,7 +54,26 @@ function createDefaultServices(): Services {
     ...createVendorServices(logger),
     updates: createNoopUpdates(),
     appInfo: createDeviceAppInfo(),
+    social: createSocialSignIn(logger),
   };
+}
+
+/** Apple and Google when their ids are in .env (ADR 0020); nothing otherwise, so no buttons show. */
+function createSocialSignIn(logger: Logger): SocialSignIn {
+  const configured =
+    env.IOS_APPLE_SIGN_IN || env.GOOGLE_WEB_CLIENT_ID !== '' || env.GOOGLE_IOS_CLIENT_ID !== '';
+  if (!configured) return createNoSocialSignIn();
+  // Loaded lazily, like Firebase: builds without sign-in never load the two native modules.
+  const { createNativeSocialSignIn } =
+    require('@/shared/adapters/native-social-sign-in') as typeof import('@/shared/adapters/native-social-sign-in');
+  return createNativeSocialSignIn(
+    {
+      googleWebClientId: env.GOOGLE_WEB_CLIENT_ID,
+      googleIosClientId: env.GOOGLE_IOS_CLIENT_ID,
+      appleEnabled: env.IOS_APPLE_SIGN_IN,
+    },
+    logger,
+  );
 }
 
 /** Firebase when it's set up for this build; logging and static defaults otherwise. */

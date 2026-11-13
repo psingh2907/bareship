@@ -1,4 +1,16 @@
 PODS:
+  - AppAuth (3.0.0):
+    - AppAuth/Core (= 3.0.0)
+    - AppAuth/ExternalUserAgent (= 3.0.0)
+  - AppAuth/Core (3.0.0)
+  - AppAuth/ExternalUserAgent (3.0.0):
+    - AppAuth/Core
+  - AppCheckCore (11.3.2):
+    - GoogleUtilities/Environment (~> 8.0)
+    - GoogleUtilities/UserDefaults (~> 8.0)
+    - PromisesObjC (~> 2.4)
+    - PromisesSwift (~> 2.4)
+    - RecaptchaInterop (~> 101.0)
   - boost (1.84.0):
     - ReactNativeDependencies
   - DoubleConversion (1.1.6):
@@ -108,6 +120,11 @@ PODS:
   - GoogleDataTransport (10.1.1):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
+  - GoogleSignIn (10.1.0):
+    - AppAuth (~> 3.0)
+    - AppCheckCore (< 13.0, >= 11.0)
+    - GTMAppAuth (~> 6.0)
+    - GTMSessionFetcher/Core (< 6.0, >= 3.3)
   - GoogleUtilities/AppDelegateSwizzler (8.1.4):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
@@ -135,6 +152,10 @@ PODS:
   - GoogleUtilities/UserDefaults (8.1.4):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
+  - GTMAppAuth (6.0.0):
+    - AppAuth/Core (~> 3.0)
+    - GTMSessionFetcher/Core (< 6.0, >= 3.3)
+  - GTMSessionFetcher/Core (5.3.1)
   - hermes-engine (250829098.0.17):
     - hermes-engine/Pre-built (= 250829098.0.17)
   - hermes-engine/Pre-built (250829098.0.17)
@@ -2010,6 +2031,9 @@ PODS:
     - React-utils (= 0.87.1)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.87.1)
+  - RecaptchaInterop (101.0.0)
+  - RNAppleAuthentication (2.5.1):
+    - React-Core
   - RNBootSplash (7.3.4):
     - hermes-engine
     - RCTRequired
@@ -2207,6 +2231,29 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - RNWorklets (>= 0.8.0)
+    - Yoga
+  - RNGoogleSignin (17.0.0):
+    - GoogleSignIn (= 10.1.0)
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-bridging
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
     - Yoga
   - RNKeychain (10.0.0):
     - hermes-engine
@@ -2695,6 +2742,7 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios/ReactCodegen`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeDependencies (from `../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
+  - "RNAppleAuthentication (from `../node_modules/@invertase/react-native-apple-authentication`)"
   - RNBootSplash (from `../node_modules/react-native-bootsplash`)
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - "RNFastImage (from `../node_modules/@d11/react-native-fast-image`)"
@@ -2704,6 +2752,7 @@ DEPENDENCIES:
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
   - "RNFBRemoteConfig (from `../node_modules/@react-native-firebase/remote-config`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
   - RNKeychain (from `../node_modules/react-native-keychain`)
   - RNLocalize (from `../node_modules/react-native-localize`)
   - RNNotifee (from `../node_modules/react-native-notify-kit`)
@@ -2717,6 +2766,8 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - AppAuth
+    - AppCheckCore
     - Firebase
     - FirebaseABTesting
     - FirebaseAnalytics
@@ -2732,7 +2783,10 @@ SPEC REPOS:
     - FirebaseSharedSwift
     - GoogleAppMeasurement
     - GoogleDataTransport
+    - GoogleSignIn
     - GoogleUtilities
+    - GTMAppAuth
+    - GTMSessionFetcher
     - libavif
     - libdav1d
     - libwebp
@@ -2741,6 +2795,7 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
     - PromisesSwift
+    - RecaptchaInterop
     - SDWebImage
     - SDWebImageAVIFCoder
     - SDWebImageSVGCoder
@@ -2930,6 +2985,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   ReactNativeDependencies:
     :podspec: "../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec"
+  RNAppleAuthentication:
+    :path: "../node_modules/@invertase/react-native-apple-authentication"
   RNBootSplash:
     :path: "../node_modules/react-native-bootsplash"
   RNDeviceInfo:
@@ -2948,6 +3005,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/remote-config"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNGoogleSignin:
+    :path: "../node_modules/@react-native-google-signin/google-signin"
   RNKeychain:
     :path: "../node_modules/react-native-keychain"
   RNLocalize:
@@ -2970,6 +3029,8 @@ EXTERNAL SOURCES:
     :path: build/rncore-facades/Yoga
 
 SPEC CHECKSUMS:
+  AppAuth: b19b479e4e20f31869ce3fc2302312dc3fce98b8
+  AppCheckCore: be8fce5469f68d7f6a29aa94b25f097409ff7fdc
   boost: 8502bfdc46e2804408af2e163049ece181009af4
   DoubleConversion: 501a575c40c0b50c89685762dd3e415e6bb26fb0
   fast_float: 7c925d1cebf8328d4018d061f49377e9f887e3b4
@@ -2991,7 +3052,10 @@ SPEC CHECKSUMS:
   glog: 3cf7cb46f743c4bc758ae3e6d9c15bd1b4cfd6d4
   GoogleAppMeasurement: d70df385587c4175fc0836c11e413d5cbcaa3c7b
   GoogleDataTransport: a24e58982ab3ba2f64d79613e027fe7f57e88539
+  GoogleSignIn: 6c0681460b202440022a4029ac0cbd71ef72068f
   GoogleUtilities: db34c1c11c6f2eccb6fab2340cb8ceb1451299dc
+  GTMAppAuth: d5a53b9611d30bb40d92293f72f12c3ac3a08321
+  GTMSessionFetcher: a6d2b2aa203485893d4511ff64642dc811f7c09f
   hermes-engine: 63c5db7d529c36335fada6582fd293ae2a105d77
   libavif: 84bbb62fb232c3018d6f1bab79beea87e35de7b7
   libdav1d: 23581a4d8ec811ff171ed5e2e05cd27bad64c39f
@@ -3085,6 +3149,8 @@ SPEC CHECKSUMS:
   ReactCodegen: 40dc327d25761b85da0e2f23db686433e56aee42
   ReactCommon: 749169e12aa3461a3df3656a00e48dbe0456b2d6
   ReactNativeDependencies: 94c922c39e0e6150ee9ad05e2ca1946e0ef55783
+  RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
+  RNAppleAuthentication: a89c9804592b38ed4ab11f0aee68d05ba12ad432
   RNBootSplash: cb275f890209996cb68463a1bd2f65c483331ac7
   RNDeviceInfo: 4c852998208b60dc192ae3529e5867817719ad1e
   RNFastImage: 1c5bae1395bf48d41f437e7521d037981a469507
@@ -3094,6 +3160,7 @@ SPEC CHECKSUMS:
   RNFBMessaging: 90bab2ad25b0e6fc61b1dda8e9dae53f48993a69
   RNFBRemoteConfig: a2505a62fe60bbb1590c932781de4095bb3bdc28
   RNGestureHandler: ccdfb6596e64fa44e21173364ac57a7374e5bb79
+  RNGoogleSignin: 817e59f034187d8b587535dfb5b8842165f692ff
   RNKeychain: 7aea80e3655a249325775c71dc5d6fd29b1ae0bd
   RNLocalize: b455f46c17ac976e0a7a83467a458f97fec6b393
   RNNotifee: 11eea68c1ce8548516204d5d59e3778c1e6b0630

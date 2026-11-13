@@ -136,8 +136,12 @@ Everything here runs without accounts; docs/going-live.md says what to add and w
 - **Deep links:** add `linking: 'path/:param'` to the screen in `RootNavigator.tsx` and the path to
   `LINK_PATHS` in `scripts/links-files.ts`. Links open on top of the tabs, and a link that arrives while signed
   out opens after sign-in (`UNSTABLE_routeNamesChangeBehavior`, covered by `App.test.tsx`).
-- **Native config from `.env`:** `APP_SCHEME`, `APP_LINK_DOMAIN`, `IOS_APS_ENVIRONMENT` feed Gradle and
-  `scripts/ios/configure-environments.rb`. Re-run that script after changing them.
+- **Sign in with Apple / Google:** `services().social` (ADR 0020). Buttons show only for providers set in
+  `.env`; with `API_MOCKS` the mock providers in `src/mocks/social.ts` stand in. The app never trusts the ID
+  token: `POST /auth/social` checks it ([docs/social-sign-in.md](docs/social-sign-in.md)).
+- **Native config from `.env`:** `APP_SCHEME`, `APP_LINK_DOMAIN`, `IOS_APS_ENVIRONMENT`, `IOS_APPLE_SIGN_IN`
+  and `GOOGLE_IOS_CLIENT_ID` feed Gradle and `scripts/ios/configure-environments.rb`. Re-run that script after
+  changing them.
 
 ## Styling
 

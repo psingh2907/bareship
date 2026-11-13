@@ -14,6 +14,7 @@ import { Stack } from '@/shared/ui/primitives/Stack';
 import { errorMessage } from '@/shared/ui/primitives/States';
 import { Text } from '@/shared/ui/primitives/Text';
 
+import { SocialSignIn } from '../components/SocialSignIn';
 import { hasErrorCode, useLogin } from '../hooks/useAuthMutations';
 import { type LoginInput, LoginInputSchema } from '../schema';
 
@@ -92,6 +93,8 @@ export function LoginScreen() {
           onPress={() => navigation.navigate('ForgotPassword')}
         />
       </Stack>
+
+      <SocialSignIn />
 
       <Stack gap="sm" align="center">
         <Text tone="muted">{t('auth.login.noAccount')}</Text>

@@ -44,6 +44,7 @@ function postDto(post: PostRecord, viewerId: string) {
 // @example-end
 
 type Credentials = { email?: string; password?: string; name?: string };
+type SocialBody = { provider?: string; idToken?: string; nonce?: string; name?: string };
 
 export const handlers = [
   http.post('*/auth/login', async ({ request }) => {
@@ -73,6 +74,33 @@ export const handlers = [
     return HttpResponse.json(
       { tokens: issueTokens(user.id), user: userDto(user) },
       { status: 201 },
+    );
+  }),
+
+  // Sign in with Apple or Google (ADR 0020). A real backend checks the ID token's signature, issuer,
+  // audience, expiry and (Apple) nonce; this one accepts the mock provider's "mock.<provider>.<email>".
+  http.post('*/auth/social', async ({ request }) => {
+    await wait();
+    const { provider, idToken = '', name } = (await request.json()) as SocialBody;
+    const [kind, tokenProvider, email] = idToken.split(/\.(.+?)\.(.+)/);
+    if (kind !== 'mock' || tokenProvider !== provider || !email) {
+      return error(401, 'invalid_token', 'The sign-in could not be verified.');
+    }
+    let user = db.current.users.find(candidate => candidate.email === email.toLowerCase());
+    const created = !user;
+    if (!user) {
+      user = {
+        id: `u_${db.current.users.length + 1}`,
+        email: email.toLowerCase(),
+        name: name ?? email.split('@')[0]!,
+        password: '',
+        avatar_url: null,
+      };
+      db.current.users.push(user);
+    }
+    return HttpResponse.json(
+      { tokens: issueTokens(user.id), user: userDto(user) },
+      { status: created ? 201 : 200 },
     );
   }),
 

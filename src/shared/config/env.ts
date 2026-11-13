@@ -25,6 +25,15 @@ const EnvSchema = z.object({
       'a bare domain, e.g. links.example.com',
     )
     .default(''),
+  /** Google sign-in (ADR 0020): the "Web application" OAuth client id. Empty: no Google button. */
+  GOOGLE_WEB_CLIENT_ID: z.string().default(''),
+  /** The "iOS" OAuth client id. iOS shows the Google button only when this is set too. */
+  GOOGLE_IOS_CLIENT_ID: z.string().default(''),
+  /** Sign in with Apple capability (needs an Apple team). Native projects read the same value. */
+  IOS_APPLE_SIGN_IN: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform(value => value === 'true'),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

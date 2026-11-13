@@ -72,6 +72,10 @@
       "submit": "Send reset link",
       "sent": "If an account exists for {{email}}, a reset link is on its way.",
       "backToSignIn": "Back to sign in"
+    },
+    "social": {
+      "or": "or",
+      "accountExists": "This email already has an account. Sign in with your email and password instead."
     }
   },
   "feed": {

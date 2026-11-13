@@ -6,6 +6,11 @@ changes.
 
 ## Unreleased
 
+- Sign in with Apple (iOS) and Google (iOS and Android) on the sign-in and register screens, behind a new
+  `SocialSignIn` port ([ADR 0020](docs/decisions/0020-sign-in-with-apple-and-google.md),
+  [guide](docs/social-sign-in.md)). The buttons appear once `GOOGLE_WEB_CLIENT_ID`, `GOOGLE_IOS_CLIENT_ID`
+  or `IOS_APPLE_SIGN_IN` are set in `.env`; with the mock backend they work with no accounts. The app sends
+  the provider's ID token to `POST /auth/social`, and sign-out also signs out of Google.
 - Each queued offline write records the account that made it, and is never sent while another account is
   signed in: it's dropped and logged instead
   ([#26](https://github.com/psingh2907/bareship/issues/26)). Before, only the sign-out flow (which clears
