@@ -16,7 +16,9 @@ The mock handlers in `src/mocks` show every request the app makes. See
 
 Not to build and run the app. Without Firebase, crash reports and analytics go to the console, feature flags use
 their defaults and notifications stay local. You need an Apple Developer team to put the iOS app on a phone with
-push or web links, and store accounts to publish. [Going live](/production/going-live/) lists each step.
+push or web links, and store accounts to publish. The Apple and Google sign-in buttons work with mock providers
+until you add your own OAuth ids ([Apple and Google sign-in](/build/social-sign-in/)). [Going live](/production/going-live/)
+lists each step.
 
 ### Which platforms and versions are supported?
 

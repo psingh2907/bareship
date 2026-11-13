@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0FD18AB885E827024CFFE7B4 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DEB010F8CEF0E6B04BB830B /* SceneDelegate.swift */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		4C0F139056839A7BB2C37547 /* SignInSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F1F7D302305CF32A72D07E23 /* SignInSans-Medium.ttf */; };
 		5F5BCB10279E4E29BEBBC3AD /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFF966AE535A4B9D8C50B335 /* Colors.xcassets */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		CDED6A1EF318F625EAFA3C46 /* Pods_BareshipApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E565E53F239D7C26E789A6E /* Pods_BareshipApp.framework */; };
@@ -41,6 +42,7 @@
 		D9FE025F73A005E587589BCA /* Prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Prod.xcconfig; sourceTree = "<group>"; };
 		E0C7FCB444DF4A3DA16E1874 /* BootSplash.storyboard */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = BootSplash.storyboard; path = BareshipApp/BootSplash.storyboard; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F1F7D302305CF32A72D07E23 /* SignInSans-Medium.ttf */ = {isa = PBXFileReference; includeInIndex = 1; path = "SignInSans-Medium.ttf"; sourceTree = "<group>"; };
 		F21292C4A784E6AE40DD9FB5 /* Dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Dev.xcconfig; sourceTree = "<group>"; };
 		F312A1D804533DACA6981A6B /* Debug-Staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Debug-Staging.xcconfig"; sourceTree = "<group>"; };
 		FFF7AD0630C91A1492638EC4 /* Pods-BareshipApp.debug-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BareshipApp.debug-dev.xcconfig"; path = "Target Support Files/Pods-BareshipApp/Pods-BareshipApp.debug-dev.xcconfig"; sourceTree = "<group>"; };
@@ -98,6 +100,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		32ED6FA41026A77C9A9CAC7D /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				F1F7D302305CF32A72D07E23 /* SignInSans-Medium.ttf */,
+			);
+			name = Fonts;
+			path = ../assets/fonts;
+			sourceTree = SOURCE_ROOT;
+		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
@@ -114,6 +125,7 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
 				2CB335A47A55DD5EB2588F3B /* Config */,
+				32ED6FA41026A77C9A9CAC7D /* Fonts */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -210,6 +222,7 @@
 				D8E579FE0B084CB4853A05B3 /* BootSplash.storyboard in Resources */,
 				5F5BCB10279E4E29BEBBC3AD /* Colors.xcassets in Resources */,
 				E15A93F31792E503F25D8D20 /* PrivacyInfo.xcprivacy in Resources */,
+				4C0F139056839A7BB2C37547 /* SignInSans-Medium.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

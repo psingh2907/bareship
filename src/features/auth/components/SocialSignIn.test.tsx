@@ -21,7 +21,7 @@ describe('SocialSignIn', () => {
     await renderWithProviders(<SocialSignIn />);
 
     expect(screen.getByRole('button', { name: 'Apple' })).toBeOnTheScreen();
-    await user.press(screen.getByRole('button', { name: 'Google' }));
+    await user.press(screen.getByRole('button', { name: 'Continue with Google' }));
 
     await waitFor(() => expect(useSession.getState().status).toBe('signedIn'));
     expect(useSession.getState().user?.email).toBe('demo@example.com');
@@ -33,9 +33,11 @@ describe('SocialSignIn', () => {
     const user = userEvent.setup();
     await renderWithProviders(<SocialSignIn />);
 
-    await user.press(screen.getByRole('button', { name: 'Google' }));
+    await user.press(screen.getByRole('button', { name: 'Continue with Google' }));
 
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Google' })).toBeEnabled());
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Continue with Google' })).toBeEnabled(),
+    );
     expect(useSession.getState().status).toBe('signedOut');
     expect(screen.queryByTestId('social-error')).not.toBeOnTheScreen();
   });
@@ -51,7 +53,7 @@ describe('SocialSignIn', () => {
     const user = userEvent.setup();
     await renderWithProviders(<SocialSignIn />);
 
-    await user.press(screen.getByRole('button', { name: 'Google' }));
+    await user.press(screen.getByRole('button', { name: 'Continue with Google' }));
 
     expect(await screen.findByTestId('social-error')).toBeOnTheScreen();
     expect(useSession.getState().status).toBe('signedOut');
@@ -61,9 +63,9 @@ describe('SocialSignIn', () => {
     setServices({ social: createMockSocialSignIn() });
     await renderWithProviders(<SocialSignIn />);
     await act(async () => onlineManager.setOnline(false));
-    expect(screen.getByRole('button', { name: 'Google' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Continue with Google' })).toBeDisabled();
     await act(async () => onlineManager.setOnline(true));
-    expect(screen.getByRole('button', { name: 'Google' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Continue with Google' })).toBeEnabled();
   });
 
   it('forgets the provider session on sign-out', async () => {

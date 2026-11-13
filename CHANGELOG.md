@@ -6,6 +6,11 @@ changes.
 
 ## Unreleased
 
+- The "Continue with Google" button follows Google's current branding guidelines on iOS and Android: the
+  2025 gradient "G", Google Sans Medium, Google's light and dark colours and its padding per platform. It
+  replaces the library's older native button, and its text now follows the app's language (Hindi
+  included). The Apple button matches its height and corners. Adds `assets/fonts/SignInSans-Medium.ttf`,
+  a trimmed copy of Google Sans (OFL 1.1).
 - With the theme set to "System", the app now follows a light/dark switch while it's open on both platforms.
   Unistyles 3.5 missed some OS switches (most often the first one after launch) until the next switch or a
   restart; the app now re-applies the adaptive theme on React Native's appearance event and when it returns

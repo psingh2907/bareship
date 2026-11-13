@@ -75,7 +75,8 @@
     },
     "social": {
       "or": "or",
-      "accountExists": "This email already has an account. Sign in with your email and password instead."
+      "accountExists": "This email already has an account. Sign in with your email and password instead.",
+      "continueWithGoogle": "Continue with Google"
     }
   },
   "feed": {

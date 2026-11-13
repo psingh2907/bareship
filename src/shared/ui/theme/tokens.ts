@@ -22,6 +22,15 @@ export const feedback = {
   warning: { light: '#9A5A00', dark: '#E3A54E' },
 } as const;
 
+/**
+ * "Sign in with Google" button colours. Fixed by Google's branding guidelines
+ * (https://developers.google.com/identity/branding-guidelines): never restyle them with the app's brand.
+ */
+export const googleSignIn = {
+  light: { fill: '#FFFFFF', stroke: '#747775', text: '#1F1F1F' },
+  dark: { fill: '#131314', stroke: '#8E918F', text: '#E3E3E3' },
+} as const;
+
 /** 4 pt grid. */
 export const spacing = {
   none: 0,
