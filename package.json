@@ -90,7 +90,7 @@
     "react-native-unistyles": "3.5.1",
     "react-native-worklets": "0.13.0",
     "relative-time-format": "1.1.12",
-    "zod": "4.6.5",
+    "zod": "4.6.6",
     "zustand": "5.0.15"
   },
   "devDependencies": {
