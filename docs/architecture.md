@@ -36,7 +36,9 @@ Every write picks an offline pattern (AGENTS.md › Offline). The reference is a
 (pattern B), as in the demo's like button (`useToggleLike` in `features/feed/api.ts`):
 
 1. `onMutate`: cancel in-flight queries, patch every cached copy optimistically.
-2. Request goes out with an `Idempotency-Key` (safe to retry).
+2. Request goes out with an `Idempotency-Key` (safe to retry), but only while the account that queued it
+   is still signed in. Scope idempotency keys per user on the server, so a replayed key never matches
+   another account's record.
 3. `onError`: restore the previous copy and show a toast.
 4. `onSuccess`: adopt the server's copy (write endpoints return the updated resource; no follow-up GET).
 
