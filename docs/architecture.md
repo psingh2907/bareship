@@ -76,6 +76,36 @@ export function useWaitingTasks(): ReadonlySet<string> {
 
 `updateTask` applies a change to every cached copy (list pages and detail), like `updatePost` in the demo.
 
+### Writes that depend on each other
+
+Writes in one scope replay in order, and by default a failed write doesn't stop the ones behind it. That's
+right for independent writes (each like stands alone) but not for a chain such as "create a draft, then edit
+it": if the create fails, the edit can't succeed. Give the chain one `scope` and set
+`onRejected: 'cancel-scope'` on the write the others depend on:
+
+```ts
+export const useCreateDraft = defineQueuedMutation<Draft, { draftId: string; title: string }>({
+  mutationKey: ['drafts', 'create'],
+  scope: 'drafts',
+  onRejected: 'cancel-scope', // if this fails for good, drop the drafts writes queued behind it
+  mutationFn: …,
+});
+
+export const useEditDraft = defineQueuedMutation<Draft, { draftId: string; body: string }>({
+  mutationKey: ['drafts', 'edit'],
+  scope: 'drafts',
+  mutationFn: …,
+  onError: (error, { draftId }) => {
+    // Runs for a cancelled edit too (error.kind === 'cancelled'): undo its optimistic update.
+  },
+});
+```
+
+"Fails for good" means the server refused the write, or it still failed after the HTTP client's retries.
+Going offline isn't a failure: the queue pauses. A cancellation covers every write queued in the scope at
+that moment, so keep the scope to writes that really depend on each other. If the app is killed between the
+failure and the next launch, the writes behind it go out and fail on their own, as with `'continue'`.
+
 ## Session
 
 `entities/session` holds a small state machine (`unknown → signedOut | signedIn`) in Zustand. Tokens live only

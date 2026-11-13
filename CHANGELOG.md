@@ -10,6 +10,10 @@ changes.
   signed in: it's dropped and logged instead
   ([#26](https://github.com/psingh2907/bareship/issues/26)). Before, only the sign-out flow (which clears
   the queue) prevented this. Writes queued by older versions replay as before.
+- Queued offline writes take `onRejected: 'cancel-scope'`: when such a write fails for good, the writes
+  queued behind it in its scope (an edit of a draft whose create failed) are never sent, and each rolls back
+  in its `onError` ([#27](https://github.com/psingh2907/bareship/issues/27)). The default, `'continue'`, is
+  unchanged.
 - Switching the language updates the title of a screen pushed over the tabs (the component showroom)
   and its iOS back-button label at once, without a restart. The back label is now the tab underneath
   ("Settings") instead of the route name "Main".
