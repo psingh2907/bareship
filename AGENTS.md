@@ -107,6 +107,9 @@ Every write picks one offline pattern (ADR 0006, after Expensify):
 - Each queued write records the signed-in account (`setQueueAccount` in `src/app/boot.ts`) and only runs
   while that account is signed in; a write from another account is dropped and logged, never sent with
   the current token. Your backend should scope idempotency keys per user too.
+- A failed write doesn't stop the writes queued behind it, unless it sets `onRejected: 'cancel-scope'`: use
+  that for dependent writes (create, then edit) sharing one `scope`. Cancelled writes get an `ApiError` of
+  kind `'cancelled'` in their `onError` and roll back there ([Writing data](docs/architecture.md#writes-that-depend-on-each-other)).
 - Define queued writes at module level and do cache updates in their callbacks: after a restart the
   screen that started the write is gone. Keep variables small and JSON-safe (ids and flags).
 - Import every module that defines a queued write from `src/app/queued-writes.ts`. Metro loads

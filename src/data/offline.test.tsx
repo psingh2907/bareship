@@ -5,10 +5,12 @@ import type { ReactNode } from 'react';
 import { z } from 'zod';
 
 import { server } from '@/mocks/node';
+import type { ApiError } from '@/shared/api/errors';
 import { http } from '@/shared/api/http';
 import { services } from '@/shared/services/services';
 
 import {
+  CANCELLED_BY_EARLIER_WRITE,
   defineQueuedMutation,
   resumeQueuedWrites,
   setQueueAccount,
@@ -157,6 +159,121 @@ describe('queued writes and accounts', () => {
     await act(async () => result.current.write.mutate({ n: 2 }));
     await goOnline();
     await waitFor(() => expect(sent.map(write => write.n)).toEqual([2]));
+  });
+});
+
+// A dependent chain: create a draft, then edit it. Both share one scope so they run in order.
+const Ok = z.object({ ok: z.boolean() });
+function defineChain(onRejected: 'continue' | 'cancel-scope') {
+  const editErrors: ApiError[] = [];
+  const useCreate = defineQueuedMutation<{ ok: boolean }, { fail: boolean }>({
+    mutationKey: ['chain', onRejected, 'create'],
+    scope: `chain-${onRejected}`,
+    onRejected,
+    mutationFn: ({ fail, idempotencyKey }) =>
+      http.post('/drafts', Ok, { body: { fail }, idempotencyKey }),
+  });
+  const useEdit = defineQueuedMutation<{ ok: boolean }, { n: number }>({
+    mutationKey: ['chain', onRejected, 'edit'],
+    scope: `chain-${onRejected}`,
+    mutationFn: ({ n, idempotencyKey }) =>
+      http.post('/drafts/edit', Ok, { body: { n }, idempotencyKey }),
+    onError: error => {
+      editErrors.push(error);
+    },
+  });
+  return { useCreate, useEdit, editErrors };
+}
+const continueChain = defineChain('continue');
+const cancelChain = defineChain('cancel-scope');
+
+function captureChain() {
+  const edits: number[] = [];
+  server.use(
+    mock.post('*/drafts', async ({ request }) => {
+      const { fail } = (await request.json()) as { fail: boolean };
+      return fail
+        ? HttpResponse.json({ code: 'invalid_draft' }, { status: 422 })
+        : HttpResponse.json({ ok: true });
+    }),
+    mock.post('*/drafts/edit', async ({ request }) => {
+      edits.push(((await request.json()) as { n: number }).n);
+      return HttpResponse.json({ ok: true });
+    }),
+  );
+  return edits;
+}
+
+async function renderChain(chain: ReturnType<typeof defineChain>) {
+  return renderHook(
+    () => ({
+      create: chain.useCreate(),
+      edit: chain.useEdit(),
+      waiting: useWaitingWriteCount(),
+    }),
+    { wrapper },
+  );
+}
+
+describe('a write that fails, with onRejected', () => {
+  it("'continue' (default): the writes queued behind it still run", async () => {
+    const edits = captureChain();
+    const { result } = await renderChain(continueChain);
+    await goOffline();
+    await act(async () => {
+      result.current.create.mutate({ fail: true });
+      result.current.edit.mutate({ n: 1 });
+    });
+
+    await goOnline();
+    await waitFor(() => expect(edits).toEqual([1]));
+  });
+
+  it("'cancel-scope': the writes queued behind it are never sent, and each one rolls back", async () => {
+    const edits = captureChain();
+    const { result } = await renderChain(cancelChain);
+    await goOffline();
+    await act(async () => {
+      result.current.create.mutate({ fail: true });
+      result.current.edit.mutate({ n: 1 });
+      result.current.edit.mutate({ n: 2 });
+    });
+    await waitFor(() => expect(result.current.waiting).toBe(3));
+
+    await goOnline();
+    await waitFor(() => expect(cancelChain.editErrors).toHaveLength(2));
+    expect(edits).toEqual([]);
+    expect(cancelChain.editErrors.map(error => [error.kind, error.details.code])).toEqual([
+      ['cancelled', CANCELLED_BY_EARLIER_WRITE],
+      ['cancelled', CANCELLED_BY_EARLIER_WRITE],
+    ]);
+    cancelChain.editErrors.length = 0;
+  });
+
+  it("'cancel-scope': writes made after the failure run normally", async () => {
+    const edits = captureChain();
+    const { result } = await renderChain(cancelChain);
+    await act(async () => result.current.create.mutate({ fail: true }));
+    await waitFor(() => expect(result.current.create.isError).toBe(true));
+
+    await act(async () => result.current.edit.mutate({ n: 3 }));
+    await waitFor(() => expect(edits).toEqual([3]));
+    expect(cancelChain.editErrors).toHaveLength(0);
+  });
+
+  it("'cancel-scope': when nothing fails, every write runs in order", async () => {
+    const edits = captureChain();
+    const { result } = await renderChain(cancelChain);
+    await goOffline();
+    await act(async () => {
+      result.current.create.mutate({ fail: false });
+      result.current.edit.mutate({ n: 4 });
+      result.current.edit.mutate({ n: 5 });
+    });
+
+    await goOnline();
+    await waitFor(() => expect(edits).toEqual([4, 5]));
+    expect(cancelChain.editErrors).toHaveLength(0);
   });
 });
 
