@@ -73,7 +73,7 @@ write queue, Keychain token storage, enforced architecture, optional Firebase an
 run it, or install it on a phone: the dev build serves sample data from a mock backend inside the app. You
 add each service when you need it ([going live](docs/going-live.md)).
 
-> **Status: 0.3.2, on npm and as a GitHub template.** `npx create-bareship` creates an app in one command. An
+> **Status: 0.4.0, on npm and as a GitHub template.** `npx create-bareship` creates an app in one command. An
 > app made from the npm package builds and runs on iOS and Android, and the fastlane release builds pass on
 > both. CI checks every pull request. Next: proving the native CI builds. See the [roadmap](#roadmap) and
 > [known limitations](#known-limitations).
@@ -323,13 +323,14 @@ independent; the rest of the app keeps working without it.
 - **The demo build is Android-only.** iOS needs a signed build, so use the simulator.
 - **Firebase is tested without real projects.** The fallbacks are tested on devices; Crashlytics on iOS
   hasn't run against a real Firebase config yet.
-- **Firebase stops publishing new iOS SDKs to CocoaPods after October 2026.** The pinned versions stay
-  installable; the iOS setup moves when React Native Firebase changes how it ships
+- **Firebase and Google Sign-In are leaving CocoaPods.** Firebase publishes no new iOS SDKs to CocoaPods
+  after October 2026, and CocoaPods now marks GoogleSignIn as deprecated. The pinned versions stay
+  installable; the iOS setup moves when React Native Firebase and google-signin change how they ship
   ([ADR 0010](docs/decisions/0010-production-modules-and-firebase.md)).
 
 ## Roadmap
 
-**Released (0.1 to 0.3)**
+**Released (0.1 to 0.4)**
 
 | Area | What's included |
 | --- | --- |
@@ -340,6 +341,7 @@ independent; the rest of the app keeps working without it.
 | Distribution | npm package `bareship`, GitHub template, `pnpm strip-examples`, MIT license, [website](https://bareship.praveensingh.co.in) |
 | Languages (0.2) | English and Hindi, right-to-left as a switch per language, a lint rule for `start`/`end`, a [languages guide](docs/languages.md) |
 | Installer (0.3) | `npx create-bareship Acme` (or `npx bareship Acme`) checks the tools and creates the app in one command ([ADR 0018](docs/decisions/0018-create-bareship.md)) |
+| Sign-in and offline (0.4) | Sign in with Apple and Google behind a port, drawn to each provider's branding rules, with mock providers until you add your ids and `pnpm remove-social-sign-in` if you don't want it ([ADR 0020](docs/decisions/0020-sign-in-with-apple-and-google.md)); queued writes bound to their account; `onRejected: 'cancel-scope'` for dependent writes; the light/dark switch followed live |
 
 **Next**
 
@@ -347,9 +349,6 @@ independent; the rest of the app keeps working without it.
 | --- | --- |
 | CI checks on every pull request, required to merge | Done |
 | Native CI builds passing: Android memory use, Xcode 27 on the macOS runner | Next |
-| Right-to-left text alignment on iOS | Done |
-| Screen titles that follow a language switch without a restart, and the iOS back-button label | Done |
-| Sign in with Apple and Google ([ADR 0020](docs/decisions/0020-sign-in-with-apple-and-google.md)) | Done |
 | End-to-end tests with Maestro | Postponed |
 | Performance tooling: Reassure render baselines, startup metrics, a bundle report | Postponed |
 | An Expo (CNG) version that shares the same `src/` | Later |
