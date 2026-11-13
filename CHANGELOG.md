@@ -6,6 +6,10 @@ changes.
 
 ## Unreleased
 
+- Each queued offline write records the account that made it, and is never sent while another account is
+  signed in: it's dropped and logged instead
+  ([#26](https://github.com/psingh2907/bareship/issues/26)). Before, only the sign-out flow (which clears
+  the queue) prevented this. Writes queued by older versions replay as before.
 - Switching the language updates the title of a screen pushed over the tabs (the component showroom)
   and its iOS back-button label at once, without a restart. The back label is now the tab underneath
   ("Settings") instead of the route name "Main".

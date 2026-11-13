@@ -104,6 +104,9 @@ Every write picks one offline pattern (ADR 0006, after Expensify):
 
 - Plain `useMutation` writes fail fast offline (`networkMode: 'always'`). Only `defineQueuedMutation`
   writes wait, survive a restart, and replay in order with one `Idempotency-Key` per write.
+- Each queued write records the signed-in account (`setQueueAccount` in `src/app/boot.ts`) and only runs
+  while that account is signed in; a write from another account is dropped and logged, never sent with
+  the current token. Your backend should scope idempotency keys per user too.
 - Define queued writes at module level and do cache updates in their callbacks: after a restart the
   screen that started the write is gone. Keep variables small and JSON-safe (ids and flags).
 - Import every module that defines a queued write from `src/app/queued-writes.ts`. Metro loads

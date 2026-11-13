@@ -1,6 +1,7 @@
 import type { AxiosAdapter } from 'axios';
 import { AppState } from 'react-native';
 
+import { setQueueAccount } from '@/data/offline';
 import { useAppStatus } from '@/entities/app-status/app-status-store';
 import { refreshTokens } from '@/entities/session/api';
 import { useSession } from '@/entities/session/session-store';
@@ -57,6 +58,8 @@ export function boot(): Promise<void> {
     });
 
     setupQueryLifecycle();
+    // Queued writes run only for the account that made them (ADR 0006).
+    setQueueAccount(() => useSession.getState().user?.id ?? null);
     // Before the first screen: flags activated on the last launch can already block this version.
     useAppStatus.getState().evaluate();
     await useSession.getState().hydrate();

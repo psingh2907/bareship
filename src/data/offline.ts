@@ -19,6 +19,7 @@ import { queryClient } from './query-client';
  * - paused writes are saved with the query cache, so they also survive the app being killed
  * - every write carries one `idempotencyKey` for all its attempts, so a replay is never applied twice
  * - writes with the same scope run one at a time, in the order they were made
+ * - every write records the account that made it, and is never sent for another account
  *
  * Define the write once, at module level, and import that module from src/app/queued-writes.ts:
  * Metro loads modules lazily (inlineRequires), and a write restored after a restart needs its
@@ -34,7 +35,36 @@ import { queryClient } from './query-client';
  * do the cache work in these callbacks rather than in the screen, because after a restart the
  * screen that started the write is gone.
  */
-export type Queued<TVariables> = TVariables & { idempotencyKey: string };
+export type Queued<TVariables> = TVariables & {
+  idempotencyKey: string;
+  /**
+   * The signed-in account when the write was queued (null: no one). Writes saved before this field
+   * existed have none, and replay as before: the queue never outlived a sign-out then either.
+   */
+  accountId?: string | null;
+};
+
+let currentAccount: () => string | null = () => null;
+
+/**
+ * Tells the queue who is signed in (the data layer can't import the session). Call once at boot.
+ * A queued write only runs while the account that made it is signed in, so a write queued by one
+ * person is never sent with someone else's token, even if the queue outlives a sign-out.
+ */
+export function setQueueAccount(getAccountId: () => string | null): void {
+  currentAccount = getAccountId;
+}
+
+function belongsToCurrentAccount(variables: { accountId?: string | null }): boolean {
+  return variables.accountId === undefined || variables.accountId === currentAccount();
+}
+
+/** Thrown instead of sending a write that belongs to another account. Never shown to the user. */
+class OtherAccountWriteError extends Error {
+  constructor() {
+    super('Skipped a queued write made by another account');
+  }
+}
 
 export type QueuedMutationOptions<TData, TVariables> = {
   /** Names the write in the saved queue. Keep it stable across app versions. */
@@ -53,11 +83,22 @@ export function defineQueuedMutation<TData, TVariables extends object>(
 ) {
   const { mutationKey, mutationFn, scope, onMutate, onError, onSuccess } = options;
   queryClient.setMutationDefaults(mutationKey, {
-    mutationFn,
+    // Checked when the write is sent, not when it's queued: the account can change while it waits.
+    mutationFn: (variables: Queued<TVariables>) => {
+      if (!belongsToCurrentAccount(variables)) throw new OtherAccountWriteError();
+      return mutationFn(variables);
+    },
     networkMode: 'online', // pause while offline instead of failing
     scope: { id: scope ?? JSON.stringify(mutationKey) },
     onMutate: variables => onMutate?.(variables as Queued<TVariables>),
-    onError: (error, variables) => onError?.(error as ApiError, variables as Queued<TVariables>),
+    onError: (error, variables) => {
+      if (error instanceof OtherAccountWriteError) {
+        // Not this user's write: don't roll back or report it to them.
+        services().logger.warn(error.message, { mutationKey: JSON.stringify(mutationKey) });
+        return;
+      }
+      return onError?.(error as ApiError, variables as Queued<TVariables>);
+    },
     onSuccess: (data, variables) => onSuccess?.(data as TData, variables as Queued<TVariables>),
   });
 
@@ -65,9 +106,9 @@ export function defineQueuedMutation<TData, TVariables extends object>(
     const mutation = useMutation<TData, ApiError, Queued<TVariables>>({ mutationKey });
     return {
       ...mutation,
-      /** Adds the idempotency key; the write itself (and its retries) happen in the background. */
+      /** Adds the idempotency key and the account; the write itself happens in the background. */
       mutate: (variables: TVariables) =>
-        mutation.mutate({ ...variables, idempotencyKey: createId() }),
+        mutation.mutate({ ...variables, idempotencyKey: createId(), accountId: currentAccount() }),
     };
   };
 }
@@ -108,7 +149,8 @@ export function hasLaterWrite<TVariables>(
  * Replays queued writes restored from the saved cache. Call once at startup, after the HTTP client
  * and the session are ready. Each write gets its current definition first; a write with no
  * definition (its module isn't imported from src/app/queued-writes.ts, or it was removed in an app
- * update) is dropped and reported instead of failing with "No mutationFn found".
+ * update) is dropped and reported instead of failing with "No mutationFn found". A write made by
+ * another account than the one signed in now is dropped too.
  */
 export async function resumeQueuedWrites(): Promise<void> {
   const cache = queryClient.getMutationCache();
@@ -120,6 +162,13 @@ export async function resumeQueuedWrites(): Promise<void> {
         'Dropped a queued write with no definition. Import its module from src/app/queued-writes.ts.',
         { mutationKey: JSON.stringify(mutationKey ?? null) },
       );
+      cache.remove(mutation);
+      continue;
+    }
+    if (!belongsToCurrentAccount(mutation.state.variables as { accountId?: string | null })) {
+      services().logger.warn('Dropped a queued write made by another account.', {
+        mutationKey: JSON.stringify(mutationKey),
+      });
       cache.remove(mutation);
       continue;
     }

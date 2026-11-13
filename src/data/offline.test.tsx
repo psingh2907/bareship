@@ -8,7 +8,12 @@ import { server } from '@/mocks/node';
 import { http } from '@/shared/api/http';
 import { services } from '@/shared/services/services';
 
-import { defineQueuedMutation, resumeQueuedWrites, useWaitingWriteCount } from './offline';
+import {
+  defineQueuedMutation,
+  resumeQueuedWrites,
+  setQueueAccount,
+  useWaitingWriteCount,
+} from './offline';
 import { createPersistOptions } from './persister';
 import { queryClient } from './query-client';
 
@@ -109,6 +114,52 @@ describe('queued writes', () => {
   });
 });
 
+describe('queued writes and accounts', () => {
+  let account: string | null = 'u_1';
+  beforeEach(() => {
+    account = 'u_1';
+    setQueueAccount(() => account);
+  });
+  afterEach(() => setQueueAccount(() => null));
+
+  it('record the account that made them', async () => {
+    const { result } = await renderWrite();
+    await goOffline();
+    await act(async () => result.current.write.mutate({ n: 1 }));
+
+    const [queued] = queryClient.getMutationCache().getAll();
+    expect(queued?.state.variables).toMatchObject({ n: 1, accountId: 'u_1' });
+  });
+
+  it('are never sent once another account is signed in', async () => {
+    const sent = captureWrites();
+    const warn = jest.spyOn(services().logger, 'warn');
+    const { result } = await renderWrite();
+    await goOffline();
+    await act(async () => result.current.write.mutate({ n: 1 }));
+    await waitFor(() => expect(result.current.waiting).toBe(1));
+
+    account = 'u_2'; // a different person signs in on the same device while the write waits
+    await goOnline();
+
+    await waitFor(() => expect(result.current.waiting).toBe(0));
+    expect(sent).toHaveLength(0);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('another account'),
+      expect.anything(),
+    );
+  });
+
+  it('are sent when the same account is still signed in', async () => {
+    const sent = captureWrites();
+    const { result } = await renderWrite();
+    await goOffline();
+    await act(async () => result.current.write.mutate({ n: 2 }));
+    await goOnline();
+    await waitFor(() => expect(sent.map(write => write.n)).toEqual([2]));
+  });
+});
+
 describe('ordinary writes', () => {
   it('fail fast instead of waiting while offline (a sign-in never runs later by surprise)', async () => {
     await goOffline();
@@ -122,7 +173,7 @@ describe('ordinary writes', () => {
 
 describe('resumeQueuedWrites', () => {
   // Saved state for one paused write, as the persister stores it after the app is killed.
-  const savedWrite = (mutationKey: string[]) => ({
+  const savedWrite = (mutationKey: string[], accountId?: string) => ({
     queries: [],
     mutations: [
       {
@@ -136,7 +187,7 @@ describe('resumeQueuedWrites', () => {
           failureReason: null,
           isPaused: true,
           status: 'pending' as const,
-          variables: { n: 9, idempotencyKey: 'restored-key' },
+          variables: { n: 9, idempotencyKey: 'restored-key', accountId },
           submittedAt: 1,
         },
       },
@@ -167,5 +218,26 @@ describe('resumeQueuedWrites', () => {
       expect.stringContaining('src/app/queued-writes.ts'),
       expect.anything(),
     );
+  });
+
+  it("drops a saved write made by another account instead of sending it with this one's token", async () => {
+    setQueueAccount(() => 'u_2');
+    hydrate(queryClient, savedWrite(['test', 'write'], 'u_1'));
+    const sent = captureWrites();
+
+    await act(() => resumeQueuedWrites());
+    expect(sent).toHaveLength(0);
+    expect(queryClient.getMutationCache().getAll()).toHaveLength(0);
+    setQueueAccount(() => null);
+  });
+
+  it('replays a saved write of the signed-in account', async () => {
+    setQueueAccount(() => 'u_1');
+    hydrate(queryClient, savedWrite(['test', 'write'], 'u_1'));
+    const sent = captureWrites();
+
+    await act(() => resumeQueuedWrites());
+    expect(sent).toEqual([{ n: 9, key: 'restored-key' }]);
+    setQueueAccount(() => null);
   });
 });
