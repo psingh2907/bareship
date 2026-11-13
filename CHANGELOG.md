@@ -6,6 +6,10 @@ changes.
 
 ## Unreleased
 
+- With the theme set to "System", the app now follows a light/dark switch while it's open on both platforms.
+  Unistyles 3.5 missed some OS switches (most often the first one after launch) until the next switch or a
+  restart; the app now re-applies the adaptive theme on React Native's appearance event and when it returns
+  to the foreground (`followSystemAppearance` in `src/shared/ui/theme/preference.ts`).
 - Sign in with Apple (iOS) and Google (iOS and Android) on the sign-in and register screens, behind a new
   `SocialSignIn` port ([ADR 0020](docs/decisions/0020-sign-in-with-apple-and-google.md),
   [guide](docs/social-sign-in.md)). The buttons appear once `GOOGLE_WEB_CLIENT_ID`, `GOOGLE_IOS_CLIENT_ID`

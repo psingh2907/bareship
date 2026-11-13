@@ -17,6 +17,7 @@ import { useSession } from '@/entities/session/session-store';
 import { MaintenanceScreen, UpdateRequiredScreen } from '@/features/app-status';
 import { services } from '@/shared/services/services';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
+import { followSystemAppearance } from '@/shared/ui/theme/preference';
 import { ToastHost } from '@/shared/ui/toast/ToastHost';
 
 import { afterBoot, boot } from './boot';
@@ -32,6 +33,9 @@ export function App() {
   const [restored, setRestored] = useState(false);
   const status = useSession(state => state.status);
   const appStatus = useAppStatus(state => state.status);
+
+  // The "system" theme follows the OS while the app runs (see followSystemAppearance).
+  useEffect(followSystemAppearance, []);
 
   useEffect(() => {
     boot().finally(() => {
