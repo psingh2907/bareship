@@ -22,6 +22,24 @@ backend provides both, so you can try the flow with no accounts
 
 Apple is iOS only. Cancelling a sheet does nothing, and offline the buttons are disabled.
 
+## The buttons
+
+Both follow their provider's branding rules, and they share one height and corner radius so neither looks
+more important (Google asks for that).
+
+| | Apple (iOS) | Google (iOS and Android) |
+| --- | --- | --- |
+| Drawn by | Apple's own `ASAuthorizationAppleIDButton` | `SocialButton` in `src/shared/ui/primitives`, to [Google's guidelines](https://developers.google.com/identity/branding-guidelines) |
+| Text | "Continue with Apple", in the phone's language | "Continue with Google" from the app's strings, so it follows the app's language |
+| Light / dark | Black / white | White with a #747775 border / #131314 with a #8E918F border |
+| Size | 44 pt tall, 4 pt corners | 44 pt tall on iOS, 40 dp on Android, 4-point corners |
+
+The Google button uses Google's official "G" (`google-g.png`, 20 points, never recoloured) and Google Sans
+Medium 14/20, shipped as `assets/fonts/SignInSans-Medium.ttf` (a trimmed, renamed copy under the Open Font
+License; [assets/fonts/README.md](../assets/fonts/README.md) says how it was made). Padding before the G,
+between the G and the text, and after the text is 16 / 12 / 16 on iOS and 12 / 10 / 12 on Android, as in
+Google's tables. Don't restyle it with your brand colours: Google's rules don't allow it.
+
 ## Try it without accounts
 
 With `API_MOCKS=true` (the dev environment's default) both buttons show and sign you in as the demo user.

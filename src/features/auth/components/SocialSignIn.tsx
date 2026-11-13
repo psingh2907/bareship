@@ -42,6 +42,7 @@ export function SocialSignIn() {
         <SocialButton
           key={provider}
           provider={provider}
+          label={t('auth.social.continueWithGoogle')}
           disabled={!online || social.isPending}
           onPress={() => social.mutate(provider)}
           testID={`social-${provider}`}

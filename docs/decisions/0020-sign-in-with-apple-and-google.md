@@ -35,6 +35,11 @@ Two libraries matter:
 - **Mock providers with the mock backend.** When `API_MOCKS` is on (and in the demo APK), the buttons return
   a mock token that the mock backend accepts, so the flow works with no Google Cloud project or Apple team.
 - **The providers' own buttons** (`AppleButton`, `GoogleSigninButton`), so the branding follows their rules.
+  Updated 2026-11-13: the Google button is now drawn in `SocialButton` to Google's current branding guidelines
+  (the 2025 gradient "G", Google Sans Medium, Google's colours and padding per platform), because the
+  library's native button is the old style and is labelled in the phone's language rather than the app's.
+  Apple's stays native. Google Sans ships as a trimmed copy renamed SignInSans (OFL 1.1; the trademark terms
+  don't let a modified font keep its name).
 - **Free Google library.** The deprecated Android API is a known limitation; the port makes swapping in the
   paid library, or a Credential Manager adapter, a change to one file.
 - **Sign-out** also signs out of Google, so the account chooser shows next time.

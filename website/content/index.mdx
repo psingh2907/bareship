@@ -168,7 +168,8 @@ You don't need a backend, a Firebase project or an Apple Developer team to build
 phone. Development builds serve sample data from a mock backend inside the app, and every service falls back
 when its account is missing:
 
-- **No backend:** the mock backend answers sign-in, the feed and every other request.
+- **No backend:** the mock backend answers sign-in (Apple and Google included), the feed and every other
+  request.
 - **No Firebase:** crash reports and analytics go to the console, feature flags use their defaults, and
   notifications stay local.
 - **No Apple or Google account:** debug builds run on simulators and emulators, and a demo APK installs on any
@@ -206,9 +207,11 @@ The rules your team follows are written down where coding agents read them, and 
 ## What's inside
 
 <CardGrid>
-  <Card title="Tokens in the Keychain" icon="padlock">
-    Access and refresh tokens live in the iOS Keychain and Android Keystore, never in plain storage.
-    One refresh serves every request waiting on it. [Session](/build/architecture/#session)
+  <Card title="Sign-in, done properly" icon="padlock">
+    Email, Apple and Google sign-in, with tokens in the iOS Keychain and Android Keystore. The Apple
+    and Google buttons follow each provider's branding rules and work with mock providers until you
+    add your ids. [Session](/build/architecture/#session) · [Apple and
+    Google](/build/social-sign-in/)
   </Card>
   <Card title="Firebase when you want it" icon="analytics">
     Crashlytics, Analytics, Remote Config and push switch on when you add a Firebase file, and fall

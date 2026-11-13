@@ -54,7 +54,7 @@ needs a real `GoogleService-Info.plist` (made conditional in Phase 3). See docs/
 | react-native-bootsplash | 7.3.4 | Splash | ✓ | ✓ | Pulls `@expo/config-plugins` (trust exception in pnpm policy) |
 | @react-native-firebase/app, messaging, crashlytics, analytics, remote-config | 26.4.0 | Observability, push (0010) | ✓ | ✓ | iOS needs static frameworks; plugins only when configured. Firebase iOS SDK 12.18 via CocoaPods: **Firebase publishes no new CocoaPods versions after October 2026**; recheck at every RNFB upgrade |
 | react-native-notify-kit | 10.8.0 | Push display (0010) | ✓ | ✓ | Maintained Notifee fork (Notifee archived 2026-04) |
-| @react-native-google-signin/google-signin | 17.0.0 | Sign in with Google (0020) | ✓ | ✓ | Added 2026-11-13; iOS simulator and Android debug builds pass. iOS pulls GoogleSignIn 10.1.0, AppAuth 3, GTMAppAuth 6. Android uses Google's deprecated legacy Sign-In API (the paid "Universal" version uses Credential Manager) |
+| @react-native-google-signin/google-signin | 17.0.0 | Sign in with Google (0020) | ✓ | ✓ | Added 2026-11-13; its `GoogleSigninButton` isn't used (the app draws Google's current button); iOS simulator and Android debug builds pass. iOS pulls GoogleSignIn 10.1.0, AppAuth 3, GTMAppAuth 6. Android uses Google's deprecated legacy Sign-In API (the paid "Universal" version uses Credential Manager) |
 | @invertase/react-native-apple-authentication | 2.5.1 | Sign in with Apple (0020) | ✓ | ✓ | Added 2026-11-13; old native-module API, runs through the New Architecture interop layer. Last release 2026-03; a local Swift module is the fallback |
 | @react-native-community/netinfo | 12.0.1 | Offline (0006) | ✓ | ✓ | |
 | react-native-permissions | 5.6.2 | Permissions | ✓ | ✓ | |
