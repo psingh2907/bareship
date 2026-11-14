@@ -1,7 +1,8 @@
 ---
 // The home page hero: Starlight's title, tagline and buttons, plus the create command with a copy button, a
-// line with the version, licence, platforms and React Native version, and the app offline on a phone. The
-// versions come from the repo's package.json at build time, so they match the latest release.
+// line with the version, licence, platforms and React Native version, and the feed on a phone (the offline
+// screenshot is in the feature rows below, so no screenshot shows twice). The versions come from the repo's
+// package.json at build time, so they match the latest release.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { LinkButton } from '@astrojs/starlight/components';
@@ -18,10 +19,10 @@ const command = 'npx create-bareship MyApp';
 <div class="hero">
   <div class="phone">
     <img
-      src="/screenshots/android/07-offline.jpg"
-      alt="The app offline on Android: a banner says one change will sync when you reconnect, and a liked post shows Waiting to sync"
-      width="640"
-      height="1428"
+      src="/screenshots/ios/03-feed.jpg"
+      alt="The feed on iOS, with a liked post"
+      width="603"
+      height="1311"
       loading="eager"
       decoding="async"
     />
@@ -148,7 +149,7 @@ const command = 'npx create-bareship MyApp';
     font-size: var(--sl-text-sm);
     color: var(--sl-color-gray-3);
   }
-  /* The screenshots follow right after the hero on a phone, so the hero shows the phone only on wide screens. */
+  /* The feature rows with screenshots follow right after the hero, so on a phone the hero leaves the phone out. */
   .phone {
     display: none;
   }

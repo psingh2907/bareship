@@ -22,30 +22,58 @@
   max-width: 40rem;
 }
 
-/* Home page: a row of app screenshots that wraps on narrow screens. */
-.screenshots {
+/* Home page: each feature beside the screenshot that shows it. Text then picture on a phone; side by side on
+   wide screens, with every other row flipped so the page zigzags. */
+.features {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 3rem;
+}
+.feature {
+  display: grid;
+  gap: 1.5rem;
+  align-items: center;
+}
+.feature-text h3 {
+  margin: 0;
+  font-size: var(--sl-text-2xl);
+  color: var(--sl-color-white);
+}
+.feature-text p {
+  margin-top: 0.75rem;
+  color: var(--sl-color-gray-2);
+}
+.feature-text a {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-weight: 600;
+}
+.feature-shots {
+  display: flex;
   gap: 1rem;
   justify-content: center;
-  align-items: flex-start;
-  margin-top: 1.5rem;
-}
-.screenshots figure {
-  flex: 0 1 10rem;
   margin: 0;
-  text-align: center;
 }
-.screenshots img {
-  width: 100%;
+.feature-shots img {
+  flex: 0 1 15rem;
+  min-width: 0;
   height: auto;
+  margin: 0;
   border: 1px solid var(--sl-color-gray-5);
-  border-radius: 1rem;
+  border-radius: 1.25rem;
+  box-shadow: 0 1rem 2rem rgb(0 0 0 / 0.15);
 }
-.screenshots figcaption {
-  margin-top: 0.5rem;
-  font-size: var(--sl-text-sm);
-  color: var(--sl-color-gray-2);
+.feature-shots.two img {
+  flex-basis: 12rem;
+}
+@media (min-width: 50rem) {
+  .feature {
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+  .feature:nth-child(even) .feature-text {
+    order: 2;
+  }
 }
 
 /* Home page: the three things that set the template apart, right under the hero. */
