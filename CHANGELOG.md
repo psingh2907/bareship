@@ -4,7 +4,9 @@ Notable changes to the template. Versions follow [Semantic Versioning](https://s
 the template own their copy of the code, so a new version reaches an app only when its authors apply the
 changes.
 
-## Unreleased
+## 0.4.1 (2026-11-14)
+
+A fix for the feature generator, and a check that keeps every generator working.
 
 - `pnpm gen feature` writes a list screen that passes lint again: it formats dates with `useFormat()`, so they
   follow a language switch, instead of `formatRelative()`, which the lint rule added in 0.2 rejects. The
