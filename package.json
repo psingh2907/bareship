@@ -1,6 +1,6 @@
 {
   "name": "bareship",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "private": true,
   "description": "Bareship is a production-ready, offline-first bare React Native template for teams and AI agents (Track A).",
   "license": "MIT",

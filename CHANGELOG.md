@@ -4,26 +4,26 @@ Notable changes to the template. Versions follow [Semantic Versioning](https://s
 the template own their copy of the code, so a new version reaches an app only when its authors apply the
 changes.
 
-## Unreleased
+## 0.4.0 (2026-11-14)
 
-- Sign in with Apple and Google is optional: in development the mock buttons show only while
-  `SOCIAL_SIGN_IN_MOCKS=true` (the default in `.env.dev`), and `pnpm remove-social-sign-in` takes it out of
-  an app completely: code, libraries, font and native config ([guide](docs/social-sign-in.md#remove-it)).
-  `scripts/ci/check-remove-social-sign-in.sh` checks the removal.
-- The "Continue with Google" button follows Google's current branding guidelines on iOS and Android: the
-  2025 gradient "G", Google Sans Medium, Google's light and dark colours and its padding per platform. It
-  replaces the library's older native button, and its text now follows the app's language (Hindi
-  included). The Apple button matches its height and corners. Adds `assets/fonts/SignInSans-Medium.ttf`,
-  a trimmed copy of Google Sans (OFL 1.1).
-- With the theme set to "System", the app now follows a light/dark switch while it's open on both platforms.
-  Unistyles 3.5 missed some OS switches (most often the first one after launch) until the next switch or a
-  restart; the app now re-applies the adaptive theme on React Native's appearance event and when it returns
-  to the foreground (`followSystemAppearance` in `src/shared/ui/theme/preference.ts`).
+Sign in with Apple and Google (optional, and removable with one command), offline writes that stay with the
+account that made them, an option to stop dependent writes after a failure, and fixes for right-to-left text,
+screen titles and the light/dark switch.
+
 - Sign in with Apple (iOS) and Google (iOS and Android) on the sign-in and register screens, behind a new
   `SocialSignIn` port ([ADR 0020](docs/decisions/0020-sign-in-with-apple-and-google.md),
   [guide](docs/social-sign-in.md)). The buttons appear once `GOOGLE_WEB_CLIENT_ID`, `GOOGLE_IOS_CLIENT_ID`
   or `IOS_APPLE_SIGN_IN` are set in `.env`; with the mock backend they work with no accounts. The app sends
   the provider's ID token to `POST /auth/social`, and sign-out also signs out of Google.
+- The "Continue with Google" button follows Google's current branding guidelines on iOS and Android: the
+  2025 gradient "G", Google Sans Medium, Google's light and dark colours and its padding per platform. It
+  replaces the library's older native button, and its text now follows the app's language (Hindi
+  included). The Apple button matches its height and corners. Adds `assets/fonts/SignInSans-Medium.ttf`,
+  a trimmed copy of Google Sans (OFL 1.1).
+- Sign in with Apple and Google is optional: in development the mock buttons show only while
+  `SOCIAL_SIGN_IN_MOCKS=true` (the default in `.env.dev`), and `pnpm remove-social-sign-in` takes it out of
+  an app completely: code, libraries, font and native config ([guide](docs/social-sign-in.md#remove-it)).
+  `scripts/ci/check-remove-social-sign-in.sh` checks the removal.
 - Each queued offline write records the account that made it, and is never sent while another account is
   signed in: it's dropped and logged instead
   ([#26](https://github.com/psingh2907/bareship/issues/26)). Before, only the sign-out flow (which clears
@@ -32,25 +32,32 @@ changes.
   queued behind it in its scope (an edit of a draft whose create failed) are never sent, and each rolls back
   in its `onError` ([#27](https://github.com/psingh2907/bareship/issues/27)). The default, `'continue'`, is
   unchanged.
-- Switching the language updates the title of a screen pushed over the tabs (the component showroom)
-  and its iOS back-button label at once, without a restart. The back label is now the tab underneath
-  ("Settings") instead of the route name "Main".
+- With the theme set to "System", the app now follows a light/dark switch while it's open on both platforms.
+  Unistyles 3.5 missed some OS switches (most often the first one after launch) until the next switch or a
+  restart; the app now re-applies the adaptive theme on React Native's appearance event and when it returns
+  to the foreground (`followSystemAppearance` in `src/shared/ui/theme/preference.ts`).
 - Right-to-left layouts align text to the start on iOS too. iOS aligned text by its own script, so
   English or Hindi text stayed on the left in a mirrored row; the `Text` primitive now defaults to
   `textAlign: 'start'`, and `align` takes `start`, `end`, `center`, `justify` or `auto`.
+- Switching the language updates the title of a screen pushed over the tabs (the component showroom)
+  and its iOS back-button label at once, without a restart. The back label is now the tab underneath
+  ("Settings") instead of the route name "Main".
 - Bottom sheets opened from a screen presented as a modal show above it on iOS (`FullWindowOverlay`).
 - The feed recycles rows with and without an image separately (`getItemType`), and its tests find like
   buttons by role and name instead of `testID`.
-- The pull request template asks why (with the linked issue), how it was tested on each platform and for
-  screenshots, and a new `Pull request title` workflow checks that titles are Conventional Commits, since
-  a squash merge turns the title into the commit on `main`.
 - Every dependency in `package.json` is pinned to an exact version (it already was in the lockfile), and
   `pnpm add` now saves exact versions (`savePrefix: ''` in `pnpm-workspace.yaml`), as AGENTS.md asks.
-- ESLint, Prettier and Jest skip `.claude/`, so `pnpm check` no longer lints and tests the copies of the
-  repo that Claude Code keeps in `.claude/worktrees/`.
 - `concurrent-ruby` (used by CocoaPods and fastlane) goes from 1.3.3 to 1.3.8, which fixes three security
   advisories. The Gemfile's `< 1.3.4` pin came from the React Native template and was only needed with
   activesupport older than 7.1; the lockfile has 7.2.4, so the Gemfile now asks for `>= 1.3.7`.
+- The pull request template asks why (with the linked issue), how it was tested on each platform and for
+  screenshots, and a new `Pull request title` workflow checks that titles are Conventional Commits, since
+  a squash merge turns the title into the commit on `main`.
+- Apps made from the template ignore per-developer Claude Code files (`.claude/launch.json`,
+  `.claude/settings.local.json`, `.claude/worktrees/`), and `pnpm pack-template` lists any untracked file it
+  packs, so a local file can't slip into the npm package.
+- ESLint, Prettier and Jest skip `.claude/`, so `pnpm check` no longer lints and tests the copies of the
+  repo that Claude Code keeps in `.claude/worktrees/`.
 
 ## 0.3.2 (2026-10-19)
 

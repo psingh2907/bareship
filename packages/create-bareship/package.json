@@ -1,6 +1,6 @@
 {
   "name": "create-bareship",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Create a production-ready, offline-first bare React Native app in one command: npx create-bareship Acme.",
   "license": "MIT",
   "author": "Praveen Singh",
