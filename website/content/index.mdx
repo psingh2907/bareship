@@ -15,7 +15,7 @@ hero:
       variant: minimal
 ---
 
-import { Card, CardGrid, LinkButton, Steps, TabItem, Tabs } from '@astrojs/starlight/components';
+import { Card, CardGrid, LinkButton, Steps } from '@astrojs/starlight/components';
 
 <div class="differences">
   <a href="/build/offline/">
@@ -41,126 +41,141 @@ import { Card, CardGrid, LinkButton, Steps, TabItem, Tabs } from '@astrojs/starl
   </a>
 </div>
 
-<Tabs syncKey="platform">
-  <TabItem label="iOS">
-    <div class="screenshots">
-      <figure>
-        <img
-          src="/screenshots/ios/03-feed.jpg"
-          alt="The feed on iOS, with a liked post"
-          width="603"
-          height="1311"
-          loading="lazy"
-        />
-        <figcaption>Feed</figcaption>
-      </figure>
-      <figure>
-        <img
-          src="/screenshots/ios/05-dark-feed.jpg"
-          alt="The feed on iOS in the dark theme"
-          width="603"
-          height="1311"
-          loading="lazy"
-        />
-        <figcaption>Dark theme</figcaption>
-      </figure>
-      <figure>
-        <img
-          src="/screenshots/ios/06-hindi-feed.jpg"
-          alt="The feed on iOS in Hindi"
-          width="603"
-          height="1311"
-          loading="lazy"
-        />
-        <figcaption>Hindi</figcaption>
-      </figure>
-      <figure>
-        <img
-          src="/screenshots/ios/04-settings.png"
-          alt="Settings on iOS: theme, language, notifications and account"
-          width="603"
-          height="1311"
-          loading="lazy"
-        />
-        <figcaption>Settings</figcaption>
-      </figure>
-      <figure>
-        <img
-          src="/screenshots/ios/02-sign-in.png"
-          alt="Sign-in on iOS with the demo account, Apple and Google"
-          width="603"
-          height="1311"
-          loading="lazy"
-        />
-        <figcaption>Sign-in</figcaption>
-      </figure>
+## See it in the app
+
+<div class="features">
+  <div class="feature">
+    <div class="feature-text">
+      <h3>Offline writes that wait</h3>
+      <p>
+        Like a post with no signal and the like shows at once, marked "Waiting to sync", while a
+        banner says how many changes are waiting. Close the app and reopen it: the change is still
+        there, and it's sent once the phone reconnects.
+      </p>
+      <a href="/build/offline/">How offline writes work →</a>
     </div>
-  </TabItem>
-  <TabItem label="Android">
-    <div class="screenshots">
-      <figure>
-        <img
-          src="/screenshots/android/03-feed.jpg"
-          alt="The feed on Android, with a liked post"
-          width="640"
-          height="1428"
-          loading="lazy"
-        />
-        <figcaption>Feed</figcaption>
-      </figure>
-      <figure>
-        <img
-          src="/screenshots/android/07-offline.jpg"
-          alt="The feed offline on Android, with a like waiting to sync"
-          width="640"
-          height="1428"
-          loading="lazy"
-        />
-        <figcaption>Offline, waiting to sync</figcaption>
-      </figure>
-      <figure>
-        <img
-          src="/screenshots/android/05-dark-feed.jpg"
-          alt="The feed on Android in the dark theme"
-          width="640"
-          height="1428"
-          loading="lazy"
-        />
-        <figcaption>Dark theme</figcaption>
-      </figure>
-      <figure>
-        <img
-          src="/screenshots/android/06-hindi-feed.jpg"
-          alt="The feed on Android in Hindi"
-          width="640"
-          height="1428"
-          loading="lazy"
-        />
-        <figcaption>Hindi</figcaption>
-      </figure>
-      <figure>
-        <img
-          src="/screenshots/android/04-settings.png"
-          alt="Settings on Android"
-          width="640"
-          height="1428"
-          loading="lazy"
-        />
-        <figcaption>Settings</figcaption>
-      </figure>
-      <figure>
-        <img
-          src="/screenshots/android/02-sign-in.png"
-          alt="Sign-in on Android with the demo account and Google"
-          width="640"
-          height="1428"
-          loading="lazy"
-        />
-        <figcaption>Sign-in</figcaption>
-      </figure>
+    <div class="feature-shots">
+      <img
+        src="/screenshots/android/07-offline.jpg"
+        alt="The feed offline on Android: a banner says one change will sync when you reconnect, and a liked post shows Waiting to sync"
+        width="640"
+        height="1428"
+        loading="lazy"
+        decoding="async"
+      />
     </div>
-  </TabItem>
-</Tabs>
+  </div>
+  <div class="feature">
+    <div class="feature-text">
+      <h3>Sign in with email, Apple or Google</h3>
+      <p>
+        Tokens are kept in the iOS Keychain and Android Keystore. The Apple and Google buttons
+        follow each provider's branding rules, work with mock providers until you add your ids, and
+        come out with one command if you don't want them.
+      </p>
+      <a href="/build/social-sign-in/">Set up Apple and Google →</a>
+    </div>
+    <div class="feature-shots two">
+      <img
+        src="/screenshots/ios/02-sign-in.png"
+        alt="Sign-in on iOS with email, Continue with Apple and Continue with Google"
+        width="603"
+        height="1311"
+        loading="lazy"
+        decoding="async"
+      />
+      <img
+        src="/screenshots/ios/08-register-dark.png"
+        alt="Create your account on iOS in the dark theme, with Apple and Google"
+        width="603"
+        height="1311"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+  </div>
+  <div class="feature">
+    <div class="feature-text">
+      <h3>Light and dark, following the phone</h3>
+      <p>
+        Screens are styled with theme tokens, so the dark theme needs no extra work, and the app
+        switches the moment the phone does. Users can also pick a theme in Settings.
+      </p>
+      <a href="/build/styling/">How styling works →</a>
+    </div>
+    <div class="feature-shots">
+      <img
+        src="/screenshots/ios/05-dark-feed.jpg"
+        alt="The feed on iOS in the dark theme"
+        width="603"
+        height="1311"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+  </div>
+  <div class="feature">
+    <div class="feature-text">
+      <h3>English and Hindi, ready for right-to-left</h3>
+      <p>
+        Every string comes from a translation file, and dates, numbers and "last week" are formatted
+        in the user's language. Lint rejects hard-coded text, and a right-to-left language such as
+        Arabic is one setting away.
+      </p>
+      <a href="/build/languages/">Languages and right-to-left →</a>
+    </div>
+    <div class="feature-shots">
+      <img
+        src="/screenshots/android/06-hindi-feed.jpg"
+        alt="The feed on Android in Hindi"
+        width="640"
+        height="1428"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+  </div>
+  <div class="feature">
+    <div class="feature-text">
+      <h3>A settings screen that's already built</h3>
+      <p>
+        Theme, language, notifications, sign-out and account deletion are done. The screen also
+        shows which environment the build talks to, so dev, staging and prod builds are easy to tell
+        apart.
+      </p>
+      <a href="/start-here/environments/">Dev, staging and prod →</a>
+    </div>
+    <div class="feature-shots">
+      <img
+        src="/screenshots/ios/04-settings.png"
+        alt="Settings on iOS: theme, language, notifications, environment and account"
+        width="603"
+        height="1311"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+  </div>
+  <div class="feature">
+    <div class="feature-text">
+      <h3>Onboarding on first launch</h3>
+      <p>
+        Three swipeable screens with Skip, shown once before sign-in. Change the words in the
+        strings file, or remove the screens if your app doesn't need them.
+      </p>
+    </div>
+    <div class="feature-shots">
+      <img
+        src="/screenshots/ios/01-onboarding.png"
+        alt="The first onboarding screen on iOS, with Skip and Next"
+        width="603"
+        height="1311"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+  </div>
+</div>
 
 ## It runs with no accounts
 
@@ -208,10 +223,9 @@ The rules your team follows are written down where coding agents read them, and 
 
 <CardGrid>
   <Card title="Sign-in, done properly" icon="padlock">
-    Email, Apple and Google sign-in, with tokens in the iOS Keychain and Android Keystore. The Apple
-    and Google buttons follow each provider's branding rules, work with mock providers until you add
-    your ids, and come out with one command if you don't want them.
-    [Session](/build/architecture/#session) · [Apple and Google](/build/social-sign-in/)
+    Email, Apple and Google sign-in, tokens in the Keychain and Keystore, and a session that
+    refreshes itself. [Session](/build/architecture/#session) · [Apple and
+    Google](/build/social-sign-in/)
   </Card>
   <Card title="Firebase when you want it" icon="analytics">
     Crashlytics, Analytics, Remote Config and push switch on when you add a Firebase file, and fall
