@@ -274,8 +274,8 @@ import { useQuery } from '@tanstack/react-query';
 import { RefreshControl, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-import { formatRelative } from '@/shared/lib/format';
 import { useTranslation } from '@/shared/i18n';
+import { useFormat } from '@/shared/lib/format';
 import { ListItem } from '@/shared/ui/primitives/ListItem';
 import { EmptyState, ErrorState, LoadingState } from '@/shared/ui/primitives/States';
 
@@ -284,6 +284,8 @@ import { ${feature.camel}QueryOptions } from '../api';
 export function ${screen}() {
   const { t } = useTranslation();
   const { theme } = useUnistyles();
+  // useFormat, not formatRelative: dates follow a language switch (AGENTS.md › Intl on Hermes).
+  const format = useFormat();
   const list = useQuery(${feature.camel}QueryOptions());
 
   if (list.isPending) return <LoadingState />;
@@ -307,7 +309,7 @@ export function ${screen}() {
         renderItem={({ item }) => (
           <ListItem
             title={item.title}
-            subtitle={formatRelative(item.createdAt)}
+            subtitle={format.relative(item.createdAt)}
             testID={\`${item.kebab}-\${item.id}\`}
           />
         )}
@@ -685,11 +687,18 @@ function format() {
   const files = [...touched].map(file => join(ROOT, file));
   const code = files.filter(file => /\.(ts|tsx)$/.test(file));
   if (code.length > 0)
-    execFileSync('pnpm', ['exec', 'eslint', '--fix', ...code], { stdio: 'inherit', cwd: ROOT });
-  execFileSync('pnpm', ['exec', 'prettier', '--write', '--log-level', 'warn', ...files], {
-    stdio: 'inherit',
-    cwd: ROOT,
-  });
+    execFileSync(join(ROOT, 'node_modules/.bin/eslint'), ['--fix', ...code], {
+      stdio: 'inherit',
+      cwd: ROOT,
+    });
+  execFileSync(
+    join(ROOT, 'node_modules/.bin/prettier'),
+    ['--write', '--log-level', 'warn', ...files],
+    {
+      stdio: 'inherit',
+      cwd: ROOT,
+    },
+  );
 }
 
 function main() {

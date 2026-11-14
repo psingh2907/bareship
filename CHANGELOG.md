@@ -4,6 +4,13 @@ Notable changes to the template. Versions follow [Semantic Versioning](https://s
 the template own their copy of the code, so a new version reaches an app only when its authors apply the
 changes.
 
+## Unreleased
+
+- `pnpm gen feature` writes a list screen that passes lint again: it formats dates with `useFormat()`, so they
+  follow a language switch, instead of `formatRelative()`, which the lint rule added in 0.2 rejects. The
+  generators also call ESLint and Prettier directly rather than through `pnpm exec`, and
+  `scripts/ci/check-generators.sh` runs every generator on a scratch copy and checks the result.
+
 ## 0.4.0 (2026-11-14)
 
 Sign in with Apple and Google (optional, and removable with one command), offline writes that stay with the

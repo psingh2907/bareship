@@ -39,7 +39,8 @@ pnpm check            # types, lint, format, boundaries, tests
 - Mark code that exists only for Sign in with Apple and Google with `// @social` and run
   `scripts/ci/check-remove-social-sign-in.sh`, so `pnpm remove-social-sign-in` keeps working.
 - Changed something the generators produce (a convention, a primitive, the folder layout)? Update
-  `scripts/generate.ts` and the `add-*` skills in `.claude/skills/` to match.
+  `scripts/generate.ts` and the `add-*` skills in `.claude/skills/` to match, and run
+  `scripts/ci/check-generators.sh`.
 - Native change: mark it `[bareship]` and add a row to [docs/native-changes.md](docs/native-changes.md).
 - New dependency: check it against [docs/version-matrix.md](docs/version-matrix.md) and record it there.
 - Touched packaging (`template.config`, dotfiles, the name placeholder)? Run

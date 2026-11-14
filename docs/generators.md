@@ -150,3 +150,9 @@ The generator checks before writing, so when it stops, nothing has changed.
 - It doesn't translate. Strings in the other languages start as English copies.
 - It doesn't know your API. Fields, request bodies and error cases come from you; the generated mock is a
   starting point to change to match your server.
+
+## Keeping the generators working
+
+`scripts/ci/check-generators.sh` runs `feature`, `screen` and `endpoint` on a scratch copy of the repository
+and then the full checks, so the generated code keeps up with the project's rules. Run it after changing
+`scripts/generate.ts` or a rule the generated code has to follow.
