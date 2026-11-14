@@ -171,8 +171,10 @@ Sign in with **`demo@example.com` / `password123`**. To try it on an Android pho
 attached, build the [demo APK](docs/demo-build.md).
 
 When you're ready to build your own app, run `pnpm strip-examples` once. It removes the demo feed and
-component showroom and leaves a blank Home tab, with sign-in, onboarding and settings still working. Then
-add your own features, screens and API calls with `pnpm gen` ([generators](docs/generators.md)).
+component showroom and leaves a blank Home tab, with sign-in, onboarding and settings still working. Don't need
+Sign in with Apple and Google? `pnpm remove-social-sign-in` takes it out, libraries and native config included
+([guide](docs/social-sign-in.md#dont-need-it)). Then add your own features, screens and API calls with
+`pnpm gen` ([generators](docs/generators.md)).
 
 ## What's inside
 
@@ -268,6 +270,7 @@ adapter. See [architecture](docs/architecture.md).
 | `pnpm bootstrap` | Set the bundle id and display name, and rename a copy of the repository (see [quick start](#quick-start)) |
 | `pnpm pack-template` | Build the npm packages, `bareship` and its installer `create-bareship`, into `dist/npm/` ([packaging](docs/packaging.md)) |
 | `pnpm strip-examples` | Remove the demo (feed, posts, showroom) and leave a blank Home tab; sign-in, onboarding and settings stay |
+| `pnpm remove-social-sign-in` | Remove Sign in with Apple and Google: code, libraries, font and native config; email sign-in stays ([guide](docs/social-sign-in.md#remove-it)) |
 | `pnpm icons` | Regenerate app icons from `assets/brand/icon.svg` |
 | `pnpm splash` | Regenerate the splash screen from `assets/brand/logo.svg` |
 | `pnpm gen feature\|screen\|endpoint` | Scaffold a feature, screen or endpoint that follows the rules ([AGENTS.md](AGENTS.md)) |
