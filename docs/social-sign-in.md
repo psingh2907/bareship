@@ -102,6 +102,31 @@ Console.
 Return `200` (or `201` for a new account) with `{ "tokens": { "accessToken", "refreshToken" }, "user": … }`,
 and `401` with code `invalid_token` when the check fails.
 
+## Don't need it?
+
+Sign-in with Apple and Google is optional at every step:
+
+- **Release builds:** nothing shows until you set `GOOGLE_WEB_CLIENT_ID`, `GOOGLE_IOS_CLIENT_ID` or
+  `IOS_APPLE_SIGN_IN`, and with none set the two native modules aren't even loaded.
+- **Development with the mock backend:** the mock buttons show while `SOCIAL_SIGN_IN_MOCKS=true` (the
+  default in `.env.dev`). Set it to `false` to work without them.
+
+### Remove it
+
+To take it out of your app completely, run once:
+
+```sh
+pnpm remove-social-sign-in
+```
+
+It deletes the adapter, the buttons, the mock provider and its `/auth/social` endpoint, the font and the
+Google logo; removes the code marked `@social` (in `src/`, the `.env` files, AGENTS.md and these docs) and the
+two libraries from `package.json`; takes the Google URL scheme and the font out of the iOS project and the
+font out of the Android one; then runs `pnpm install` and `pnpm pods`. Email sign-in and everything else stay.
+`--dry-run` lists the changes first, and `--no-install` skips the last two steps. Commit before you run it, so
+you can review the diff. `scripts/ci/check-remove-social-sign-in.sh` runs it on a scratch copy and checks the
+result.
+
 ## Known limitations
 
 - On Android, the free Google library uses Google's legacy Sign-In API, which Google has deprecated in

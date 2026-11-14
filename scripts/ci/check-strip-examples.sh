@@ -22,5 +22,6 @@ fi
 "$bin/eslint" . --max-warnings=0
 "$bin/prettier" --check . --log-level warn
 "$bin/depcruise" src --config .dependency-cruiser.cjs
-"$bin/jest" --ci
+# A fresh copy has a cold Jest cache, so the full-app tests compile everything on their first run.
+"$bin/jest" --ci --testTimeout=20000
 echo "✔ The stripped app passes types, lint, format, boundaries and tests"

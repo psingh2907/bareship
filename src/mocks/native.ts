@@ -10,10 +10,11 @@ import axios, {
 } from 'axios';
 import { getResponse } from 'msw';
 
-import { setServices } from '@/shared/services/services';
+import { env } from '@/shared/config/env'; // @social
+import { setServices } from '@/shared/services/services'; // @social
 
 import { handlers } from './handlers';
-import { createMockSocialSignIn } from './social';
+import { createMockSocialSignIn } from './social'; // @social
 
 /**
  * In-app mock backend for development builds (API_MOCKS=true).
@@ -78,7 +79,9 @@ function parseJson(text: string): unknown {
 
 export function startMocks(): AxiosAdapter {
   console.log('[mocks] Serving API requests from src/mocks (API_MOCKS=true).');
+  // @social-start
   // The mock backend can't check real Apple or Google tokens, so the buttons use mock providers.
-  setServices({ social: createMockSocialSignIn() });
+  if (env.SOCIAL_SIGN_IN_MOCKS) setServices({ social: createMockSocialSignIn() });
+  // @social-end
   return mockAdapter;
 }

@@ -130,3 +130,6 @@ repository has to be public for anyone outside it to use the template.
 
 `pnpm strip-examples` removes the demo; `scripts/ci/check-strip-examples.sh` checks that the stripped app
 still passes everything. See AGENTS.md › Demo code for the `// @example` markers.
+
+`pnpm remove-social-sign-in` removes Sign in with Apple and Google the same way, from code marked `@social`;
+`scripts/ci/check-remove-social-sign-in.sh` checks the result ([the guide](social-sign-in.md#remove-it)).

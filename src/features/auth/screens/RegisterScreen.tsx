@@ -14,7 +14,7 @@ import { Stack } from '@/shared/ui/primitives/Stack';
 import { errorMessage } from '@/shared/ui/primitives/States';
 import { Text } from '@/shared/ui/primitives/Text';
 
-import { SocialSignIn } from '../components/SocialSignIn';
+import { SocialSignIn } from '../components/SocialSignIn'; // @social
 import { hasErrorCode, useRegister } from '../hooks/useAuthMutations';
 import { type RegisterInput, RegisterInputSchema } from '../schema';
 
@@ -99,7 +99,9 @@ export function RegisterScreen() {
         />
       </Stack>
 
+      {/* @social-start */}
       <SocialSignIn />
+      {/* @social-end */}
       <Stack gap="sm" align="center">
         <Text tone="muted">{t('auth.register.haveAccount')}</Text>
         <Button

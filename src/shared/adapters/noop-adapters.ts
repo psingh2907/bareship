@@ -3,7 +3,7 @@ import type {
   CrashReporter,
   FeatureFlags,
   Logger,
-  SocialSignIn,
+  SocialSignIn, // @social
   Updates,
 } from '@/shared/ports';
 
@@ -45,6 +45,7 @@ export function createStaticFlags(
   };
 }
 
+// @social-start
 /** No sign-in provider configured for this build: the buttons stay hidden (ADR 0020). */
 export function createNoSocialSignIn(): SocialSignIn {
   return {
@@ -53,6 +54,7 @@ export function createNoSocialSignIn(): SocialSignIn {
     signOut: async () => {},
   };
 }
+// @social-end
 
 /** No OTA provider yet (ADR 0010). */
 export function createNoopUpdates(): Updates {

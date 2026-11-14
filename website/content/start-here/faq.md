@@ -39,6 +39,13 @@ lockfile are pnpm's. Run `corepack enable` and the pinned pnpm version is used.
 Run `pnpm strip-examples` once, before you build your own screens. It removes the feed, its sample data and the
 component showroom, and leaves a blank Home tab. Sign-in, onboarding and settings stay.
 
+### Can I leave out Sign in with Apple and Google?
+
+Yes. Release builds show no Apple or Google button until you add their ids. In development, set
+`SOCIAL_SIGN_IN_MOCKS=false` in `.env.dev` to hide the mock buttons, or run `pnpm remove-social-sign-in` once to
+take it out completely: code, the two libraries, the font and the native config. Email sign-in stays
+([Apple and Google sign-in](/build/social-sign-in/#dont-need-it)).
+
 ### How do I add a screen or an API call?
 
 Use the generators: `pnpm gen feature`, `pnpm gen screen` and `pnpm gen endpoint`. They write code that follows

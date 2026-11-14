@@ -36,6 +36,8 @@ pnpm check            # types, lint, format, boundaries, tests
 - Use Conventional Commits (`feat:`, `fix:`, `docs:`…); commitlint checks them on commit.
 - Mark demo-only code with `// @example` (AGENTS.md › Demo code) and run
   `scripts/ci/check-strip-examples.sh`, so `pnpm strip-examples` keeps working.
+- Mark code that exists only for Sign in with Apple and Google with `// @social` and run
+  `scripts/ci/check-remove-social-sign-in.sh`, so `pnpm remove-social-sign-in` keeps working.
 - Changed something the generators produce (a convention, a primitive, the folder layout)? Update
   `scripts/generate.ts` and the `add-*` skills in `.claude/skills/` to match.
 - Native change: mark it `[bareship]` and add a row to [docs/native-changes.md](docs/native-changes.md).

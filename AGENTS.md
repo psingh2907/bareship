@@ -17,6 +17,7 @@ Never change a recorded decision silently: propose a new ADR.
 | All checks | `pnpm check` (typecheck, lint, format, depcruise, tests) |
 | Set the bundle id (and rename) | `pnpm bootstrap --bundle-id com.acme.app [--display-name "Acme"] [--name Acme]` |
 | Remove the demo (feed, showroom) | `pnpm strip-examples` (once, on a fresh copy) |
+| Remove Apple and Google sign-in | `pnpm remove-social-sign-in` ([docs/social-sign-in.md](docs/social-sign-in.md#remove-it)) | <!-- @social -->
 | Icons / splash | `pnpm icons`, `pnpm splash` |
 | Release builds, version bump, uploads | `bundle exec fastlane lanes` ([docs/releasing.md](docs/releasing.md)) |
 | Scaffold code | `pnpm gen feature <name>`, `pnpm gen screen <feature> <name>`, `pnpm gen endpoint <feature> <name>` ([docs/generators.md](docs/generators.md)) |
@@ -136,12 +137,16 @@ Everything here runs without accounts; docs/going-live.md says what to add and w
 - **Deep links:** add `linking: 'path/:param'` to the screen in `RootNavigator.tsx` and the path to
   `LINK_PATHS` in `scripts/links-files.ts`. Links open on top of the tabs, and a link that arrives while signed
   out opens after sign-in (`UNSTABLE_routeNamesChangeBehavior`, covered by `App.test.tsx`).
+<!-- @social-start:agents-native-config -->
 - **Sign in with Apple / Google:** `services().social` (ADR 0020). Buttons show only for providers set in
-  `.env`; with `API_MOCKS` the mock providers in `src/mocks/social.ts` stand in. The app never trusts the ID
-  token: `POST /auth/social` checks it ([docs/social-sign-in.md](docs/social-sign-in.md)).
+  `.env`; with `API_MOCKS` and `SOCIAL_SIGN_IN_MOCKS=true` the mock providers in `src/mocks/social.ts` stand
+  in. The app never trusts the ID token: `POST /auth/social` checks it
+  ([docs/social-sign-in.md](docs/social-sign-in.md)). Code that exists only for it is marked `// @social`, and
+  `pnpm remove-social-sign-in` removes it; mark new sign-in code the same way.
 - **Native config from `.env`:** `APP_SCHEME`, `APP_LINK_DOMAIN`, `IOS_APS_ENVIRONMENT`, `IOS_APPLE_SIGN_IN`
   and `GOOGLE_IOS_CLIENT_ID` feed Gradle and `scripts/ios/configure-environments.rb`. Re-run that script after
   changing them.
+<!-- @social-end -->
 
 ## Styling
 

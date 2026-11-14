@@ -72,10 +72,12 @@ export const useSession = create<SessionState>()((set, get) => ({
   async signOut(reason = 'user') {
     services().logger.info('Signing out', { reason });
     await sessionTokens().clear();
+    // @social-start
     // Forget the Google account too, so the next sign-in shows the account chooser.
     services()
       .social.signOut()
       .catch(() => {});
+    // @social-end
     writeCachedUser(null);
     queryClient.clear();
     clearPersistedQueries();

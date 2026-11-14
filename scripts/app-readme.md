@@ -67,6 +67,7 @@ Before your first release, connect your API, release signing and, if you want th
 | `pnpm check` | Types, lint, formatting, import boundaries and tests |
 | `pnpm gen feature\|screen\|endpoint` | Add a feature, screen or API call ([generators](docs/generators.md)) |
 | `pnpm strip-examples` | Remove the demo content |
+| `pnpm remove-social-sign-in` | Remove Apple and Google sign-in ([guide](docs/social-sign-in.md#remove-it)) | <!-- @social -->
 | `pnpm icons`, `pnpm splash` | Regenerate the app icons and splash screen from `assets/brand/` |
 | `pnpm build:android:prod` | Release App Bundle for Google Play |
 | `bundle exec fastlane ios build` | Release build for iOS; `beta` lanes upload ([releasing](docs/releasing.md)) |

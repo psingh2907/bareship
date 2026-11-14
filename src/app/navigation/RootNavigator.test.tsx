@@ -1,6 +1,6 @@
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { act, render, screen, userEvent } from '@testing-library/react-native';
+import { act, render, screen, userEvent, waitFor } from '@testing-library/react-native';
 
 import { queryClient } from '@/data/query-client';
 import { useOnboarding } from '@/features/onboarding';
@@ -55,14 +55,14 @@ describe('RootNavigator', () => {
     await renderNavigation();
     await user.press(await screen.findByTestId('tab-settings'));
     // iOS shows this as the back label of a screen pushed over the tabs, so it isn't "Main".
-    expect(stackHeaderTitles()[0]).toBe('Settings');
+    await waitFor(() => expect(stackHeaderTitles()[0]).toBe('Settings'));
 
     await act(async () => {
       await changeLanguage('hi');
     });
 
     expect(i18n.t('settings.title')).not.toBe('Settings');
-    expect(stackHeaderTitles()[0]).toBe(i18n.t('settings.title'));
+    await waitFor(() => expect(stackHeaderTitles()[0]).toBe(i18n.t('settings.title')));
   });
 
   // @example-start
@@ -71,13 +71,15 @@ describe('RootNavigator', () => {
     await renderNavigation();
     await user.press(await screen.findByTestId('tab-settings'));
     await user.press(await screen.findByRole('button', { name: 'Component showroom' }));
-    expect(stackHeaderTitles()).toEqual(['Settings', 'Component showroom']);
+    await waitFor(() => expect(stackHeaderTitles()).toEqual(['Settings', 'Component showroom']));
 
     await act(async () => {
       await changeLanguage('hi');
     });
 
-    expect(stackHeaderTitles()).toEqual([i18n.t('settings.title'), i18n.t('settings.showroom')]);
+    await waitFor(() =>
+      expect(stackHeaderTitles()).toEqual([i18n.t('settings.title'), i18n.t('settings.showroom')]),
+    );
   });
   // @example-end
 });

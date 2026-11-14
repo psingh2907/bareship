@@ -127,6 +127,9 @@ pnpm gen feature orders
 onboarding and settings stay. `pnpm gen` writes a working list screen with its API call, sample data, strings
 and tests ([Generators](/build/generators/)).
 
+If your app won't offer Sign in with Apple and Google, `pnpm remove-social-sign-in` removes it, libraries and
+native config included, and leaves email sign-in ([Apple and Google sign-in](/build/social-sign-in/#remove-it)).
+
 Run the checks whenever you change something:
 
 ```bash

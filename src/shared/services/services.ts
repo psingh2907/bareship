@@ -7,7 +7,7 @@ import {
   createLoggingAnalytics,
   createLoggingCrashReporter,
   createNoopUpdates,
-  createNoSocialSignIn,
+  createNoSocialSignIn, // @social
   createStaticFlags,
 } from '@/shared/adapters/noop-adapters';
 import { createNotifyKitPush } from '@/shared/adapters/notify-kit-push';
@@ -22,7 +22,7 @@ import type {
   Logger,
   Push,
   SecureStore,
-  SocialSignIn,
+  SocialSignIn, // @social
   Updates,
 } from '@/shared/ports';
 
@@ -42,7 +42,7 @@ export type Services = {
   updates: Updates;
   appInfo: AppInfo;
   push: Push;
-  social: SocialSignIn;
+  social: SocialSignIn; // @social
 };
 
 function createDefaultServices(): Services {
@@ -54,10 +54,11 @@ function createDefaultServices(): Services {
     ...createVendorServices(logger),
     updates: createNoopUpdates(),
     appInfo: createDeviceAppInfo(),
-    social: createSocialSignIn(logger),
+    social: createSocialSignIn(logger), // @social
   };
 }
 
+// @social-start
 /** Apple and Google when their ids are in .env (ADR 0020); nothing otherwise, so no buttons show. */
 function createSocialSignIn(logger: Logger): SocialSignIn {
   const configured =
@@ -75,6 +76,7 @@ function createSocialSignIn(logger: Logger): SocialSignIn {
     logger,
   );
 }
+// @social-end
 
 /** Firebase when it's set up for this build; logging and static defaults otherwise. */
 function createVendorServices(
