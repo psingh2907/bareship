@@ -25,6 +25,7 @@ const EnvSchema = z.object({
       'a bare domain, e.g. links.example.com',
     )
     .default(''),
+  // @social-start
   /** Google sign-in (ADR 0020): the "Web application" OAuth client id. Empty: no Google button. */
   GOOGLE_WEB_CLIENT_ID: z.string().default(''),
   /** The "iOS" OAuth client id. iOS shows the Google button only when this is set too. */
@@ -34,6 +35,15 @@ const EnvSchema = z.object({
     .enum(['true', 'false'])
     .default('false')
     .transform(value => value === 'true'),
+  /**
+   * With the mock backend (API_MOCKS), show Apple and Google buttons that sign in as the demo user. Set it
+   * to false to try the app without them; real builds never use the mock providers.
+   */
+  SOCIAL_SIGN_IN_MOCKS: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform(value => value === 'true'),
+  // @social-end
 });
 
 export type Env = z.infer<typeof EnvSchema>;

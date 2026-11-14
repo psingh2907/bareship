@@ -6,6 +6,10 @@ changes.
 
 ## Unreleased
 
+- Sign in with Apple and Google is optional: in development the mock buttons show only while
+  `SOCIAL_SIGN_IN_MOCKS=true` (the default in `.env.dev`), and `pnpm remove-social-sign-in` takes it out of
+  an app completely: code, libraries, font and native config ([guide](docs/social-sign-in.md#remove-it)).
+  `scripts/ci/check-remove-social-sign-in.sh` checks the removal.
 - The "Continue with Google" button follows Google's current branding guidelines on iOS and Android: the
   2025 gradient "G", Google Sans Medium, Google's light and dark colours and its padding per platform. It
   replaces the library's older native button, and its text now follows the app's language (Hindi

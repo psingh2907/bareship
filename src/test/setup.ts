@@ -66,6 +66,7 @@ jest.mock('react-native-keychain', () => {
   };
 });
 
+// @social-start
 // Sign in with Apple / Google (ADR 0020): native buttons become pressable views, sign-in calls are jest.fn.
 jest.mock('@invertase/react-native-apple-authentication', () => {
   // Mirrors the library's runtime shape (2.5.1): constants live on `appleAuth` and `AppleButton`, not as
@@ -133,6 +134,7 @@ jest.mock('@react-native-google-signin/google-signin', () => {
     statusCodes: { SIGN_IN_CANCELLED: 'SIGN_IN_CANCELLED' },
   };
 });
+// @social-end
 
 jest.mock('@d11/react-native-fast-image', () => {
   const React = require('react');

@@ -97,6 +97,7 @@ export interface Updates {
   apply(): Promise<void>;
 }
 
+// @social-start
 export type SocialProvider = 'apple' | 'google';
 
 /** What a provider returns. The backend checks `idToken` against the provider's public keys. */
@@ -124,3 +125,4 @@ export interface SocialSignIn {
   /** Forgets the provider's own session, so the account chooser shows next time. */
   signOut(): Promise<void>;
 }
+// @social-end

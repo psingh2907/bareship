@@ -1,5 +1,5 @@
 import { ACTIVE_BRAND, type BrandPalette, BRANDS } from './brands';
-import { feedback, googleSignIn, neutral, radius, spacing, typography } from './tokens';
+import { feedback, googleSignIn, neutral, radius, spacing, typography } from './tokens'; // @social:theme-tokens-import
 
 export type ColorScheme = 'light' | 'dark';
 
@@ -29,8 +29,10 @@ export function createTheme(scheme: ColorScheme, brand: BrandPalette = BRANDS[AC
   return {
     scheme,
     colors: colors(scheme, brand),
+    // @social-start
     /** Third-party sign-in buttons, in the colours the provider fixes for this scheme (ADR 0020). */
     signIn: { google: googleSignIn[scheme] },
+    // @social-end
     spacing,
     radius,
     typography,

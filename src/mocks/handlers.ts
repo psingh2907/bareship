@@ -44,7 +44,7 @@ function postDto(post: PostRecord, viewerId: string) {
 // @example-end
 
 type Credentials = { email?: string; password?: string; name?: string };
-type SocialBody = { provider?: string; idToken?: string; nonce?: string; name?: string };
+type SocialBody = { provider?: string; idToken?: string; nonce?: string; name?: string }; // @social
 
 export const handlers = [
   http.post('*/auth/login', async ({ request }) => {
@@ -77,6 +77,7 @@ export const handlers = [
     );
   }),
 
+  // @social-start
   // Sign in with Apple or Google (ADR 0020). A real backend checks the ID token's signature, issuer,
   // audience, expiry and (Apple) nonce; this one accepts the mock provider's "mock.<provider>.<email>".
   http.post('*/auth/social', async ({ request }) => {
@@ -103,6 +104,7 @@ export const handlers = [
       { status: created ? 201 : 200 },
     );
   }),
+  // @social-end
 
   http.post('*/auth/refresh', async ({ request }) => {
     await wait();

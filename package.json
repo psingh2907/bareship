@@ -35,6 +35,7 @@
     "links:files": "tsx scripts/links-files.ts",
     "gen": "tsx scripts/generate.ts",
     "strip-examples": "tsx scripts/strip-examples.ts",
+    "remove-social-sign-in": "tsx scripts/remove-social-sign-in.ts",
     "pack-template": "tsx scripts/pack-template.ts",
     "site:dev": "pnpm --dir website dev",
     "site:build": "pnpm --dir website build",
