@@ -73,7 +73,7 @@ write queue, Keychain token storage, enforced architecture, optional Firebase an
 run it, or install it on a phone: the dev build serves sample data from a mock backend inside the app. You
 add each service when you need it ([going live](docs/going-live.md)).
 
-> **Status: 0.4.1, on npm and as a GitHub template.** `npx create-bareship` creates an app in one command. An
+> **Status: 0.4.2, on npm and as a GitHub template.** `npx create-bareship` creates an app in one command. An
 > app made from the npm package builds and runs on iOS and Android, and the fastlane release builds pass on
 > both. CI checks every pull request. Next: proving the native CI builds. See the [roadmap](#roadmap) and
 > [known limitations](#known-limitations).
@@ -344,13 +344,13 @@ independent; the rest of the app keeps working without it.
 | Languages (0.2) | English and Hindi, right-to-left as a switch per language, a lint rule for `start`/`end`, a [languages guide](docs/languages.md) |
 | Installer (0.3) | `npx create-bareship Acme` (or `npx bareship Acme`) checks the tools and creates the app in one command ([ADR 0018](docs/decisions/0018-create-bareship.md)) |
 | Sign-in and offline (0.4) | Sign in with Apple and Google behind a port, drawn to each provider's branding rules, with mock providers until you add your ids and `pnpm remove-social-sign-in` if you don't want it ([ADR 0020](docs/decisions/0020-sign-in-with-apple-and-google.md)); queued writes bound to their account; `onRejected: 'cancel-scope'` for dependent writes; the light/dark switch followed live |
+| Permissions (0.4.2) | Permission prompts that explain first, then point to the system settings once denied, with `usePermission` ([guide](docs/permissions.md)) |
 
 **Next**
 
 | Item | Status |
 | --- | --- |
 | CI checks on every pull request, required to merge | Done |
-| Permission prompts that explain first, with `usePermission` ([guide](docs/permissions.md)) | Done, in the next release |
 | Native CI builds passing: Android memory use, Xcode 27 on the macOS runner | Next |
 | End-to-end tests with Maestro | Postponed |
 | Performance tooling: Reassure render baselines, startup metrics, a bundle report | Postponed |

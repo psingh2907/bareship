@@ -4,6 +4,21 @@ Notable changes to the template. Versions follow [Semantic Versioning](https://s
 the template own their copy of the code, so a new version reaches an app only when its authors apply the
 changes.
 
+## 0.4.2 (2026-11-24)
+
+Permission prompts that explain first.
+
+- Asking for a permission opens a sheet before the system prompt that says why the app needs it. If the
+  OS won't prompt again, the sheet says how to turn it back on and opens the system settings. Use
+  `usePermission(kind)` and render its `<PermissionSheet {...sheet} />`
+  ([guide](docs/permissions.md)). Settings → Notifications uses it, and the hook reads the status again
+  when the app returns to the foreground.
+- A new `Permissions` port (`check`, `request`, `openSettings`) behind `services().permissions`. Only
+  notifications are declared, so apps list no permissions they don't use; the guide shows how to add
+  camera, photos or location with react-native-permissions.
+- `usePushPermission` (`src/entities/push`) is replaced by `usePermission('notifications')`. Apps made
+  from earlier versions keep their own copy and need no change.
+
 ## 0.4.1 (2026-11-14)
 
 A fix for the feature generator, and a check that keeps every generator working.
