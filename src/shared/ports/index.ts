@@ -53,7 +53,29 @@ export interface FeatureFlags {
   refresh(): Promise<void>;
 }
 
-export type PushPermission = 'granted' | 'denied' | 'not-determined';
+/**
+ * A runtime permission's state. `denied` means the OS won't show its prompt again: only the system
+ * settings can change it.
+ */
+export type PermissionStatus = 'granted' | 'denied' | 'not-determined';
+
+/**
+ * The runtime permissions this app asks for. To add one (camera, photos, location), add its kind
+ * here and a handler in `services.ts` (docs/permissions.md).
+ */
+export type PermissionKind = 'notifications';
+
+/** Runtime permissions, one API for every kind. Ask through `usePermission`, which explains first. */
+export interface Permissions {
+  /** Current status, without prompting. */
+  check(kind: PermissionKind): Promise<PermissionStatus>;
+  /** Shows the system prompt where the OS still allows it. */
+  request(kind: PermissionKind): Promise<PermissionStatus>;
+  /** Opens this app's page in the system settings, the only way back from `denied`. */
+  openSettings(): Promise<void>;
+}
+
+export type PushPermission = PermissionStatus;
 
 /** A notification as the app sees it. `data.link` is a deep link opened on tap (ADR 0010). */
 export type PushMessage = { title?: string; body?: string; data: Record<string, string> };

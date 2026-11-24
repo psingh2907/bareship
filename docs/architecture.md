@@ -8,7 +8,7 @@ How the code is organised and how data moves. The reasons are in the ADRs (0005,
 src/
   app/        composition: providers, navigation tree, boot sequence
   features/   one folder per feature: screens, components, hooks, api/, schema.ts, index.ts
-  entities/   models shared by two or more features (user, session, push, app-status)
+  entities/   models shared by two or more features (user, session, permissions, app-status)
   data/       query client + persisted cache + offline queue
   shared/     no business knowledge: ui, api, ports, adapters, services, i18n, config, lifecycle, lib
   mocks/      MSW fake backend (dev + tests only)

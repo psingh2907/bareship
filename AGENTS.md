@@ -134,6 +134,10 @@ Everything here runs without accounts; docs/going-live.md says what to add and w
   (`src/entities/app-status`, checked at boot and on foreground).
 - **Push:** use `services().push` (port in `src/shared/ports`). A notification's `data.link` is a deep link;
   taps go through `src/app/navigation/linking.ts`. Never prompt at first launch; the Settings row asks.
+- **Permissions:** ask with `usePermission(kind)` and render its `<PermissionSheet {...sheet} />`: it
+  explains before the system prompt and links to the system settings once denied. Never call a prompt
+  directly. Only notifications are declared; add another kind with react-native-permissions
+  ([docs/permissions.md](docs/permissions.md)).
 - **Deep links:** add `linking: 'path/:param'` to the screen in `RootNavigator.tsx` and the path to
   `LINK_PATHS` in `scripts/links-files.ts`. Links open on top of the tabs, and a link that arrives while signed
   out opens after sign-in (`UNSTABLE_routeNamesChangeBehavior`, covered by `App.test.tsx`).
