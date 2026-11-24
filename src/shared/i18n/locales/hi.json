@@ -120,6 +120,14 @@
     "notificationsBlocked": "ब्लॉक है",
     "notificationsBlockedHint": "इन्हें अपने फ़ोन की सेटिंग्स में चालू करें।"
   },
+  "permissions": {
+    "notNow": "अभी नहीं",
+    "openSettings": "सेटिंग्स खोलें",
+    "notificationsTitle": "सूचनाएँ चालू करें",
+    "notificationsBody": "जब किसी चीज़ पर आपका ध्यान चाहिए, तब सूचना पाएँ। आप इन्हें कभी भी सेटिंग्स में बंद कर सकते हैं।",
+    "notificationsBlockedTitle": "सूचनाएँ बंद हैं",
+    "notificationsBlockedBody": "आपने इस ऐप के लिए इन्हें बंद किया है। इन्हें अपने फ़ोन की सेटिंग्स में चालू करें।"
+  },
   "offline": {
     "banner": "आप ऑफ़लाइन हैं। सेव की गई सामग्री दिख रही है।",
     "pending_one": "आप ऑफ़लाइन हैं। {{count}} बदलाव कनेक्शन वापस आने पर सिंक होगा।",

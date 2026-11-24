@@ -158,6 +158,35 @@ import { Card, CardGrid, LinkButton, Steps } from '@astrojs/starlight/components
   </div>
   <div class="feature">
     <div class="feature-text">
+      <h3>Permission prompts that explain first</h3>
+      <p>
+        Before the system asks, a sheet says why the app needs the permission, because iOS asks only
+        once. If someone said no earlier, the sheet says how to turn it back on and opens Settings.
+        Notifications use it out of the box; add camera or location in a few steps.
+      </p>
+      <a href="/build/permissions/">Ask for a permission →</a>
+    </div>
+    <div class="feature-shots two">
+      <img
+        src="/screenshots/android/09-permission.png"
+        alt="On Android, a sheet over Settings explains notifications before the system prompt, with Continue and Not now"
+        width="640"
+        height="1428"
+        loading="lazy"
+        decoding="async"
+      />
+      <img
+        src="/screenshots/ios/09-permission-blocked.png"
+        alt="On iOS, after a Don't Allow, the sheet says notifications are off and offers Open settings"
+        width="603"
+        height="1311"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+  </div>
+  <div class="feature">
+    <div class="feature-text">
       <h3>Onboarding on first launch</h3>
       <p>
         Three swipeable screens with Skip, shown once before sign-in. Change the words in the
@@ -249,7 +278,8 @@ The rules your team follows are written down where coding agents read them, and 
   </Card>
 </CardGrid>
 
-Also included: English and Hindi with right-to-left support ([Languages](/build/languages/)), and a supply-chain
+Also included: English and Hindi with right-to-left support ([Languages](/build/languages/)), permission prompts
+that explain first ([Permissions](/build/permissions/)), and a supply-chain
 policy that refuses packages younger than 3 days ([Decision 0003](/reference/decisions/0003-package-manager-and-supply-chain/)).
 
 ## Is this for you?

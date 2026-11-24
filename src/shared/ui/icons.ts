@@ -6,6 +6,7 @@
  */
 export type { LucideIcon } from 'lucide-react-native';
 export { default as Bell } from 'lucide-react-native/icons/bell';
+export { default as BellOff } from 'lucide-react-native/icons/bell-off';
 export { default as ChevronRight } from 'lucide-react-native/icons/chevron-right';
 export { default as CloudOff } from 'lucide-react-native/icons/cloud-off';
 export { default as Download } from 'lucide-react-native/icons/download';

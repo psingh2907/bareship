@@ -1,3 +1,4 @@
+import { Linking } from 'react-native';
 import * as Keychain from 'react-native-keychain';
 
 import { createConsoleLogger, redact } from './console-logger';
@@ -9,6 +10,7 @@ import {
   createNoopUpdates,
   createStaticFlags,
 } from './noop-adapters';
+import { createPermissions } from './permissions';
 
 describe('createMmkvKeyValueStore', () => {
   it('stores strings, numbers and booleans, and removes them', () => {
@@ -94,5 +96,19 @@ describe('no-op adapters', () => {
 
   it('updates report "unsupported" until a provider is configured', async () => {
     await expect(createNoopUpdates().check()).resolves.toBe('unsupported');
+  });
+});
+
+describe('createPermissions', () => {
+  it('routes each kind to its handler and opens the system settings', async () => {
+    const handler = {
+      check: jest.fn(async () => 'not-determined' as const),
+      request: jest.fn(async () => 'granted' as const),
+    };
+    const permissions = createPermissions({ notifications: handler });
+    await expect(permissions.check('notifications')).resolves.toBe('not-determined');
+    await expect(permissions.request('notifications')).resolves.toBe('granted');
+    await permissions.openSettings();
+    expect(Linking.openSettings).toHaveBeenCalled();
   });
 });

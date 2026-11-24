@@ -11,6 +11,7 @@ import {
   createStaticFlags,
 } from '@/shared/adapters/noop-adapters';
 import { createNotifyKitPush } from '@/shared/adapters/notify-kit-push';
+import { createPermissions } from '@/shared/adapters/permissions';
 import { env } from '@/shared/config/env';
 import { FLAG_DEFAULTS } from '@/shared/config/flags';
 import type {
@@ -20,6 +21,7 @@ import type {
   FeatureFlags,
   KeyValueStore,
   Logger,
+  Permissions,
   Push,
   SecureStore,
   SocialSignIn, // @social
@@ -42,6 +44,7 @@ export type Services = {
   updates: Updates;
   appInfo: AppInfo;
   push: Push;
+  permissions: Permissions;
   social: SocialSignIn; // @social
 };
 
@@ -54,6 +57,13 @@ function createDefaultServices(): Services {
     ...createVendorServices(logger),
     updates: createNoopUpdates(),
     appInfo: createDeviceAppInfo(),
+    // Read through services() so a push adapter swapped in later (tests, boot) is the one asked.
+    permissions: createPermissions({
+      notifications: {
+        check: () => services().push.permission(),
+        request: () => services().push.requestPermission(),
+      },
+    }),
     social: createSocialSignIn(logger), // @social
   };
 }

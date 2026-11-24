@@ -3,7 +3,8 @@ import { useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { usePushPermission } from '@/entities/push/use-push-permission';
+import { PermissionSheet } from '@/entities/permissions/PermissionSheet';
+import { usePermission } from '@/entities/permissions/use-permission';
 import { useDeleteAccount, useSignOut } from '@/entities/session/hooks';
 import { useSession } from '@/entities/session/session-store';
 import { env } from '@/shared/config/env';
@@ -36,7 +37,8 @@ export function SettingsScreen() {
   const navigation = useNavigation(); // @example
   const user = useSession(state => state.user);
   const signOut = useSignOut();
-  const { permission, enable } = usePushPermission();
+  const notifications = usePermission('notifications');
+  const permission = notifications.status;
   const deleteAccount = useDeleteAccount();
   const [theme, setTheme] = useState<ThemePreference>(getThemePreference);
   const [language, setLanguage] = useState<Language>(currentLanguage);
@@ -102,7 +104,7 @@ export function SettingsScreen() {
                 ? t('settings.notificationsBlocked')
                 : t('settings.notificationsOff')
           }
-          onPress={permission === 'granted' ? undefined : () => enable().catch(() => {})}
+          onPress={permission === 'granted' ? undefined : notifications.ask}
           testID="settings-notifications"
         />
       </Section>
@@ -142,6 +144,8 @@ export function SettingsScreen() {
           onPress={() => deleteSheet.current?.present()}
         />
       </Section>
+
+      <PermissionSheet {...notifications.sheet} />
 
       <Sheet ref={deleteSheet}>
         {/* Offline pattern D: deleting an account can't be queued, so the sheet explains why. */}

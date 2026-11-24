@@ -184,6 +184,8 @@ Sign in with Apple and Google? `pnpm remove-social-sign-in` takes it out, librar
   Google appear once you add their ids ([guide](docs/social-sign-in.md)).
 - A feed with cursor pagination, pull to refresh, skeletons and optimistic likes, plus a post screen.
 - Settings: theme (light, dark, system), language, notifications, sign-out and account deletion.
+- Permission prompts that explain first, and point to the system settings once denied
+  ([permissions](docs/permissions.md)).
 - Design system on Unistyles 3: tokens, light and dark themes, and about 15 accessible primitives (Button,
   Input, Sheet, Toast, ListItem…), with a component showroom in dev builds.
 - English and Hindi, typed keys, and a lint rule against hard-coded text. Right-to-left languages are one
@@ -348,6 +350,7 @@ independent; the rest of the app keeps working without it.
 | Item | Status |
 | --- | --- |
 | CI checks on every pull request, required to merge | Done |
+| Permission prompts that explain first, with `usePermission` ([guide](docs/permissions.md)) | Done, in the next release |
 | Native CI builds passing: Android memory use, Xcode 27 on the macOS runner | Next |
 | End-to-end tests with Maestro | Postponed |
 | Performance tooling: Reassure render baselines, startup metrics, a bundle report | Postponed |

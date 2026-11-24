@@ -120,6 +120,14 @@
     "notificationsBlocked": "Blocked",
     "notificationsBlockedHint": "Turn them on in your phone's settings."
   },
+  "permissions": {
+    "notNow": "Not now",
+    "openSettings": "Open settings",
+    "notificationsTitle": "Turn on notifications",
+    "notificationsBody": "Get a notification when something needs your attention. You can turn them off any time in Settings.",
+    "notificationsBlockedTitle": "Notifications are off",
+    "notificationsBlockedBody": "You turned them off for this app. Turn them on in your phone's settings."
+  },
   "offline": {
     "banner": "You're offline. Showing saved content.",
     "pending_one": "You're offline. {{count}} change will sync when you reconnect.",

@@ -59,6 +59,7 @@ export default defineConfig({
             'build/offline',
             'build/languages',
             'build/social-sign-in',
+            'build/permissions',
             'build/app-icon-and-splash',
             'build/generators',
             'build/ai-agents',
