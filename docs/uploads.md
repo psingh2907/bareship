@@ -20,6 +20,34 @@ included), so an upload is a few hundred KB rather than several MB.
 The demo feed uses it: tap the pen in the feed's header to write a post. `pnpm strip-examples` removes the
 demo; the building blocks below stay.
 
+## Add an upload to your feature
+
+```bash
+pnpm gen upload receipts receipt-photo --path /receipts/:id/photo
+```
+
+It writes `useUploadReceiptPhoto()` with `defineQueuedUpload`, the response schema, the registration in
+`src/app/queued-writes.ts`, a mock handler and tests. In the screen:
+
+```tsx
+const upload = useUploadReceiptPhoto();
+const camera = usePermission('camera', { onGranted: () => upload.pick('camera', { id }) });
+const item = upload.status({ id });
+
+<Button title={t('receipts.addPhoto')} onPress={() => upload.pick('library', { id })} />
+{item ? (
+  <>
+    <Image uri={item.localUri} style={styles.photo} />
+    <UploadStatus state={item.state} progress={item.progress} onRetry={item.retry} onRemove={item.remove} />
+  </>
+) : null}
+<PermissionSheet {...camera.sheet} />
+```
+
+`status(item)` is `uploading`, `waiting` or `failed`, or null once the server has it (or when there's
+nothing to upload). A failed upload, or one cut off when the app closed, still shows after a restart.
+Update your cache from the response in `onSuccess`.
+
 ## The building blocks
 
 | Piece | Where | What it does |
@@ -30,15 +58,16 @@ demo; the building blocks below stay.
 | `uploadFile({ fileId, … })` | `data/uploads.ts` | Sends a kept file as `multipart/form-data` and reports its progress |
 | `useUploadProgress(key)` | `data/uploads.ts` | One upload's progress (0–1); re-renders only the component that reads it |
 | `discardQueuedWrite(key)`, `resend(variables)` | `data/offline.ts` | Remove a waiting or running write; send a failed one again with its original key |
+| `defineQueuedUpload` | `data/uploads.ts` | One upload, end to end: pick, keep, queue, progress, retry, remove, and its state after a restart |
 | `<UploadStatus>` | `shared/ui/upload` | The progress bar, "Waiting to upload", and Try again / Remove |
 
 Save the id `files.keep` returns, not a path: iOS moves the app's folder when the app is updated.
 
-## Upload from your own screen
+## Two requests: upload, then create
 
-Make the upload part of a queued write (offline pattern B, ADR 0006): the write's variables hold the kept
-file's id, and its `mutationFn` calls `uploadFile`. `useCreatePost` in `src/features/feed/api.ts` is the
-complete example; the core is:
+When the photo belongs to something the same write creates (a post, a receipt), use `defineQueuedMutation`
+directly: its variables hold the kept file's id, and its `mutationFn` calls `uploadFile`, then your request.
+`useCreatePost` in `src/features/feed/api.ts` is the complete example; the core is:
 
 ```ts
 export const useSendReceipt = defineQueuedMutation<Receipt, { receiptId: string; photo: NewPhoto }>({

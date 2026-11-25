@@ -26,6 +26,9 @@ each `:param` becomes an argument. It appends to the feature's files and creates
 The name can't clash with a schema already in `schema.ts` (a GET `/orders/:id` in feature `orders` is
 `order-detail`, since `Order` exists).
 
+Uploading a photo or file? Use `pnpm gen upload` and the `add-upload` skill instead: it writes an upload
+that works offline.
+
 ## 2. Make it real
 
 1. **Response.** Add the real fields to the DTO (snake_case if the server uses it), the model and the

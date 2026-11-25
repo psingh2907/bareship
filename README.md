@@ -237,7 +237,7 @@ Sign in with Apple and Google? `pnpm remove-social-sign-in` takes it out, librar
   `.github/copilot-instructions.md` point to it.
 - [Callstack's agent skills](https://github.com/callstackincubator/agent-skills) are vendored in
   `.claude/skills/` and pinned to a commit. Update them with `pnpm skills:sync`.
-- The template's own skills, `add-feature`, `add-screen` and `add-endpoint`, run the generators and walk
+- The template's own skills, `add-feature`, `add-screen`, `add-endpoint` and `add-upload`, run the generators and walk
   an agent through the rest: fields, offline pattern, strings, tests.
 - Agents drive the app with agent-device and profile it with Argent
   ([ADR 0013](docs/decisions/0013-agent-device-tools.md)).

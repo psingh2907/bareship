@@ -18,6 +18,8 @@ Photo uploads that work offline.
 - The camera is a new permission kind, through react-native-permissions on iOS; Android needs none.
   `usePermission` takes `onGranted`, and a status can be `unavailable` (no camera).
 - `defineQueuedMutation` takes a `retry` policy.
+- `pnpm gen upload <feature> <name>` writes a photo upload that works offline (`defineQueuedUpload`), with
+  its schema, mock and tests, and an `add-upload` skill for AI agents.
 - The mock backend accepts `POST /uploads` and `POST /posts`; a post containing `#fail` is refused.
 
 ## 0.4.2 (2026-11-24)

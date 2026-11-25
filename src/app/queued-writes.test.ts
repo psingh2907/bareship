@@ -16,7 +16,7 @@ describe('queued-writes.ts', () => {
   it('imports every module that defines a queued write', () => {
     const registry = fs.readFileSync(path.join(__dirname, 'queued-writes.ts'), 'utf8');
     const definers = sourceFiles(path.join(SRC, 'features'))
-      .filter(file => /\bdefineQueuedMutation\s*[<(]/.test(fs.readFileSync(file, 'utf8')))
+      .filter(file => /\bdefineQueued(Mutation|Upload)\s*[<(]/.test(fs.readFileSync(file, 'utf8')))
       .map(
         file =>
           `@/${path

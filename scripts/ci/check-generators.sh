@@ -18,6 +18,7 @@ bin=node_modules/.bin
 "$bin/tsx" scripts/generate.ts feature people --item person
 "$bin/tsx" scripts/generate.ts screen orders order-detail --param id
 "$bin/tsx" scripts/generate.ts endpoint orders cancel-order --method post --path /orders/:id/cancel
+"$bin/tsx" scripts/generate.ts upload orders order-photo --path /orders/:id/photo
 
 "$bin/tsc" --noEmit
 "$bin/eslint" . --max-warnings=0
@@ -25,4 +26,4 @@ bin=node_modules/.bin
 "$bin/depcruise" src --config .dependency-cruiser.cjs
 # A fresh copy has a cold Jest cache, so the full-app tests compile everything on their first run.
 "$bin/jest" --ci --testTimeout=20000
-echo "✔ Generated features, screens and endpoints pass types, lint, format, boundaries and tests"
+echo "✔ Generated features, screens, endpoints and uploads pass types, lint, format, boundaries and tests"

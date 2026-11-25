@@ -56,6 +56,11 @@ export function setQueueAccount(getAccountId: () => string | null): void {
   currentAccount = getAccountId;
 }
 
+/** The account queued writes currently belong to (see `setQueueAccount`). */
+export function queueAccount(): string | null {
+  return currentAccount();
+}
+
 function belongsToCurrentAccount(variables: { accountId?: string | null }): boolean {
   return variables.accountId === undefined || variables.accountId === currentAccount();
 }
