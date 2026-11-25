@@ -73,7 +73,7 @@ write queue, Keychain token storage, enforced architecture, optional Firebase an
 run it, or install it on a phone: the dev build serves sample data from a mock backend inside the app. You
 add each service when you need it ([going live](docs/going-live.md)).
 
-> **Status: 0.4.2, on npm and as a GitHub template.** `npx create-bareship` creates an app in one command. An
+> **Status: 0.5.0, on npm and as a GitHub template.** `npx create-bareship` creates an app in one command. An
 > app made from the npm package builds and runs on iOS and Android, and the fastlane release builds pass on
 > both. CI checks every pull request. Next: proving the native CI builds. See the [roadmap](#roadmap) and
 > [known limitations](#known-limitations).
@@ -321,6 +321,10 @@ independent; the rest of the app keeps working without it.
   limits for the Android builds, which ran out of memory on 8 GB private runners) are in the workflow but
   haven't run on the larger public runners yet. GitHub's macOS image has Xcode 26.x, not 27, so the iOS job
   is unproven too.
+- **Photo uploads run while the app is open.** One that's waiting picks up the next time the app opens;
+  nothing uploads in the background after it's closed ([uploads](docs/uploads.md#before-you-start)).
+- **Taking a photo hasn't run on a real iPhone.** The iOS simulator has no camera; the camera path was
+  tested on the Android emulator, and the photo library on both.
 - **Over-the-air updates have a port but no adapter.** Pick a provider (for example hot-updater) and add
   one.
 - **Right-to-left is opt-in.** No shipped language is right-to-left, so tests and lint cover it, not the
@@ -338,7 +342,7 @@ independent; the rest of the app keeps working without it.
 
 ## Roadmap
 
-**Released (0.1 to 0.4)**
+**Released (0.1 to 0.5)**
 
 | Area | What's included |
 | --- | --- |
@@ -351,13 +355,13 @@ independent; the rest of the app keeps working without it.
 | Installer (0.3) | `npx create-bareship Acme` (or `npx bareship Acme`) checks the tools and creates the app in one command ([ADR 0018](docs/decisions/0018-create-bareship.md)) |
 | Sign-in and offline (0.4) | Sign in with Apple and Google behind a port, drawn to each provider's branding rules, with mock providers until you add your ids and `pnpm remove-social-sign-in` if you don't want it ([ADR 0020](docs/decisions/0020-sign-in-with-apple-and-google.md)); queued writes bound to their account; `onRejected: 'cancel-scope'` for dependent writes; the light/dark switch followed live |
 | Permissions (0.4.2) | Permission prompts that explain first, then point to the system settings once denied, with `usePermission` ([guide](docs/permissions.md)) |
+| Photo uploads (0.5) | Photo uploads that wait offline, survive a restart and retry with one idempotency key; `pnpm gen upload` and the `add-upload` skill add one to your own screen ([guide](docs/uploads.md)) |
 
 **Next**
 
 | Item | Status |
 | --- | --- |
 | CI checks on every pull request, required to merge | Done |
-| Photo uploads that work offline ([guide](docs/uploads.md)) | Done, in the next release |
 | Native CI builds passing: Android memory use, Xcode 27 on the macOS runner | Next |
 | End-to-end tests with Maestro | Postponed |
 | Performance tooling: Reassure render baselines, startup metrics, a bundle report | Postponed |
