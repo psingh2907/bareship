@@ -4,9 +4,10 @@ Notable changes to the template. Versions follow [Semantic Versioning](https://s
 the template own their copy of the code, so a new version reaches an app only when its authors apply the
 changes.
 
-## Unreleased
+## 0.5.0 (2026-11-25)
 
-Photo uploads that work offline.
+Photo uploads that work offline, `pnpm gen upload` to add one to your own screens, and a fix for queued
+writes lost at launch.
 
 - Write a post with a photo from the library or the camera (the pen in the feed's header). The post shows
   at once with its upload progress. Offline it waits, survives a restart and goes out on reconnect; a
