@@ -22,6 +22,20 @@ export type Post = {
   likeCount: number;
   likedByMe: boolean;
   createdAt: string;
+  /** Set only on a post made on this phone that the server doesn't have yet (see `useCreatePost`). */
+  local?: LocalPost;
+};
+
+/** A photo picked for a new post, kept on the phone until it's uploaded. */
+export type NewPhoto = { fileId: string; mimeType: string; fileName: string };
+
+export type CreatePostVariables = { postId: string; body: string; photo: NewPhoto | null };
+
+export type LocalPost = {
+  /** `failed`: the server refused it, or it was still sending when the app was closed. */
+  state: 'sending' | 'failed';
+  /** The write's idempotency key and variables, to show its progress and send it again. */
+  write: CreatePostVariables & { idempotencyKey: string; accountId?: string | null };
 };
 
 export const PostSchema = PostDtoSchema.transform((dto): Post => ({
@@ -35,3 +49,6 @@ export const PostSchema = PostDtoSchema.transform((dto): Post => ({
 }));
 
 export const FeedPageSchema = cursorPageSchema(PostSchema);
+
+/** POST /uploads: where the server stored the file. */
+export const UploadSchema = z.object({ id: z.string(), url: z.url() });

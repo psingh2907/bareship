@@ -4,6 +4,22 @@ Notable changes to the template. Versions follow [Semantic Versioning](https://s
 the template own their copy of the code, so a new version reaches an app only when its authors apply the
 changes.
 
+## Unreleased
+
+Photo uploads that work offline.
+
+- Write a post with a photo from the library or the camera (the pen in the feed's header). The post shows
+  at once with its upload progress. Offline it waits, survives a restart and goes out on reconnect; a
+  dropped connection waits again instead of failing; a refused post stays as failed with Try again and
+  Remove. Every retry reuses one idempotency key ([guide](docs/uploads.md)).
+- New `PhotoPicker` and `FileStore` ports (react-native-image-picker, react-native-file-access), and
+  `uploadFile`, `useUploadProgress`, `discardQueuedWrite` and `resend` in the data layer, plus an
+  `<UploadStatus>` component.
+- The camera is a new permission kind, through react-native-permissions on iOS; Android needs none.
+  `usePermission` takes `onGranted`, and a status can be `unavailable` (no camera).
+- `defineQueuedMutation` takes a `retry` policy.
+- The mock backend accepts `POST /uploads` and `POST /posts`; a post containing `#fail` is refused.
+
 ## 0.4.2 (2026-11-24)
 
 Permission prompts that explain first.

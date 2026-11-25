@@ -1,8 +1,11 @@
 import { createConsoleLogger } from '@/shared/adapters/console-logger';
 import { createDeviceAppInfo } from '@/shared/adapters/device-info-app-info';
+import { createFileAccessFileStore } from '@/shared/adapters/file-access-file-store';
 import { isFirebaseConfigured } from '@/shared/adapters/firebase-app';
+import { createImagePickerPhotoPicker } from '@/shared/adapters/image-picker-photo-picker';
 import { createKeychainSecureStore } from '@/shared/adapters/keychain-secure-store';
 import { createMmkvKeyValueStore } from '@/shared/adapters/mmkv-key-value-store';
+import { cameraPermission } from '@/shared/adapters/native-permissions';
 import {
   createLoggingAnalytics,
   createLoggingCrashReporter,
@@ -19,9 +22,11 @@ import type {
   AppInfo,
   CrashReporter,
   FeatureFlags,
+  FileStore,
   KeyValueStore,
   Logger,
   Permissions,
+  PhotoPicker,
   Push,
   SecureStore,
   SocialSignIn, // @social
@@ -45,6 +50,8 @@ export type Services = {
   appInfo: AppInfo;
   push: Push;
   permissions: Permissions;
+  photos: PhotoPicker;
+  files: FileStore;
   social: SocialSignIn; // @social
 };
 
@@ -63,7 +70,10 @@ function createDefaultServices(): Services {
         check: () => services().push.permission(),
         request: () => services().push.requestPermission(),
       },
+      camera: cameraPermission(),
     }),
+    photos: createImagePickerPhotoPicker(logger),
+    files: createFileAccessFileStore(),
     social: createSocialSignIn(logger), // @social
   };
 }

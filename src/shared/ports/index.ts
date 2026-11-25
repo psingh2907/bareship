@@ -55,15 +55,15 @@ export interface FeatureFlags {
 
 /**
  * A runtime permission's state. `denied` means the OS won't show its prompt again: only the system
- * settings can change it.
+ * settings can change it. `unavailable` means this device can't do it at all (no camera, for example).
  */
-export type PermissionStatus = 'granted' | 'denied' | 'not-determined';
+export type PermissionStatus = 'granted' | 'denied' | 'not-determined' | 'unavailable';
 
 /**
  * The runtime permissions this app asks for. To add one (camera, photos, location), add its kind
  * here and a handler in `services.ts` (docs/permissions.md).
  */
-export type PermissionKind = 'notifications';
+export type PermissionKind = 'notifications' | 'camera';
 
 /** Runtime permissions, one API for every kind. Ask through `usePermission`, which explains first. */
 export interface Permissions {
@@ -75,7 +75,7 @@ export interface Permissions {
   openSettings(): Promise<void>;
 }
 
-export type PushPermission = PermissionStatus;
+export type PushPermission = Exclude<PermissionStatus, 'unavailable'>;
 
 /** A notification as the app sees it. `data.link` is a deep link opened on tap (ADR 0010). */
 export type PushMessage = { title?: string; body?: string; data: Record<string, string> };
@@ -108,6 +108,51 @@ export interface AppInfo {
   buildNumber(): string;
   /** Bundle id / application id, including the environment suffix. */
   bundleId(): string;
+}
+
+/** A photo the person picked or took, already resized and compressed, in a temporary file. */
+export type PickedPhoto = {
+  /** `file://` URI of the JPEG. */
+  uri: string;
+  width: number;
+  height: number;
+  /** Bytes. */
+  size: number;
+  mimeType: string;
+  fileName: string;
+};
+
+export type PhotoSource = 'camera' | 'library';
+
+/**
+ * Picks or takes a photo (react-native-image-picker; expo-image-picker in Track B). The library uses
+ * the system picker, which needs no permission; ask for 'camera' with `usePermission` before the
+ * camera. Photos come back at most `maxSize` pixels on the long side, as JPEG.
+ */
+export interface PhotoPicker {
+  /** Resolves null when the person cancels. */
+  pick(
+    source: PhotoSource,
+    options?: { maxSize?: number; quality?: number },
+  ): Promise<PickedPhoto | null>;
+}
+
+/**
+ * Files the app keeps until it's done with them, such as photos waiting to upload. The system may
+ * clear temporary files while the app isn't running; kept files stay until `remove`
+ * (react-native-file-access; expo-file-system in Track B).
+ *
+ * Save the id `keep` returns, never a path: iOS moves the app's folder when the app is updated, so a
+ * saved absolute path can stop working. `uriOf` gives the current path.
+ */
+export interface FileStore {
+  /** Copies a temporary file in and returns its id. */
+  keep(uri: string): Promise<string>;
+  /** The kept file's current `file://` URI. */
+  uriOf(id: string): string;
+  exists(id: string): Promise<boolean>;
+  /** Deletes a kept file. Does nothing if it's already gone. */
+  remove(id: string): Promise<void>;
 }
 
 export type UpdateStatus = 'up-to-date' | 'update-ready' | 'unsupported';

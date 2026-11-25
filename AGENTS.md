@@ -138,6 +138,10 @@ Everything here runs without accounts; docs/going-live.md says what to add and w
   explains before the system prompt and links to the system settings once denied. Never call a prompt
   directly. Only notifications are declared; add another kind with react-native-permissions
   ([docs/permissions.md](docs/permissions.md)).
+- **Photo uploads:** pick with `services().photos`, keep the file with `services().files.keep` (save the
+  id, never a path), and upload inside a queued write with `uploadFile` from `src/data/uploads.ts`, so it
+  waits offline and retries with one idempotency key. Show it with `<UploadStatus>`
+  ([docs/uploads.md](docs/uploads.md)).
 - **Deep links:** add `linking: 'path/:param'` to the screen in `RootNavigator.tsx` and the path to
   `LINK_PATHS` in `scripts/links-files.ts`. Links open on top of the tabs, and a link that arrives while signed
   out opens after sign-in (`UNSTABLE_routeNamesChangeBehavior`, covered by `App.test.tsx`).

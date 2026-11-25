@@ -29,3 +29,16 @@ export function authenticate(request: Request): UserRecord | Response {
   const user = db.current.users.find(candidate => candidate.id === session.userId);
   return user ?? error(401, 'unauthenticated', 'Sign in to continue.');
 }
+
+/** A file part as React Native's FormData describes it. */
+export type MockFilePart = { fieldName: string; uri: string; name?: string; type?: string };
+
+/**
+ * The file in an upload request. In the app, the mock adapter (native.ts) sends React Native's
+ * FormData parts as JSON (`{ parts }`); real multipart bodies (tests) have no readable file URI.
+ */
+export async function mockFilePart(request: Request): Promise<MockFilePart | null> {
+  if (!request.headers.get('content-type')?.includes('application/json')) return null;
+  const { parts } = (await request.json()) as { parts?: MockFilePart[] };
+  return parts?.find(part => typeof part.uri === 'string') ?? null;
+}

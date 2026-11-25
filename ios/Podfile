@@ -1,12 +1,22 @@
-# Resolve react_native_pods.rb with node to allow for hoisting
-require Pod::Executable.execute_command('node', ['-p',
-  'require.resolve(
-    "react-native/scripts/react_native_pods.rb",
-    {paths: [process.argv[1]]},
-  )', __dir__]).strip
+# Resolve scripts with node to allow for hoisting
+def node_require(script)
+  require Pod::Executable.execute_command('node', ['-p',
+    "require.resolve(
+      '#{script}',
+      {paths: [process.argv[1]]},
+    )", __dir__]).strip
+end
+
+node_require('react-native/scripts/react_native_pods.rb')
+# [bareship] react-native-permissions builds only the handlers listed in setup_permissions below.
+node_require('react-native-permissions/scripts/setup.rb')
 
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
+
+# [bareship] Runtime permissions the app checks itself (docs/permissions.md). The photo library needs
+# none: the picker is the system's (PHPicker). Add a name here and its usage string to Info.plist.
+setup_permissions(['Camera'])
 
 # [bareship] Environment build configurations (scripts/ios/configure-environments.rb).
 project 'BareshipApp',

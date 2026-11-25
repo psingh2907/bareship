@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
 import { ACCESS_TOKEN_TTL_MS, db, type PostRecord, type UserRecord } from './db'; // @example:mock-db-import
-import { authenticate, error, readToken, wait } from './helpers';
+import { authenticate, error, mockFilePart, readToken, wait } from './helpers';
 
 /**
  * Tokens are self-describing ("<kind>.<userId>.<expiresAt>.<nonce>") instead of rows in the mock db,
@@ -150,6 +150,23 @@ export const handlers = [
     return new HttpResponse(null, { status: 204 });
   }),
 
+  // A file upload (src/data/uploads.ts). Kept by `pnpm strip-examples`: apps keep the upload building
+  // blocks. A photo upload. The in-app mock (native.ts) sends the multipart parts as JSON, and the "stored"
+  // photo is served from the kept file on the phone; tests send real multipart data.
+  http.post('*/uploads', async ({ request }) => {
+    await wait();
+    const user = authenticate(request);
+    if (user instanceof Response) return user;
+    const key = request.headers.get('Idempotency-Key');
+    const replay = key ? db.current.idempotency.get(key) : undefined;
+    if (replay) return HttpResponse.json(replay, { status: 201 });
+    const id = `upload_${db.current.idempotency.size + 1}`;
+    const part = await mockFilePart(request);
+    const body = { id, url: part?.uri ?? `https://example.com/uploads/${id}.jpg` };
+    if (key) db.current.idempotency.set(key, body);
+    return HttpResponse.json(body, { status: 201 });
+  }),
+
   // @example-start
   http.get('*/posts', async ({ request }) => {
     await wait();
@@ -196,6 +213,39 @@ export const handlers = [
       return HttpResponse.json(body);
     }),
   ),
+
+  // A new post. The client picks the id, so a replay after a lost response doesn't create a twin.
+  // A post containing "#fail" is refused, to show (and test) the failed state.
+  http.post('*/posts', async ({ request }) => {
+    await wait();
+    const user = authenticate(request);
+    if (user instanceof Response) return user;
+    const key = request.headers.get('Idempotency-Key');
+    const replay = key ? db.current.idempotency.get(key) : undefined;
+    if (replay) return HttpResponse.json(replay, { status: 201 });
+    const input = (await request.json()) as {
+      id?: string;
+      body?: string;
+      image_url?: string | null;
+    };
+    const text = (input.body ?? '').trim();
+    if (!text && !input.image_url)
+      return error(422, 'empty_post', 'Write something or add a photo.');
+    if (text.includes('#fail')) return error(422, 'rejected', 'The server refused this post.');
+    const existing = db.current.posts.find(post => post.id === input.id);
+    const post: PostRecord = existing ?? {
+      id: input.id ?? `p_new_${db.current.posts.length + 1}`,
+      author_id: user.id,
+      body: text,
+      image_url: input.image_url ?? null,
+      like_count: 0,
+      created_at: new Date().toISOString(),
+    };
+    if (!existing) db.current.posts.unshift(post);
+    const body = postDto(post, user.id);
+    if (key) db.current.idempotency.set(key, body);
+    return HttpResponse.json(body, { status: 201 });
+  }),
   // @example-end
   // gen:handlers (`pnpm gen` adds feature handlers above this line)
 ];

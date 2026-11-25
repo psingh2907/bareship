@@ -91,7 +91,16 @@
     "unlike": "Unlike",
     "likeFailed": "Couldn't save your like. Try again.",
     "postTitle": "Post",
-    "byAuthor": "By {{name}}"
+    "byAuthor": "By {{name}}",
+    "newPost": "New post",
+    "post": "Post",
+    "composePlaceholder": "What's on your mind?",
+    "addPhoto": "Photos",
+    "takePhoto": "Camera",
+    "removePhoto": "Remove photo",
+    "photoFailed": "Couldn't open the photo. Try again.",
+    "postFailed": "Couldn't share your post.",
+    "offlineCompose": "You're offline. Your post will be shared when you reconnect."
   },
   "settings": {
     "title": "Settings",
@@ -126,7 +135,21 @@
     "notificationsTitle": "Turn on notifications",
     "notificationsBody": "Get a notification when something needs your attention. You can turn them off any time in Settings.",
     "notificationsBlockedTitle": "Notifications are off",
-    "notificationsBlockedBody": "You turned them off for this app. Turn them on in your phone's settings."
+    "notificationsBlockedBody": "You turned them off for this app. Turn them on in your phone's settings.",
+    "cameraTitle": "Use your camera",
+    "cameraBody": "Take a photo to add to your post. The app only uses the camera while you're taking it.",
+    "cameraBlockedTitle": "Camera access is off",
+    "cameraBlockedBody": "You turned it off for this app. Turn it on in your phone's settings to take photos."
+  },
+  "upload": {
+    "preparing": "Uploading…",
+    "uploading": "Uploading {{percent}}%",
+    "uploadingLabel": "Upload progress",
+    "waiting": "Waiting to upload",
+    "failed": "Couldn't upload this.",
+    "retry": "Try again",
+    "remove": "Remove",
+    "cancel": "Cancel"
   },
   "offline": {
     "banner": "You're offline. Showing saved content.",

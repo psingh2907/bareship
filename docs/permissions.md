@@ -11,8 +11,10 @@ in the system prompt is hard to undo.
   <img src="https://raw.githubusercontent.com/psingh2907/bareship/main/assets/screenshots/ios/09-permission-blocked.png" alt="iOS: after a Don't Allow, the sheet says notifications are off and offers Open settings" width="240">
 </p>
 
-Out of the box the app asks for one permission, notifications, from the Notifications row in Settings. It
-declares no other permissions, so your app doesn't list camera or location access it never uses.
+Out of the box the app asks for two permissions: notifications, from the Notifications row in Settings,
+and the camera, from the Camera button when writing a post ([uploads](uploads.md)). Choosing a photo from
+the library needs none: the app uses the system's photo picker. It declares nothing else, so your app
+doesn't list location or contacts access it never uses.
 
 ## Ask for a permission
 
@@ -33,7 +35,15 @@ export function AlertsScreen() {
 }
 ```
 
-`ask()` does nothing when the permission is already granted. Otherwise it opens the sheet:
+`ask()` opens the sheet unless the permission is already granted. Pass `onGranted` to carry on with what
+the person asked for as soon as it's allowed, straight away or after the system prompt:
+
+```tsx
+const camera = usePermission('camera', { onGranted: () => takePhoto() });
+<Button title={t('feed.takePhoto')} onPress={camera.ask} />
+```
+
+When it isn't granted yet, the sheet shows:
 
 | Status | The sheet shows | Its main button |
 | --- | --- | --- |
@@ -48,47 +58,29 @@ Ask when someone reaches for the feature, never at first launch.
 
 ## Add another permission
 
-Camera, photos, location and the rest need
-[react-native-permissions](https://github.com/zoontek/react-native-permissions). Add only the
-permissions your app uses.
+[react-native-permissions](https://github.com/zoontek/react-native-permissions) is installed, built with
+the Camera handler only. To add location, contacts or another kind:
 
-1. Install it with an exact version, check it against the [version matrix](version-matrix.md), and add
-   its row there:
+1. Add its name to `setup_permissions` in `ios/Podfile`, and its usage string to
+   `ios/BareshipApp/Info.plist` (for example `NSLocationWhenInUseUsageDescription`). On Android, add its
+   `<uses-permission>` line to `android/app/src/main/AndroidManifest.xml`. Mark each edit with a
+   `[bareship]` comment, add a row to [native-changes.md](native-changes.md), then run `pnpm pods`.
 
-   ```bash
-   pnpm add react-native-permissions@<version>
-   ```
-
-2. Set it up natively for each permission, as its README describes: `setup_permissions` in
-   `ios/Podfile`, the usage string in `ios/<App>/Info.plist` (for example `NSCameraUsageDescription`),
-   and the `<uses-permission>` line in `android/app/src/main/AndroidManifest.xml`. Mark each edit with a
-   `[bareship]` comment and add a row to [native-changes.md](native-changes.md). Then run `pnpm pods`.
-
-3. Add the kind to `PermissionKind` in `src/shared/ports/index.ts`:
+2. Add the kind to `PermissionKind` in `src/shared/ports/index.ts`:
 
    ```ts
-   export type PermissionKind = 'notifications' | 'camera';
+   export type PermissionKind = 'notifications' | 'camera' | 'location';
    ```
 
-4. Give it a handler in `src/shared/services/services.ts`. Keep the library in `src/shared/adapters`:
-   app code reaches it only through the port.
+3. Give it a handler in `src/shared/adapters/native-permissions.ts`, next to `cameraPermission`, and
+   register it in `src/shared/services/services.ts`:
 
    ```ts
-   // src/shared/adapters/native-permissions.ts
-   import { check, PERMISSIONS, request, RESULTS, type Permission } from 'react-native-permissions';
-   import { Platform } from 'react-native';
-
-   import type { PermissionHandler } from './permissions';
-
-   const toStatus = (result: string) =>
-     result === RESULTS.GRANTED || result === RESULTS.LIMITED
-       ? 'granted'
-       : result === RESULTS.DENIED
-         ? 'not-determined' // the OS can still prompt
-         : 'denied'; // BLOCKED or UNAVAILABLE
-
-   export function nativePermission(ios: Permission, android: Permission): PermissionHandler {
-     const permission = Platform.OS === 'ios' ? ios : android;
+   export function locationPermission(): PermissionHandler {
+     const permission = Platform.select({
+       ios: PERMISSIONS.IOS.LOCATION_WHEN_IN_USE,
+       default: PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
+     });
      return {
        check: async () => toStatus(await check(permission)),
        request: async () => toStatus(await request(permission)),
@@ -98,18 +90,21 @@ permissions your app uses.
 
    ```ts
    // in createDefaultServices()
-   permissions: createPermissions({
-     notifications: { … },
-     camera: nativePermission(PERMISSIONS.IOS.CAMERA, PERMISSIONS.ANDROID.CAMERA),
-   }),
+   permissions: createPermissions({ notifications: { … }, camera: cameraPermission(), location: locationPermission() }),
    ```
 
-5. Give it its words in `src/entities/permissions/PermissionSheet.tsx` (`COPY`), with an icon from
+4. Give it its words in `src/entities/permissions/PermissionSheet.tsx` (`COPY`), with an icon from
    `@/shared/ui/icons` and the strings under `permissions` in `en.json` and `hi.json`. TypeScript fails
    until every kind has its copy.
 
 Say plainly what the app does with the permission and when, in a sentence or two. On iOS, the usage string
 in `Info.plist` shows in the system prompt too, so keep the two consistent.
+
+`status` can also be `unavailable`: the device can't do it at all (the iOS simulator has no camera). Hide
+the control then, as the Camera button does.
+
+If your app doesn't need the camera, remove `'Camera'` from `setup_permissions`, the
+`NSCameraUsageDescription` string, `camera` from `PermissionKind` and its handler, then run `pnpm pods`.
 
 ## Tests
 

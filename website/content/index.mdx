@@ -158,6 +158,35 @@ import { Card, CardGrid, LinkButton, Steps } from '@astrojs/starlight/components
   </div>
   <div class="feature">
     <div class="feature-text">
+      <h3>Photo uploads that work offline</h3>
+      <p>
+        Add a photo to a post and it shows at once with its progress. With no signal it waits, keeps
+        through a restart and uploads when the phone reconnects. If the server refuses it, Try again
+        sends it once more without storing the photo twice.
+      </p>
+      <a href="/build/uploads/">Add uploads to your screens →</a>
+    </div>
+    <div class="feature-shots two">
+      <img
+        src="/screenshots/android/10-upload-waiting.png"
+        alt="On Android, offline: a new post with its photo, marked Waiting to upload, under a banner saying one change will sync"
+        width="640"
+        height="1428"
+        loading="lazy"
+        decoding="async"
+      />
+      <img
+        src="/screenshots/ios/10-upload-failed.png"
+        alt="On iOS, a post the server refused, with Couldn't upload this, Try again and Remove"
+        width="603"
+        height="1311"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+  </div>
+  <div class="feature">
+    <div class="feature-text">
       <h3>Permission prompts that explain first</h3>
       <p>
         Before the system asks, a sheet says why the app needs the permission, because iOS asks only
@@ -279,7 +308,8 @@ The rules your team follows are written down where coding agents read them, and 
 </CardGrid>
 
 Also included: English and Hindi with right-to-left support ([Languages](/build/languages/)), permission prompts
-that explain first ([Permissions](/build/permissions/)), and a supply-chain
+that explain first ([Permissions](/build/permissions/)), offline photo uploads
+([Photo uploads](/build/uploads/)), and a supply-chain
 policy that refuses packages younger than 3 days ([Decision 0003](/reference/decisions/0003-package-manager-and-supply-chain/)).
 
 ## Is this for you?

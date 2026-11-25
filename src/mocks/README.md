@@ -13,4 +13,5 @@ reseeds with the mock db. Shared helpers (`wait`, `authenticate`, `error`) are i
 
 Endpoints: `POST /auth/login|register|refresh|forgot-password|logout`, `GET|DELETE /me`,
 `GET /posts?cursor&limit`, `GET /posts/:id`, `POST|DELETE /posts/:id/like`.
-Demo account: `demo@example.com` / `password123`. Access tokens expire after 2 minutes to exercise refresh.
+Demo account: `demo@example.com` / `password123`. A new post containing `#fail` is refused (422), to show
+the failed upload state. Access tokens expire after 2 minutes to exercise refresh.

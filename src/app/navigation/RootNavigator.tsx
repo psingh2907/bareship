@@ -9,7 +9,7 @@ import type { ParseKeys } from 'i18next';
 
 import { useIsSignedIn, useIsSignedOut } from '@/entities/session/session-store';
 import { ForgotPasswordScreen, LoginScreen, RegisterScreen } from '@/features/auth';
-import { FeedScreen, PostScreen } from '@/features/feed'; // @example:home-import
+import { FeedScreen, NewPostButton, NewPostScreen, PostScreen } from '@/features/feed'; // @example:home-import
 import { OnboardingScreen, useNeedsOnboarding, useOnboardingDone } from '@/features/onboarding';
 import { SettingsScreen } from '@/features/settings';
 import { ShowroomScreen } from '@/features/showroom'; // @example
@@ -29,6 +29,7 @@ const Tabs = createBottomTabNavigator({
       linking: 'feed',
       options: {
         headerTitle: () => <TranslatedText i18nKey="feed.title" />,
+        headerRight: () => <NewPostButton />,
         tabBarLabel: ({ color }) => <TranslatedText i18nKey="tabs.feed" color={color} small />,
         tabBarIcon: ({ color, size }) => <TabIcon icon={Home} color={color} size={size} />,
         tabBarButtonTestID: 'tab-feed',
@@ -104,6 +105,10 @@ const RootStack = createNativeStackNavigator({
           linking: 'post/:id',
           layout: offlineLayout,
           options: { headerShown: true, title: '', headerBackButtonDisplayMode: 'minimal' },
+        },
+        NewPost: {
+          screen: NewPostScreen,
+          options: { presentation: 'modal' },
         },
         // @example-end
         // gen:screens (`pnpm gen` adds screens above this line)

@@ -2,7 +2,7 @@ import type { Ref } from 'react';
 
 import { useTranslation } from '@/shared/i18n';
 import type { PermissionKind } from '@/shared/ports';
-import { Bell, BellOff, type LucideIcon } from '@/shared/ui/icons';
+import { Bell, BellOff, Camera, CameraOff, type LucideIcon } from '@/shared/ui/icons';
 import { Button } from '@/shared/ui/primitives/Button';
 import { Icon } from '@/shared/ui/primitives/Icon';
 import { Sheet, type SheetRef } from '@/shared/ui/primitives/Sheet';
@@ -17,6 +17,14 @@ const COPY = {
     body: 'permissions.notificationsBody',
     blockedTitle: 'permissions.notificationsBlockedTitle',
     blockedBody: 'permissions.notificationsBlockedBody',
+  },
+  camera: {
+    icon: Camera,
+    blockedIcon: CameraOff,
+    title: 'permissions.cameraTitle',
+    body: 'permissions.cameraBody',
+    blockedTitle: 'permissions.cameraBlockedTitle',
+    blockedBody: 'permissions.cameraBlockedBody',
   },
 } as const satisfies Record<PermissionKind, SheetCopy>;
 
