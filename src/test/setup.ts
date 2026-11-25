@@ -44,6 +44,20 @@ jest.mock('react-native-keyboard-controller', () =>
 );
 jest.mock('@gorhom/bottom-sheet', () => require('@gorhom/bottom-sheet/mock'));
 jest.mock('react-native-localize', () => require('react-native-localize/mock'));
+jest.mock('react-native-permissions', () => require('react-native-permissions/mock'));
+jest.mock('react-native-file-access', () => ({
+  Dirs: { CacheDir: '/mock/cache', DocumentDir: '/mock/documents' },
+  FileSystem: {
+    cp: jest.fn(async () => {}),
+    exists: jest.fn(async () => true),
+    mkdir: jest.fn(async () => ''),
+    unlink: jest.fn(async () => {}),
+  },
+}));
+jest.mock('react-native-image-picker', () => ({
+  launchCamera: jest.fn(async () => ({ didCancel: true })),
+  launchImageLibrary: jest.fn(async () => ({ didCancel: true })),
+}));
 
 jest.mock('react-native-keychain', () => {
   const store = new Map<string, { username: string; password: string }>();

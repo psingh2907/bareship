@@ -60,6 +60,7 @@ export default defineConfig({
             'build/languages',
             'build/social-sign-in',
             'build/permissions',
+            'build/uploads',
             'build/app-icon-and-splash',
             'build/generators',
             'build/ai-agents',

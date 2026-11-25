@@ -112,6 +112,12 @@ export type QueuedMutationOptions<TData, TVariables> = {
    * Going offline isn't a failure: the queue pauses and nothing is cancelled.
    */
   onRejected?: 'continue' | 'cancel-scope';
+  /**
+   * Retries after the HTTP client's own retries fail, e.g. `error.isTransient`
+   * for uploads: if the connection drops mid-write, a retry waits for it to come back (the write
+   * shows as waiting again) instead of failing. Default: no retries.
+   */
+  retry?: (failureCount: number, error: ApiError) => boolean;
   onMutate?: (variables: Queued<TVariables>) => unknown;
   onError?: (error: ApiError, variables: Queued<TVariables>) => unknown;
   onSuccess?: (data: TData, variables: Queued<TVariables>) => unknown;
@@ -126,6 +132,7 @@ export function defineQueuedMutation<TData, TVariables extends object>(
     mutationFn,
     scope,
     onRejected = 'continue',
+    retry,
     onMutate,
     onError,
     onSuccess,
@@ -142,6 +149,7 @@ export function defineQueuedMutation<TData, TVariables extends object>(
     },
     networkMode: 'online', // pause while offline instead of failing
     scope: { id: scopeId },
+    retry: retry ? (failureCount, error) => retry(failureCount, error as ApiError) : false,
     onMutate: variables => onMutate?.(variables as Queued<TVariables>),
     onError: (error, variables) => {
       if (error instanceof OtherAccountWriteError) {
@@ -166,8 +174,53 @@ export function defineQueuedMutation<TData, TVariables extends object>(
       /** Adds the idempotency key and the account; the write itself happens in the background. */
       mutate: (variables: TVariables) =>
         mutation.mutate({ ...variables, idempotencyKey: createId(), accountId: currentAccount() }),
+      /**
+       * Sends a write that failed again, with its original idempotency key, so the server can tell
+       * it's the same write if the first attempt reached it after all.
+       */
+      resend: (variables: Queued<TVariables>) => mutation.mutate(variables),
     };
   };
+}
+
+const abortHandlers = new Map<string, () => void>();
+
+/**
+ * An AbortSignal for one queued write, so `discardQueuedWrite` can stop it while it runs (an upload,
+ * say). Pass it to the HTTP client; call `releaseWriteSignal` when the write settles.
+ */
+export function writeSignal(idempotencyKey: string): AbortSignal {
+  const controller = new AbortController();
+  abortHandlers.set(idempotencyKey, () => controller.abort());
+  return controller.signal;
+}
+
+export function releaseWriteSignal(idempotencyKey: string): void {
+  abortHandlers.delete(idempotencyKey);
+}
+
+/**
+ * Drops a queued write the person no longer wants. A waiting write is removed from the queue (and so
+ * from the saved queue); a running one is aborted, and its `onError` gets an `ApiError` of kind
+ * `'cancelled'`.
+ */
+export function discardQueuedWrite(idempotencyKey: string): void {
+  abortHandlers.get(idempotencyKey)?.();
+  const cache = queryClient.getMutationCache();
+  for (const mutation of cache.getAll()) {
+    const key = (mutation.state.variables as { idempotencyKey?: string } | undefined)
+      ?.idempotencyKey;
+    if (key === idempotencyKey && mutation.state.isPaused) cache.remove(mutation);
+  }
+}
+
+/** Idempotency keys of this write's copies that are queued or running (not failed or done). */
+export function usePendingWriteKeys(mutationKey: MutationKey): ReadonlySet<string> {
+  const keys = useMutationState({
+    filters: { mutationKey, status: 'pending' },
+    select: mutation => (mutation.state.variables as { idempotencyKey?: string }).idempotencyKey,
+  });
+  return new Set(keys.filter((key): key is string => key !== undefined));
 }
 
 const isWaiting = (mutation: { state: { isPaused: boolean } }) => mutation.state.isPaused;

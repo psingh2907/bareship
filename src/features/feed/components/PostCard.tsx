@@ -1,6 +1,7 @@
 import { Pressable, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
+import { useUploadProgress } from '@/data/uploads';
 import { useTranslation } from '@/shared/i18n';
 import { useFormat } from '@/shared/lib/format';
 import { Heart } from '@/shared/ui/icons';
@@ -8,7 +9,9 @@ import { Icon } from '@/shared/ui/primitives/Icon';
 import { Image } from '@/shared/ui/primitives/Image';
 import { Text } from '@/shared/ui/primitives/Text';
 import { MIN_TOUCH } from '@/shared/ui/theme/tokens';
+import { UploadStatus } from '@/shared/ui/upload/UploadStatus';
 
+import type { LocalPostStatus } from '../api';
 import type { Post } from '../schema';
 
 export type PostCardProps = {
@@ -18,9 +21,23 @@ export type PostCardProps = {
   expanded?: boolean;
   /** The like is queued offline and not yet saved (offline pattern B). */
   likePending?: boolean;
+  /** For a post made on this phone that the server doesn't have yet. */
+  local?: {
+    status: LocalPostStatus;
+    photoUri: string | null;
+    onRetry: () => void;
+    onRemove: () => void;
+  };
 };
 
-export function PostCard({ post, onPress, onToggleLike, expanded, likePending }: PostCardProps) {
+export function PostCard({
+  post,
+  onPress,
+  onToggleLike,
+  expanded,
+  likePending,
+  local,
+}: PostCardProps) {
   const { t } = useTranslation();
   const format = useFormat();
   const likes = t('feed.likes', { count: post.likeCount });
@@ -30,7 +47,7 @@ export function PostCard({ post, onPress, onToggleLike, expanded, likePending }:
       <Pressable
         role={onPress ? 'button' : undefined}
         aria-label={`${post.author.name}. ${post.body}`}
-        disabled={!onPress}
+        disabled={!onPress || Boolean(local)}
         onPress={onPress}
         style={styles.content}
         testID={`post-${post.id}`}
@@ -53,31 +70,56 @@ export function PostCard({ post, onPress, onToggleLike, expanded, likePending }:
           </View>
         </View>
         <Text numberOfLines={expanded ? undefined : 4}>{post.body}</Text>
-        {post.imageUrl ? (
+        {local?.photoUri ? (
+          <Image
+            uri={local.photoUri}
+            style={[styles.image, local.status !== 'failed' && styles.unsent]}
+            resizeMode="cover"
+          />
+        ) : post.imageUrl ? (
           <Image uri={post.imageUrl} style={styles.image} resizeMode="cover" />
         ) : null}
       </Pressable>
-      <Pressable
-        role="button"
-        aria-label={post.likedByMe ? t('feed.unlike') : t('feed.like')}
-        aria-selected={post.likedByMe}
-        aria-valuetext={likes}
-        accessibilityHint={likePending ? t('offline.waiting') : undefined}
-        onPress={onToggleLike}
-        hitSlop={8}
-        style={styles.like}
-        testID={`like-${post.id}`}
-      >
-        <Icon icon={Heart} tone={post.likedByMe ? 'danger' : 'textMuted'} size={20} />
-        <Text variant="caption" tone="muted">
-          {likes}
-        </Text>
-        {likePending ? (
-          <Text variant="caption" tone="subtle" testID={`like-pending-${post.id}`}>
-            {t('offline.waiting')}
+      {local ? (
+        <LocalPostStatusRow postKey={post.local?.write.idempotencyKey} {...local} />
+      ) : (
+        <Pressable
+          role="button"
+          aria-label={post.likedByMe ? t('feed.unlike') : t('feed.like')}
+          aria-selected={post.likedByMe}
+          aria-valuetext={likes}
+          accessibilityHint={likePending ? t('offline.waiting') : undefined}
+          onPress={onToggleLike}
+          hitSlop={8}
+          style={styles.like}
+          testID={`like-${post.id}`}
+        >
+          <Icon icon={Heart} tone={post.likedByMe ? 'danger' : 'textMuted'} size={20} />
+          <Text variant="caption" tone="muted">
+            {likes}
           </Text>
-        ) : null}
-      </Pressable>
+          {likePending ? (
+            <Text variant="caption" tone="subtle" testID={`like-pending-${post.id}`}>
+              {t('offline.waiting')}
+            </Text>
+          ) : null}
+        </Pressable>
+      )}
+    </View>
+  );
+}
+
+/** Its own component, so upload progress re-renders this row, not the whole card. */
+function LocalPostStatusRow({
+  postKey,
+  status,
+  onRetry,
+  onRemove,
+}: NonNullable<PostCardProps['local']> & { postKey: string | undefined }) {
+  const progress = useUploadProgress(postKey);
+  return (
+    <View style={styles.status} testID="local-post-status">
+      <UploadStatus state={status} progress={progress} onRetry={onRetry} onRemove={onRemove} />
     </View>
   );
 }
@@ -100,6 +142,8 @@ const styles = StyleSheet.create(theme => ({
   },
   meta: { flex: 1, gap: theme.spacing.xxs },
   image: { width: '100%', aspectRatio: 16 / 10, borderRadius: theme.radius.md },
+  unsent: { opacity: 0.6 },
+  status: { paddingBottom: theme.spacing.sm },
   like: {
     flexDirection: 'row',
     alignItems: 'center',

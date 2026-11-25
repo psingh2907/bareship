@@ -47,6 +47,7 @@ Firebase, push and deep links are all optional at build time: each switches on w
 | Deep links + push (iOS) | `scripts/ios/configure-environments.rb` → `ios/Config/<Env>.xcconfig`, `Info.plist`, `ios/BareshipApp/BareshipApp-<Env>.entitlements` | `APP_URL_SCHEME` per environment; `CFBundleURLTypes`; `UIBackgroundModes: remote-notification`. An entitlements file (associated domains, `aps-environment`) only when `APP_LINK_DOMAIN` / `IOS_APS_ENVIRONMENT` is set | Both entitlements need a paid Apple team; adding them unconditionally breaks signing with a free account | `scheme`, `ios.associatedDomains`, `ios.entitlements` |
 | Notifications permission (Android) | `AndroidManifest.xml` | `POST_NOTIFICATIONS` | Android 13+ asks at runtime | Config plugin |
 | Encoding | `scripts/ios/configure-environments.rb` | `Encoding.default_external = UTF_8` | Ruby read `build.gradle` as ASCII in shells without a UTF-8 locale and crashed | n/a |
+| <a id="photo-uploads"></a>Photo uploads (iOS) | `ios/Podfile`, `Info.plist`, `PrivacyInfo.xcprivacy` | `node_require` helper; react-native-permissions' `setup.rb` and `setup_permissions(['Camera'])`; `NSCameraUsageDescription`; `pod install` adds the file-timestamp reasons `0A2A.1` and `3B52.1` from react-native-file-access to the privacy manifest | Camera for posts ([uploads](uploads.md)); only the Camera permission handler is built. Android needs no change: the system camera app takes the photo | `expo-image-picker` + `expo-file-system`; `ios.infoPlist.NSCameraUsageDescription` |
 
 ## Known warnings
 

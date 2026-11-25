@@ -52,6 +52,7 @@ const pages = () => [
     label: 'Apple and Google sign-in',
   },
   { from: 'docs/permissions.md', to: 'build/permissions' },
+  { from: 'docs/uploads.md', to: 'build/uploads', label: 'Photo uploads' },
   {
     from: 'docs/app-icon-and-splash.md',
     to: 'build/app-icon-and-splash',

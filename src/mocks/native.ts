@@ -32,12 +32,21 @@ export const mockAdapter: AxiosAdapter = async config => {
     if (value !== undefined && value !== null) headers.set(key, String(value));
   });
   const method = (config.method ?? 'get').toUpperCase();
+  const parts = formDataParts(config.data);
+  if (parts) {
+    // MSW can't read React Native's FormData (its file parts are URIs, not bytes): send the parts as
+    // JSON, and report upload progress the way the real transport would.
+    headers.set('Content-Type', 'application/json');
+    await simulateUploadProgress(config);
+  }
   const body =
     config.data === undefined || config.data === null || method === 'GET'
       ? undefined
-      : typeof config.data === 'string'
-        ? config.data
-        : JSON.stringify(config.data);
+      : parts
+        ? JSON.stringify({ parts })
+        : typeof config.data === 'string'
+          ? config.data
+          : JSON.stringify(config.data);
 
   const response = await getResponse(handlers, new Request(url, { method, headers, body }));
   if (!response) {
@@ -68,6 +77,36 @@ export const mockAdapter: AxiosAdapter = async config => {
   }
   return result;
 };
+
+type FormDataWithParts = { getParts: () => Array<Record<string, unknown>> };
+
+function formDataParts(data: unknown): Array<Record<string, unknown>> | null {
+  return data instanceof FormData &&
+    typeof (data as unknown as FormDataWithParts).getParts === 'function'
+    ? (data as unknown as FormDataWithParts).getParts()
+    : null;
+}
+
+const UPLOAD_STEPS = 12;
+const UPLOAD_STEP_MS = 120;
+
+/** About 1.5 s of progress events, stopping early if the request is aborted. */
+async function simulateUploadProgress(config: Parameters<AxiosAdapter>[0]) {
+  const total = 1_000_000;
+  for (let step = 1; step <= UPLOAD_STEPS; step++) {
+    await new Promise(resolve => setTimeout(resolve, UPLOAD_STEP_MS));
+    if (config.signal?.aborted) throw new CanceledError(undefined, undefined, config);
+    const loaded = Math.round((total * step) / UPLOAD_STEPS);
+    config.onUploadProgress?.({
+      loaded,
+      total,
+      progress: loaded / total,
+      bytes: total / UPLOAD_STEPS,
+      lengthComputable: true,
+      upload: true,
+    });
+  }
+}
 
 function parseJson(text: string): unknown {
   try {

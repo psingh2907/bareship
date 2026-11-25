@@ -43,6 +43,9 @@ needs a real `GoogleService-Info.plist` (made conditional in Phase 3). See docs/
 | react-native-edge-to-edge | 1.8.2 | Unistyles peer | ✓ | ✓ | |
 | react-native-mmkv | 4.3.2 | Storage (0006) | ✓ | ✓ | Nitro-based |
 | react-native-keychain | 10.0.0 | SecureStore (0010) | ✓ | ✓ | Last release 2025-03; behind a port |
+| react-native-image-picker | 8.3.1 | PhotoPicker port, photo uploads | ✓ | ✓ | System picker and camera; resizes natively |
+| react-native-file-access | 4.0.4 | FileStore port, photo uploads | ✓ | ✓ | Adds `ACCESS_NETWORK_STATE` (normal permission) |
+| react-native-permissions | 5.6.3 | Camera permission (iOS) | ✓ | ✓ | Only the Camera handler is built; 5.7.0 held back by the 3-day release age |
 | @shopify/flash-list | 2.3.3 | Lists (0008) | ✓ | ✓ | |
 | @gorhom/bottom-sheet | 5.2.14 | Sheets (0008) | ✓ | ✓ | |
 | lucide-react-native + react-native-svg | 1.52 / 15.15.5 | Icons (0008) | ✓ | ✓ | |

@@ -52,6 +52,9 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<!-- [bareship] Shown in the camera prompt (photo uploads, docs/uploads.md). -->
+	<key>NSCameraUsageDescription</key>
+	<string>Take a photo to add to your post.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>RCTNewArchEnabled</key>

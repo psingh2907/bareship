@@ -12,10 +12,14 @@ import type { PermissionSheetProps } from './PermissionSheet';
  * needs the permission before the system prompt, or how to turn it back on once the OS won't prompt
  * again. Render `<PermissionSheet {...permission.sheet} />` once on the screen.
  *
+ * Pass `onGranted` to go on with what the person asked for (open the camera, say) as soon as the
+ * permission is granted: at once if it already is, or after the system prompt.
+ *
  * The status is read again when the app returns to the foreground, because people change it in the
- * system settings.
+ * system settings. `unavailable` means the device can't do it (no camera): hide the control then.
  */
-export function usePermission(kind: PermissionKind) {
+export function usePermission(kind: PermissionKind, options: { onGranted?: () => void } = {}) {
+  const { onGranted } = options;
   const [status, setStatus] = useState<PermissionStatus | 'unknown'>('unknown');
   const ref = useRef<SheetRef>(null);
 
@@ -34,7 +38,8 @@ export function usePermission(kind: PermissionKind) {
   }, [kind]);
 
   const ask = () => {
-    if (status !== 'granted') ref.current?.present();
+    if (status === 'granted') onGranted?.();
+    else if (status !== 'unavailable') ref.current?.present();
   };
 
   const onContinue = async () => {
@@ -44,7 +49,9 @@ export function usePermission(kind: PermissionKind) {
         await services().permissions.openSettings();
         return;
       }
-      setStatus(await services().permissions.request(kind));
+      const next = await services().permissions.request(kind);
+      setStatus(next);
+      if (next === 'granted') onGranted?.();
     } catch (error) {
       services().logger.warn('Permission request failed', { kind, error: String(error) });
     }

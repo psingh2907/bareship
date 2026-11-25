@@ -186,6 +186,8 @@ Sign in with Apple and Google? `pnpm remove-social-sign-in` takes it out, librar
 - Settings: theme (light, dark, system), language, notifications, sign-out and account deletion.
 - Permission prompts that explain first, and point to the system settings once denied
   ([permissions](docs/permissions.md)).
+- Photo uploads that work offline: pick or take a photo, see the post at once with its progress, and the
+  upload waits for a connection, survives a restart and never stores a photo twice ([uploads](docs/uploads.md)).
 - Design system on Unistyles 3: tokens, light and dark themes, and about 15 accessible primitives (Button,
   Input, Sheet, Toast, ListItem…), with a component showroom in dev builds.
 - English and Hindi, typed keys, and a lint rule against hard-coded text. Right-to-left languages are one
@@ -351,6 +353,7 @@ independent; the rest of the app keeps working without it.
 | Item | Status |
 | --- | --- |
 | CI checks on every pull request, required to merge | Done |
+| Photo uploads that work offline ([guide](docs/uploads.md)) | Done, in the next release |
 | Native CI builds passing: Android memory use, Xcode 27 on the macOS runner | Next |
 | End-to-end tests with Maestro | Postponed |
 | Performance tooling: Reassure render baselines, startup metrics, a bundle report | Postponed |

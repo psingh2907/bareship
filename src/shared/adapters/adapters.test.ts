@@ -105,7 +105,7 @@ describe('createPermissions', () => {
       check: jest.fn(async () => 'not-determined' as const),
       request: jest.fn(async () => 'granted' as const),
     };
-    const permissions = createPermissions({ notifications: handler });
+    const permissions = createPermissions({ notifications: handler, camera: handler });
     await expect(permissions.check('notifications')).resolves.toBe('not-determined');
     await expect(permissions.request('notifications')).resolves.toBe('granted');
     await permissions.openSettings();
