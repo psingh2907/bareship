@@ -162,6 +162,33 @@ describe('queued writes and accounts', () => {
   });
 });
 
+describe('queued writes restored at launch', () => {
+  afterEach(() => setQueueAccount(() => null));
+
+  // React Query resumes paused writes as soon as the connection is reported, which can be before the
+  // session is restored. Checking the account then would see nobody and drop the write as another
+  // account's.
+  it('wait for the session before the account check, then send', async () => {
+    const sent = captureWrites();
+    let account: string | null = 'u_1';
+    setQueueAccount(() => account);
+    const { result } = await renderWrite();
+    await goOffline();
+    await act(async () => result.current.write.mutate({ n: 7 }));
+
+    // Next launch: the session isn't back yet.
+    let sessionRestored!: () => void;
+    account = null;
+    setQueueAccount(() => account, new Promise<void>(resolve => (sessionRestored = resolve)));
+    await goOnline(); // the connection comes back before the session
+    expect(sent).toHaveLength(0);
+
+    account = 'u_1';
+    await act(async () => sessionRestored());
+    await waitFor(() => expect(sent.map(write => write.n)).toEqual([7]));
+  });
+});
+
 // A dependent chain: create a draft, then edit it. Both share one scope so they run in order.
 const Ok = z.object({ ok: z.boolean() });
 function defineChain(onRejected: 'continue' | 'cancel-scope') {

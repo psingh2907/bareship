@@ -138,10 +138,11 @@ In a screen:
 ```tsx
 const upload = useUploadOrderPhoto();
 const item = upload.status({ id: order.id });
+const progress = useUploadProgress(item?.key);
 
 <Button title={t('orders.addPhoto')} onPress={() => upload.pick('library', { id: order.id })} />
 {item ? (
-  <UploadStatus state={item.state} progress={item.progress} onRetry={item.retry} onRemove={item.remove} />
+  <UploadStatus state={item.state} progress={progress} onRetry={item.retry} onRemove={item.remove} />
 ) : null}
 ```
 

@@ -20,7 +20,7 @@ import { Text } from '@/shared/ui/primitives/Text';
 import { MIN_TOUCH } from '@/shared/ui/theme/tokens';
 import { toast } from '@/shared/ui/toast/toast-store';
 
-import { keepPhoto, pickPostPhoto, useCreatePost } from '../api';
+import { pickPostPhoto, useCreatePost } from '../api';
 
 const MAX_LENGTH = 500;
 
@@ -62,8 +62,12 @@ export function NewPostScreen() {
     if (!canPost) return;
     setPosting(true);
     try {
-      const kept = photo ? await keepPhoto(photo) : null;
-      createPost.mutate({ postId: createId(), body: text, photo: kept });
+      // Keeps the photo on the phone and queues the post; it works with no connection.
+      await createPost.start(photo, {
+        postId: createId(),
+        body: text,
+        createdAt: new Date().toISOString(),
+      });
       navigation.goBack();
     } catch {
       setPosting(false);

@@ -4,6 +4,7 @@ import { http as mock, HttpResponse } from 'msw';
 import { z } from 'zod';
 
 import { server } from '@/mocks/node';
+import { http } from '@/shared/api/http';
 import { setServices } from '@/shared/services/services';
 import { signInDemoUser } from '@/test/app';
 import { renderHookWithProviders } from '@/test/render';
@@ -189,7 +190,7 @@ describe('defineQueuedUpload', () => {
         k1: {
           key: 'k1',
           group: JSON.stringify(['things', 'photo']),
-          item: JSON.stringify({ id: 't1' }),
+          id: JSON.stringify({ id: 't1' }),
           accountId: queueAccount(),
           file: { fileId: 'kept.jpg', mimeType: 'image/jpeg', fileName: 'p.jpg' },
           state: 'sending',
@@ -219,5 +220,74 @@ describe('defineQueuedUpload', () => {
     expect(result.current.status({ id: 't1' })).toBeNull();
     expect(result.current.items).toEqual([]);
     expect(removed).toEqual(['kept.jpg']);
+  });
+
+  describe('with a second request (then)', () => {
+    const Record = z.object({ id: z.string(), photoUrl: z.string().nullable() });
+    const useCreateThing = defineQueuedUpload({
+      mutationKey: ['things', 'create'],
+      url: (_thing: { thingId: string }) => '/things-uploads',
+      schema: Photo,
+      id: ({ thingId }) => thingId,
+      then: (uploaded, { thingId }, { idempotencyKey, signal }) =>
+        http.post('/things', Record, {
+          body: { id: thingId, photo_url: uploaded?.url ?? null },
+          idempotencyKey,
+          signal,
+        }),
+    });
+
+    it('uploads, then sends the record with the photo URL and the write key', async () => {
+      fakeMedia();
+      const calls: Array<{ path: string; key: string | null; body?: unknown }> = [];
+      server.use(
+        mock.post('*/things-uploads', ({ request }) => {
+          calls.push({ path: 'upload', key: request.headers.get('Idempotency-Key') });
+          return HttpResponse.json(
+            { id: 'ph_1', url: 'https://cdn.example.com/1.jpg' },
+            { status: 201 },
+          );
+        }),
+        mock.post('*/things', async ({ request }) => {
+          const body = (await request.json()) as { id: string; photo_url: string | null };
+          calls.push({ path: 'record', key: request.headers.get('Idempotency-Key'), body });
+          return HttpResponse.json({ id: body.id, photoUrl: body.photo_url }, { status: 201 });
+        }),
+      );
+      const { result } = await renderHookWithProviders(() => useCreateThing());
+      await act(async () => {
+        await result.current.start(picked, { thingId: 't1' });
+      });
+      await waitFor(() => expect(result.current.status({ thingId: 't1' })).toBeNull());
+
+      expect(calls.map(call => call.path)).toEqual(['upload', 'record']);
+      expect(calls[1]?.body).toEqual({ id: 't1', photo_url: 'https://cdn.example.com/1.jpg' });
+      // The record uses the write's key; the upload has its own, derived from it.
+      expect(calls[0]?.key).toBe(`${calls[1]?.key}:upload`);
+    });
+
+    it('skips the upload when there is no photo', async () => {
+      fakeMedia();
+      const paths: string[] = [];
+      server.use(
+        mock.post('*/things-uploads', () => {
+          paths.push('upload');
+          return HttpResponse.json(
+            { id: 'x', url: 'https://cdn.example.com/x.jpg' },
+            { status: 201 },
+          );
+        }),
+        mock.post('*/things', () => {
+          paths.push('record');
+          return HttpResponse.json({ id: 't2', photoUrl: null }, { status: 201 });
+        }),
+      );
+      const { result } = await renderHookWithProviders(() => useCreateThing());
+      await act(async () => {
+        await result.current.start(null, { thingId: 't2' });
+      });
+      await waitFor(() => expect(result.current.status({ thingId: 't2' })).toBeNull());
+      expect(paths).toEqual(['record']);
+    });
   });
 });

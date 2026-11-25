@@ -745,7 +745,8 @@ export const ${schema} = ${upload.pascal}DtoSchema.transform(
  *
  *   const upload = ${hook}();
  *   upload.pick('library', ${params.length > 0 ? `{ ${params.map(param => `${param}`).join(', ')} }` : '{}'});
- *   const item = upload.status(${params.length > 0 ? `{ ${params.map(param => `${param}`).join(', ')} }` : '{}'}); // then <UploadStatus> with item.state, item.progress
+ *   const item = upload.status(${params.length > 0 ? `{ ${params.map(param => `${param}`).join(', ')} }` : '{}'}); // null when nothing is unfinished
+ *   const progress = useUploadProgress(item?.key); // then <UploadStatus state={item.state} progress={progress} … />
  */
 export const ${hook} = defineQueuedUpload({
   mutationKey: ['${feature.kebab}', '${upload.kebab}'],

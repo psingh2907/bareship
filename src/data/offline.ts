@@ -46,14 +46,23 @@ export type Queued<TVariables> = TVariables & {
 };
 
 let currentAccount: () => string | null = () => null;
+let accountKnown: Promise<unknown> = Promise.resolve();
 
 /**
  * Tells the queue who is signed in (the data layer can't import the session). Call once at boot.
  * A queued write only runs while the account that made it is signed in, so a write queued by one
  * person is never sent with someone else's token, even if the queue outlives a sign-out.
+ *
+ * `known` settles once the session is restored. Until then the account reads as nobody, so a write
+ * restored from the saved queue waits for it before checking: React Query resumes paused writes as
+ * soon as the connection is reported, which can be before the session is back.
  */
-export function setQueueAccount(getAccountId: () => string | null): void {
+export function setQueueAccount(
+  getAccountId: () => string | null,
+  known: Promise<unknown> = Promise.resolve(),
+): void {
   currentAccount = getAccountId;
+  accountKnown = known.catch(() => undefined);
 }
 
 /** The account queued writes currently belong to (see `setQueueAccount`). */
@@ -146,7 +155,9 @@ export function defineQueuedMutation<TData, TVariables extends object>(
   queryClient.setMutationDefaults(mutationKey, {
     // Checked when the write is sent, not when it's queued: the account can change while it waits,
     // and an earlier write in the scope can fail.
-    mutationFn: (variables: Queued<TVariables>) => {
+    mutationFn: async (variables: Queued<TVariables>) => {
+      // A write restored at launch can resume before the session is back: wait for it.
+      await accountKnown;
       const cancelled = cancelledWrites.delete(variables.idempotencyKey);
       if (!belongsToCurrentAccount(variables)) throw new OtherAccountWriteError();
       if (cancelled) throw cancelledWriteError();

@@ -28,6 +28,7 @@ pnpm gen upload <feature> <name> --path /receipts/:id/photo
 const upload = useUploadReceiptPhoto();
 const camera = usePermission('camera', { onGranted: () => upload.pick('camera', { id }) });
 const item = upload.status({ id });
+const progress = useUploadProgress(item?.key);
 
 <Button title={t('receipts.addPhoto')} icon={ImagePlus} onPress={() => upload.pick('library', { id })} />
 {camera.status !== 'unavailable' ? (
@@ -36,7 +37,7 @@ const item = upload.status({ id });
 {item ? (
   <>
     <Image uri={item.localUri} style={styles.photo} />
-    <UploadStatus state={item.state} progress={item.progress} onRetry={item.retry} onRemove={item.remove} />
+    <UploadStatus state={item.state} progress={progress} onRetry={item.retry} onRemove={item.remove} />
   </>
 ) : null}
 <PermissionSheet {...camera.sheet} />
@@ -46,8 +47,8 @@ const item = upload.status({ id });
   photo the screen already has.
 - `status(item)` is null when there's nothing unfinished. Show the server's URL from your own data once it's
   done (update it in `onSuccess`).
-- In a list, read progress per row with `useUploadProgress(item.key)` in the row component, so progress
-  events re-render one row.
+- Progress comes from `useUploadProgress(item?.key)`, not the hook, so progress events re-render only the
+  component that reads it. In a list, read it in the row component.
 - Strings go in `en.json` and `hi.json`; `<UploadStatus>` already has its own.
 
 ## 3. Make it real
@@ -58,8 +59,11 @@ const item = upload.status({ id });
 3. **Size.** `photo: { maxSize, quality }` sets how much the photo is resized (default 2048 px, 0.8).
 4. **Mock.** Make the handler behave like your server, including `error(status, code, message)` refusals.
    Your backend must honour the `Idempotency-Key` header ([docs/uploads.md](../../../docs/uploads.md)).
-5. **Two requests** (upload, then create a record with its URL): write a `defineQueuedMutation` that calls
-   `uploadFile` then your request, like `useCreatePost` in the demo's `src/features/feed/api.ts`.
+5. **Two requests** (upload, then create a record with its URL): add `then: (uploaded, item, { idempotencyKey,
+   signal }) => http.post(…)` and pass both on. Add `onMutate` / `onRemove` to show the record at once and
+   take it away again, and `id` so `status` finds it by your record's id. A record without a photo goes
+   through `start(null, item)`, which skips the upload. The demo's `useCreatePost`
+   (`src/features/feed/api.ts`) does exactly this.
 
 ## 4. Check
 
