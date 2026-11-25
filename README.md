@@ -300,6 +300,9 @@ independent; the rest of the app keeps working without it.
 | [Packaging](docs/packaging.md) | How the npm template and the GitHub template are built and checked (maintainers) |
 | [Generators](docs/generators.md) | Add features, screens and API calls with `pnpm gen` |
 | [Languages](docs/languages.md) | English and Hindi, adding a language, and right-to-left |
+| [Apple and Google sign-in](docs/social-sign-in.md) | Setting up the providers, the backend check, and removing it |
+| [Permissions](docs/permissions.md) | Asking with an explanation first, and adding a permission |
+| [Photo uploads](docs/uploads.md) | Offline photo uploads: the building blocks, your backend, limits |
 | [Releasing](docs/releasing.md) | fastlane lanes: release builds, version bump, TestFlight and Play uploads |
 | [Demo build](docs/demo-build.md) | Installing the sample-data APK on an Android phone |
 | [Decisions (ADRs)](docs/decisions/README.md) | Why each library and pattern was chosen |
