@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { useUploadProgress } from '@/data/uploads';
+import { type UploadItem, useUploadProgress } from '@/data/uploads';
 import { useTranslation } from '@/shared/i18n';
 import { useFormat } from '@/shared/lib/format';
 import { Heart } from '@/shared/ui/icons';
@@ -11,7 +11,6 @@ import { Text } from '@/shared/ui/primitives/Text';
 import { MIN_TOUCH } from '@/shared/ui/theme/tokens';
 import { UploadStatus } from '@/shared/ui/upload/UploadStatus';
 
-import type { LocalPostStatus } from '../api';
 import type { Post } from '../schema';
 
 export type PostCardProps = {
@@ -23,8 +22,10 @@ export type PostCardProps = {
   likePending?: boolean;
   /** For a post made on this phone that the server doesn't have yet. */
   local?: {
-    status: LocalPostStatus;
+    status: UploadItem['state'];
     photoUri: string | null;
+    /** The upload's key, for its progress. */
+    progressKey: string;
     onRetry: () => void;
     onRemove: () => void;
   };
@@ -81,7 +82,7 @@ export function PostCard({
         ) : null}
       </Pressable>
       {local ? (
-        <LocalPostStatusRow postKey={post.local?.write.idempotencyKey} {...local} />
+        <LocalPostStatusRow {...local} />
       ) : (
         <Pressable
           role="button"
@@ -111,12 +112,12 @@ export function PostCard({
 
 /** Its own component, so upload progress re-renders this row, not the whole card. */
 function LocalPostStatusRow({
-  postKey,
+  progressKey,
   status,
   onRetry,
   onRemove,
-}: NonNullable<PostCardProps['local']> & { postKey: string | undefined }) {
-  const progress = useUploadProgress(postKey);
+}: NonNullable<PostCardProps['local']>) {
+  const progress = useUploadProgress(progressKey);
   return (
     <View style={styles.status} testID="local-post-status">
       <UploadStatus state={status} progress={progress} onRetry={onRetry} onRemove={onRemove} />

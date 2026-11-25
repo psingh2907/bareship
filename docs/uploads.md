@@ -1,127 +1,286 @@
 # Photo uploads
 
-People can add a photo to a post from their library or their camera. The post shows in the feed at once,
-with the upload's progress, and the upload works like every other offline write:
+Let people add a photo from their library or camera, and have it reach your server even with a bad
+connection. You add one with `pnpm gen upload`; this page shows the screen code, how to connect your
+backend, and what happens when things go wrong.
 
-- **Offline**, it waits ("Waiting to upload"), survives the app being closed, and goes out when the phone
-  reconnects.
+What the person using your app sees:
+
+- The photo shows at once, with the upload's progress.
+- **Offline**, it waits ("Waiting to upload"), stays through the app being closed, and goes out when the
+  phone reconnects.
 - **If the connection drops mid-upload**, it waits again instead of failing.
-- **If the server refuses it**, the post stays in the feed as failed, with **Try again** and **Remove**.
-- **A retry never stores the photo twice**: every attempt sends the same idempotency key.
+- **If your server refuses it**, it stays as failed, with **Try again** and **Remove**.
+- **A retry never stores the photo twice**: every attempt sends the same `Idempotency-Key`.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/psingh2907/bareship/main/assets/screenshots/android/10-upload-waiting.png" alt="Android, offline: a new post with its photo, marked Waiting to upload, under a banner saying one change will sync" width="240">
   <img src="https://raw.githubusercontent.com/psingh2907/bareship/main/assets/screenshots/ios/10-upload-failed.png" alt="iOS: a post the server refused, with Couldn't upload this, Try again and Remove" width="240">
 </p>
 
-Photos are resized natively to at most 2048 px on the long side and saved as JPEG (iPhone HEIC photos
-included), so an upload is a few hundred KB rather than several MB.
+To see it working, run the app, sign in with the demo account and tap the pen in the feed's header. Turn
+on airplane mode before you post to see it wait.
 
-The demo feed uses it: tap the pen in the feed's header to write a post. `pnpm strip-examples` removes the
-demo; the building blocks below stay.
+## Before you start
 
-## The building blocks
+- **No server needed to try it.** The mock backend accepts uploads in development, so the generated code
+  works straight away. You connect your API when you're ready ([below](#connect-your-backend)).
+- **Photos are resized on the phone** to at most 2048 px on the long side and sent as JPEG (iPhone HEIC
+  photos included), so an upload is a few hundred KB.
+- **Choosing from the library needs no permission**: the app uses the system's photo picker. The camera
+  asks first, with an explanation ([permissions](permissions.md)).
+- **Uploads run while the app is open.** They don't continue in the background after it's closed; they
+  pick up again the next time it opens.
+- **A waiting upload is kept for 24 hours.** After that it's dropped, and its item shows as failed.
+- **One photo per upload.** For several, start one upload per photo.
 
-| Piece | Where | What it does |
-| --- | --- | --- |
-| `services().photos.pick(source)` | `PhotoPicker` port | Opens the system photo picker (no permission needed) or the camera, and returns a resized JPEG in a temporary file |
-| `usePermission('camera', { onGranted })` | `entities/permissions` | Explains the camera before the system prompt, then opens it ([permissions](permissions.md)) |
-| `services().files.keep(uri)` | `FileStore` port | Copies the photo where the system won't delete it, and returns an id |
-| `uploadFile({ fileId, … })` | `data/uploads.ts` | Sends a kept file as `multipart/form-data` and reports its progress |
-| `useUploadProgress(key)` | `data/uploads.ts` | One upload's progress (0–1); re-renders only the component that reads it |
-| `discardQueuedWrite(key)`, `resend(variables)` | `data/offline.ts` | Remove a waiting or running write; send a failed one again with its original key |
-| `<UploadStatus>` | `shared/ui/upload` | The progress bar, "Waiting to upload", and Try again / Remove |
+## Add a photo upload to a screen
 
-Save the id `files.keep` returns, not a path: iOS moves the app's folder when the app is updated.
+This example lets people attach a photo of a receipt to an expense.
 
-## Upload from your own screen
+1. Generate the upload. The path is your API's upload endpoint; each `:param` becomes a field you pass in:
 
-Make the upload part of a queued write (offline pattern B, ADR 0006): the write's variables hold the kept
-file's id, and its `mutationFn` calls `uploadFile`. `useCreatePost` in `src/features/feed/api.ts` is the
-complete example; the core is:
+   ```bash
+   pnpm gen upload expenses receipt-photo --path /expenses/:id/receipt
+   ```
+
+   This adds `useUploadReceiptPhoto()` to `src/features/expenses/api.ts`, with its response schema, a mock
+   handler and tests for the online, offline and refused cases. The feature has to exist first:
+   `pnpm gen feature expenses` creates one.
+
+2. Use it in your screen:
+
+   ```tsx
+   import { PermissionSheet } from '@/entities/permissions/PermissionSheet';
+   import { usePermission } from '@/entities/permissions/use-permission';
+   import { useUploadProgress } from '@/data/uploads';
+   import { Camera, ImagePlus } from '@/shared/ui/icons';
+   import { UploadStatus } from '@/shared/ui/upload/UploadStatus';
+
+   import { useUploadReceiptPhoto } from '../api';
+
+   export function ExpenseScreen({ id }: { id: string }) {
+     const { t } = useTranslation();
+     const upload = useUploadReceiptPhoto();
+     const camera = usePermission('camera', { onGranted: () => upload.pick('camera', { id }) });
+     const receipt = upload.status({ id }); // null when nothing is waiting or failed
+     const progress = useUploadProgress(receipt?.key);
+
+     return (
+       <>
+         <Button
+           title={t('expenses.addReceipt')}
+           icon={ImagePlus}
+           onPress={() => upload.pick('library', { id })}
+         />
+         {camera.status !== 'unavailable' ? (
+           <Button title={t('expenses.takeReceipt')} icon={Camera} onPress={camera.ask} />
+         ) : null}
+
+         {receipt ? (
+           <>
+             {receipt.localUri ? <Image uri={receipt.localUri} style={styles.receipt} /> : null}
+             <UploadStatus
+               state={receipt.state}
+               progress={progress}
+               onRetry={receipt.retry}
+               onRemove={receipt.remove}
+             />
+           </>
+         ) : null}
+
+         <PermissionSheet {...camera.sheet} />
+       </>
+     );
+   }
+   ```
+
+   `pick` opens the picker (or the camera), keeps the photo on the phone and queues the upload. It
+   resolves `false` if the person cancels. `<UploadStatus>` draws the progress bar, "Waiting to upload",
+   and Try again / Remove, in every language the app has.
+
+3. Show the stored photo once it's uploaded. `status` returns `null` when the upload is done, so update
+   your own data from the server's response: open `src/features/expenses/api.ts` and add `onSuccess`:
+
+   ```ts
+   export const useUploadReceiptPhoto = defineQueuedUpload({
+     mutationKey: ['expenses', 'receipt-photo'],
+     url: ({ id }: { id: string }) => `/expenses/${encodeURIComponent(id)}/receipt`,
+     schema: ReceiptPhotoSchema,
+     onSuccess: (photo, { id }) =>
+       queryClient.setQueryData(expenseKeys.detail(id), expense =>
+         expense ? { ...expense, receiptUrl: photo.url } : expense,
+       ),
+   });
+   ```
+
+4. Run `pnpm check`.
+
+**Try it:** open the screen, add a photo, and watch the progress. Turn on airplane mode and add another:
+it waits. Close the app, turn airplane mode off and open the app again: it uploads on its own.
+
+## Upload a photo and create a record in one step
+
+When the photo belongs to something you're creating at the same time, such as a post or a new expense,
+send both as one write: the photo first, then the record with the photo's URL. If either fails, the whole
+thing shows as failed and Try again sends both again.
+
+Add `then` to make the second request. Pass on `idempotencyKey` and `signal`, so a retry is never applied
+twice and Remove can stop it:
 
 ```ts
-export const useSendReceipt = defineQueuedMutation<Receipt, { receiptId: string; photo: NewPhoto }>({
-  mutationKey: ['receipts', 'send'],
-  // A dropped connection waits for it to come back instead of failing.
-  retry: (failureCount, error) => error.isTransient && failureCount < 20,
-  mutationFn: async ({ receiptId, photo, idempotencyKey }) => {
-    const signal = writeSignal(idempotencyKey); // lets Remove stop it mid-upload
-    try {
-      const { url } = await uploadFile({
-        url: '/uploads',
-        schema: UploadSchema,
-        fileId: photo.fileId,
-        mimeType: photo.mimeType,
-        fileName: photo.fileName,
-        idempotencyKey: `${idempotencyKey}:photo`,
-        progressKey: idempotencyKey,
-        signal,
-      });
-      return await http.post('/receipts', ReceiptSchema, {
-        body: { id: receiptId, image_url: url },
-        idempotencyKey,
-        signal,
-      });
-    } finally {
-      releaseWriteSignal(idempotencyKey);
-    }
-  },
-  onMutate: …, // show it at once
-  onError: …,  // kind 'cancelled': the person removed it; anything else: show it as failed
-  onSuccess: …, // swap in the server's copy, then services().files.remove(photo.fileId)
+export const useCreateExpense = defineQueuedUpload({
+  mutationKey: ['expenses', 'create'],
+  url: (_expense: NewExpense) => '/uploads',
+  schema: UploadSchema,
+  id: ({ expenseId }) => expenseId, // so status() and items find it by your id
+  then: (uploaded, { expenseId, amount, note }, { idempotencyKey, signal }) =>
+    http.post('/expenses', ExpenseSchema, {
+      body: { id: expenseId, amount, note, receipt_url: uploaded?.url ?? null },
+      idempotencyKey,
+      signal,
+    }),
+  onSuccess: expense => queryClient.setQueryData(expenseKeys.detail(expense.id), expense),
+  onError: () => toast.error(i18n.t('expenses.saveFailed')),
+});
+
+// In the screen, with a photo the person already picked (or null for none):
+await createExpense.start(photo, {
+  expenseId: createId(),
+  amount: '42.50',
+  note,
+  createdAt: new Date().toISOString(),
 });
 ```
 
-Import the module from `src/app/queued-writes.ts`, like every queued write.
+Variables are strings and are saved with the write, so keep them small: ids and short text, not whole
+records. Give the record an id on the phone (`createId()`) so a retry can't create it twice.
 
-On screen, pick, keep, then write:
+A record without a photo goes through the same write: `start(null, …)` skips the upload and runs `then`.
 
-```ts
-const picked = await services().photos.pick('library');
-if (picked) {
-  const fileId = await services().files.keep(picked.uri);
-  sendReceipt.mutate({ receiptId: createId(), photo: { fileId, mimeType: picked.mimeType, fileName: picked.fileName } });
-}
+The demo's post composer is built this way: `useCreatePost` in `src/features/feed/api.ts`.
+
+## Show unsent items in a list
+
+`items` lists every upload of that kind that is uploading, waiting or failed, with the `variables` you
+passed in. Put them at the top of your list until the server has them:
+
+```tsx
+const unsent = useCreateExpense().items;
+const rows = [
+  ...unsent.map(item => ({ ...item.variables, pending: item })),
+  ...expenses.filter(expense => !unsent.some(item => item.id === expense.id)),
+];
 ```
 
-Show its state with `<UploadStatus state={…} progress={useUploadProgress(key)} … />`. Read the progress in
-a small component of its own, so progress events re-render that row and not the whole list.
+Read progress in the row component with `useUploadProgress(item.key)`, not in the screen, so progress
+updates redraw one row instead of the whole list. The demo feed does this (`useUnsentPosts` and
+`PostCard`).
 
-## What your backend needs
+Unsent items are saved on the phone apart from your list's data, so a refresh of the list never hides
+them.
 
-The app sends two requests, each with an `Idempotency-Key` header that stays the same on every retry:
+## Connect your backend
 
-1. `POST /uploads`, `multipart/form-data` with the photo in a `file` field. It returns `{ "id", "url" }`.
-   If it has already seen the key, it returns the first response instead of storing the file again.
-2. `POST /posts` (or your own resource) with the returned `url` and an id the app chose, so a replay
-   doesn't create a second post.
+Each upload is one request, or two with `then`, and every request carries an `Idempotency-Key` header
+that stays the same on every retry.
 
-Other ways to store files, with the same app code around them:
+**The upload:** `POST` to your path as `multipart/form-data`, with the photo in a field named `file`.
+Return the stored file, for example:
 
-- **S3, R2 or Google Cloud Storage with a presigned URL:** ask your API for an upload URL first, `PUT` the
-  file there, then send the URL with the post. Make the presign request part of the same `mutationFn`.
-- **Firebase Storage:** upload in the `mutationFn` with `@react-native-firebase/storage` behind a port, and
-  report its progress with the same store.
+```json
+{ "id": "rcpt_81", "url": "https://cdn.example.com/receipts/rcpt_81.jpg" }
+```
 
-The mock backend accepts uploads, so all of this works with no server. In development it "stores" the photo
-as the kept file on the phone. A post containing `#fail` is refused, to show the failed state.
+Change the fields in the generated `schema.ts` to match. If your API uses another field name, set
+`field: 'photo'`.
 
-## Limits
+**Retries:** when you get a key you've seen before, return the first response instead of storing the file
+again. The app retries after a timeout or a dropped connection, and the first attempt may have reached
+you.
 
-- Waiting uploads are saved with the query cache for 24 hours (`maxAge` in `src/data/persister.ts`).
-- An upload that was running when the app was closed shows as failed, with Try again: only waiting writes
-  are saved.
-- Uploads run while the app is open. They don't continue in the background after it's closed.
-- One photo per post. For several, keep each one and upload them in the same `mutationFn`.
+**Refusing an upload:** return a 4xx error, such as 413 for a file that's too big or 422 for one you won't
+accept. The app shows it as failed and calls `onError`; it doesn't retry. 5xx errors and timeouts are
+retried.
 
-## Native setup
+**Then point the app at your API:** set `API_URL` and `API_MOCKS=false` in the environment's `.env` file
+([going live](going-live.md#use-your-api)), and make the mock in `src/mocks/<feature>.ts` answer like your
+server, so tests keep matching.
+
+**Storage behind a presigned URL** (S3, R2, Google Cloud Storage): `defineQueuedUpload` sends the photo to
+your API. To send it straight to storage, write a `defineQueuedMutation` that asks your API for the URL,
+uploads with `uploadFile`, then saves the record. Keep the same `retry` and `writeSignal` handling as
+`defineQueuedUpload` in `src/data/uploads.ts`.
+
+## What happens when something goes wrong
+
+| What you see | Why | What to do |
+| --- | --- | --- |
+| "Couldn't upload this." with Try again | Your server refused it (a 4xx error), or it kept failing | Check your API's response. In development, the demo refuses any post containing `#fail` |
+| "Waiting to upload" doesn't go away | The phone is offline, or can't reach `API_URL` | It sends as soon as the connection is back. Check `API_URL` if the phone is online |
+| An upload shows as failed after the app was closed | It was mid-upload when the app closed, so it couldn't finish | Tap Try again; it reuses the same key, so nothing is stored twice |
+| An upload disappeared after a day offline | Waiting uploads are kept for 24 hours | Shorten the time offline, or raise `maxAge` in `src/data/persister.ts` |
+| Fails with code `file_missing` | The kept photo was deleted (the app's data was cleared) | Remove it and pick the photo again |
+| No Camera button | The device has no camera (the iOS simulator has none) | Expected; test the camera on a phone |
+
+A waiting upload only goes out for the account that made it. If someone else signs in on the same phone,
+it's dropped, not sent with their account.
+
+## Remove uploads from your app
+
+If your app doesn't need photo uploads:
+
+1. Run `pnpm strip-examples` if you haven't, to remove the demo feed.
+2. Remove the camera, as the [permissions guide](permissions.md#add-another-permission) describes.
+3. Uninstall the libraries, then delete their adapters (`image-picker-photo-picker.ts`,
+   `file-access-file-store.ts`) and the `photos` and `files` entries in `src/shared/services/services.ts`:
+
+   ```bash
+   pnpm remove react-native-image-picker react-native-file-access
+   ```
+
+4. Run `pnpm pods` and `pnpm check`.
+
+## Reference
+
+`defineQueuedUpload(options)`, in `src/data/uploads.ts`, returns a hook. Call it at module level in your
+feature's `api.ts`, and import that module from `src/app/queued-writes.ts` (the generator does both).
+
+| Option | What it does |
+| --- | --- |
+| `mutationKey` | Names the upload in the saved queue. Keep it the same across app versions |
+| `url(item)` | Where to send the photo |
+| `schema` | Checks and types the server's response |
+| `field` | The multipart field name. Default `file` |
+| `photo` | `{ maxSize, quality }` for `pick`. Default 2048 px, 0.8 |
+| `id(item)` | How `status` and `items` identify an item. Default: all its variables |
+| `then(uploaded, item, { idempotencyKey, signal })` | A second request after the upload |
+| `onSuccess(data, item)` | The server has it: update your data |
+| `onError(error, item)` | The server refused it; the item already shows as failed |
+| `onMutate(item, localUri)`, `onRemove(item)` | Show an item somewhere else at once, and take it away again |
+
+| The hook returns | |
+| --- | --- |
+| `pick(source, item)` | Picks (`'library'` or `'camera'`), keeps and queues the photo. Resolves `false` on cancel |
+| `start(photo \| null, item)` | Queues a photo you already have, or none |
+| `status(item)` | That item's upload, or `null` when there's nothing unfinished |
+| `items` | Every unfinished upload of this kind for the signed-in account |
+
+| An item has | |
+| --- | --- |
+| `state` | `'uploading'`, `'waiting'` or `'failed'` |
+| `key` | Pass to `useUploadProgress(key)` for progress (0–1) |
+| `localUri` | The photo on the phone, to show before the server has it |
+| `variables` | What you passed to `pick` or `start` |
+| `retry()`, `remove()` | Try again with the same key; stop it, drop it and delete the photo |
+
+### Native setup
 
 | Library | Why |
 | --- | --- |
-| `react-native-image-picker` | System photo picker and camera, with native resizing |
+| `react-native-image-picker` | The system photo picker and camera, with resizing on the phone |
 | `react-native-file-access` | Keeps photos in the app's documents folder until they're uploaded |
 | `react-native-permissions` | The camera's permission state on iOS (Android needs none) |
 
-iOS needs `NSCameraUsageDescription` in `Info.plist`; Android declares no new permission, because the
-photo is taken by the system camera app. See [native changes](native-changes.md#photo-uploads).
+iOS needs `NSCameraUsageDescription` in `Info.plist`. Android declares no new permission, because the photo
+is taken by the system camera app. See [native changes](native-changes.md#photo-uploads).

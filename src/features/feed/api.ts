@@ -5,22 +5,14 @@ import {
   queryOptions,
 } from '@tanstack/react-query';
 
-import {
-  defineQueuedMutation,
-  discardQueuedWrite,
-  hasLaterWrite,
-  releaseWriteSignal,
-  usePendingWriteKeys,
-  useWaitingWrites,
-  writeSignal,
-} from '@/data/offline';
+import { defineQueuedMutation, hasLaterWrite, useWaitingWrites } from '@/data/offline';
 import { queryClient } from '@/data/query-client';
-import { clearUploadProgress, uploadFile } from '@/data/uploads';
+import { defineQueuedUpload } from '@/data/uploads';
 import { useSession } from '@/entities/session/session-store';
 import { http } from '@/shared/api/http';
 import { type CursorPage, nextCursor } from '@/shared/api/pagination';
 import { i18n } from '@/shared/i18n';
-import type { PhotoSource, PickedPhoto } from '@/shared/ports';
+import type { PhotoSource } from '@/shared/ports';
 import { services } from '@/shared/services/services';
 import { preloadImages } from '@/shared/ui/primitives/Image';
 import { toast } from '@/shared/ui/toast/toast-store';
@@ -28,7 +20,6 @@ import { toast } from '@/shared/ui/toast/toast-store';
 import {
   type CreatePostVariables,
   FeedPageSchema,
-  type NewPhoto,
   type Post,
   PostSchema,
   UploadSchema,
@@ -132,8 +123,6 @@ export function useWaitingLikes(): ReadonlySet<string> {
   return new Set(waiting.map(variables => variables.postId));
 }
 
-const createPostKey = ['posts', 'create'] as const;
-
 const PHOTO_MAX_SIZE = 2048;
 
 /** Adds a post at the top of the feed's first page. */
@@ -152,157 +141,55 @@ function addToFeed(client: QueryClient, post: Post) {
   );
 }
 
-function removeFromFeed(client: QueryClient, id: string) {
-  client.setQueryData<InfiniteData<CursorPage<Post>>>(postKeys.feed(), feed =>
-    feed
-      ? {
-          ...feed,
-          pages: feed.pages.map(page => ({
-            ...page,
-            items: page.items.filter(post => post.id !== id),
-          })),
-        }
-      : feed,
-  );
-}
-
-const forgetPhoto = (photo: NewPhoto | null) =>
-  photo
-    ? services()
-        .files.remove(photo.fileId)
-        .catch(() => {})
-    : Promise.resolve();
-
 /**
- * A new post, with an optional photo: a queued write (offline pattern B, ADR 0006) that uploads the
- * photo first, then creates the post. The post shows at the top of the feed at once, with the
- * upload's progress; offline it waits ("Waiting to upload"), survives a restart, and goes out when the
- * phone reconnects. If the connection drops mid-upload it waits again instead of failing. If the
- * server refuses it, the post stays in the feed as failed, with Try again and Remove.
+ * A new post, with an optional photo: a queued upload (offline pattern B, ADR 0006) that uploads the
+ * photo, then creates the post with its URL (`then`). Offline it waits ("Waiting to upload"), survives
+ * a restart, and goes out when the phone reconnects; if the connection drops mid-upload it waits
+ * again. If the server refuses it, it stays as failed, with Try again and Remove. A post without a
+ * photo skips the upload.
  *
- * Both requests reuse the write's idempotency key, so a retry never stores the photo or the post twice.
+ * Unsent posts come from `useCreatePost().items` (see `useUnsentPosts`), not the feed's cache, so a
+ * refresh of the feed can't hide them. Once sent, the server's copy goes on top of the feed.
  */
-export const useCreatePost = defineQueuedMutation<Post, CreatePostVariables>({
-  mutationKey: createPostKey,
-  // Network failures wait for the connection instead of failing; give up after many attempts.
-  retry: (failureCount, error) => error.isTransient && failureCount < 20,
-  mutationFn: async ({ postId, body, photo, idempotencyKey }) => {
-    const signal = writeSignal(idempotencyKey);
-    try {
-      const imageUrl = photo
-        ? (
-            await uploadFile({
-              url: '/uploads',
-              schema: UploadSchema,
-              fileId: photo.fileId,
-              mimeType: photo.mimeType,
-              fileName: photo.fileName,
-              idempotencyKey: `${idempotencyKey}:photo`,
-              progressKey: idempotencyKey,
-              signal,
-            })
-          ).url
-        : null;
-      return await http.post('/posts', PostSchema, {
-        body: { id: postId, body, image_url: imageUrl },
-        idempotencyKey,
-        signal,
-      });
-    } finally {
-      releaseWriteSignal(idempotencyKey);
-    }
-  },
-  onMutate: async variables => {
-    await queryClient.cancelQueries({ queryKey: postKeys.feed() });
-    const user = useSession.getState().user;
-    const existing = findInFeed(queryClient, variables.postId);
-    // A resend keeps the post where it is; a new post goes on top.
-    if (existing?.local) {
-      updatePost(queryClient, variables.postId, post => ({
-        ...post,
-        local: { state: 'sending', write: variables },
-      }));
-      return;
-    }
-    addToFeed(queryClient, {
-      id: variables.postId,
-      author: { id: user?.id ?? '', name: user?.name ?? '', avatarUrl: user?.avatarUrl ?? null },
-      body: variables.body,
-      imageUrl: null,
-      likeCount: 0,
-      likedByMe: false,
-      createdAt: new Date().toISOString(),
-      local: { state: 'sending', write: variables },
-    });
-  },
-  onError: (error, variables) => {
-    clearUploadProgress(variables.idempotencyKey);
-    if (error.kind === 'cancelled') {
-      // Removed by the person while it was sending.
-      removeFromFeed(queryClient, variables.postId);
-      forgetPhoto(variables.photo);
-      return;
-    }
-    updatePost(queryClient, variables.postId, post => ({
-      ...post,
-      local: { state: 'failed', write: variables },
-    }));
-    toast.error(i18n.t('feed.postFailed'));
-  },
-  onSuccess: (created, variables) => {
-    clearUploadProgress(variables.idempotencyKey);
-    updatePost(queryClient, variables.postId, () => created);
-    // The server has its own copy now. (The mock backend serves the photo from the kept file, so
-    // it's kept in that case.)
-    if (variables.photo && created.imageUrl !== services().files.uriOf(variables.photo.fileId)) {
-      forgetPhoto(variables.photo);
-    }
-  },
+export const useCreatePost = defineQueuedUpload({
+  mutationKey: ['posts', 'create'],
+  url: (_post: CreatePostVariables) => '/uploads',
+  schema: UploadSchema,
+  photo: { maxSize: PHOTO_MAX_SIZE },
+  id: ({ postId }) => postId,
+  then: (uploaded, { postId, body }, { idempotencyKey, signal }) =>
+    http.post('/posts', PostSchema, {
+      body: { id: postId, body, image_url: uploaded?.url ?? null },
+      idempotencyKey,
+      signal,
+    }),
+  onError: () => toast.error(i18n.t('feed.postFailed')),
+  onSuccess: created => addToFeed(queryClient, created),
 });
 
-/**
- * Removes a post that hasn't reached the server: stops its upload or takes it out of the queue,
- * then deletes it from the feed and its kept photo.
- */
-export function discardLocalPost(post: Post): void {
-  if (!post.local) return;
-  discardQueuedWrite(post.local.write.idempotencyKey);
-  clearUploadProgress(post.local.write.idempotencyKey);
-  removeFromFeed(queryClient, post.id);
-  forgetPhoto(post.local.write.photo);
+/** Posts written on this phone that the server doesn't have yet, newest first, with their upload. */
+export function useUnsentPosts() {
+  const user = useSession(state => state.user);
+  // A record saved by an older version may lack a field; never let it break the feed.
+  const now = new Date().toISOString();
+  return useCreatePost()
+    .items.map(upload => ({
+      upload,
+      post: {
+        id: upload.variables.postId,
+        author: { id: user?.id ?? '', name: user?.name ?? '', avatarUrl: user?.avatarUrl ?? null },
+        body: upload.variables.body ?? '',
+        // The card shows the kept photo from the upload.
+        imageUrl: null,
+        likeCount: 0,
+        likedByMe: false,
+        createdAt: upload.variables.createdAt ?? now,
+        local: true,
+      } satisfies Post,
+    }))
+    .sort((a, b) => b.post.createdAt.localeCompare(a.post.createdAt));
 }
 
-/** Where a post that hasn't reached the server shows its photo from: the kept file on the phone. */
-export function localPhotoUri(post: Post): string | null {
-  const photo = post.local?.write.photo;
-  return photo ? services().files.uriOf(photo.fileId) : null;
-}
-
-export type LocalPostStatus = 'uploading' | 'waiting' | 'failed';
-
-/**
- * What each of this phone's unsent posts is doing, by post id. A post still marked "sending" whose
- * write isn't queued any more was cut off when the app closed: it shows as failed, with Try again.
- */
-export function useLocalPostStatus(): (post: Post) => LocalPostStatus | null {
-  const pending = usePendingWriteKeys(createPostKey);
-  const waiting = new Set(
-    useWaitingWrites<CreatePostVariables>(createPostKey).map(write => write.idempotencyKey),
-  );
-  return post => {
-    if (!post.local) return null;
-    const key = post.local.write.idempotencyKey;
-    if (post.local.state === 'failed' || !pending.has(key)) return 'failed';
-    return waiting.has(key) ? 'waiting' : 'uploading';
-  };
-}
-
-/** Keeps a picked photo on the phone until its post is uploaded, resized for upload. */
-export async function keepPhoto(photo: PickedPhoto): Promise<NewPhoto> {
-  const fileId = await services().files.keep(photo.uri);
-  return { fileId, mimeType: photo.mimeType, fileName: photo.fileName };
-}
-
-/** Picks or takes a photo for a post. Resolves null when the person cancels. */
+/** Picks or takes a photo for a post, resized for upload. Resolves null when the person cancels. */
 export const pickPostPhoto = (source: PhotoSource) =>
   services().photos.pick(source, { maxSize: PHOTO_MAX_SIZE });

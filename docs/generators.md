@@ -11,6 +11,7 @@ There are three commands:
 | Add a section of the app that lists things (orders, messages, products) | `pnpm gen feature orders` |
 | Add a screen to a feature (a detail view, a form) | `pnpm gen screen orders order-detail` |
 | Call another API endpoint | `pnpm gen endpoint orders cancel-order --method post --path /orders/:id/cancel` |
+| Let people upload a photo | `pnpm gen upload orders order-photo --path /orders/:id/photo` |
 
 Names are kebab-case: `orders`, `order-history`. Run the commands from the project root. Each one prints the
 files it changed and what to do next.
@@ -121,10 +122,37 @@ Both come with the response shape in `schema.ts`, a fake handler in `src/mocks/o
    [architecture.md](architecture.md#writing-data).
 4. Run `pnpm check`.
 
+## Upload a photo
+
+```bash
+pnpm gen upload orders order-photo --path /orders/:id/photo
+```
+
+You get `useUploadOrderPhoto()`, an upload that works offline: it waits for a connection, survives the app
+being closed, and retries with one idempotency key so the server stores the photo once. It also adds the
+response shape in `schema.ts`, registers the upload in `src/app/queued-writes.ts`, adds a fake handler and
+writes tests for the online, offline and refused cases.
+
+In a screen:
+
+```tsx
+const upload = useUploadOrderPhoto();
+const item = upload.status({ id: order.id });
+const progress = useUploadProgress(item?.key);
+
+<Button title={t('orders.addPhoto')} onPress={() => upload.pick('library', { id: order.id })} />
+{item ? (
+  <UploadStatus state={item.state} progress={progress} onRetry={item.retry} onRemove={item.remove} />
+) : null}
+```
+
+`pick('camera', …)` takes a photo instead; ask with `usePermission('camera')` first. The
+[uploads guide](uploads.md) covers the rest: showing the photo, your backend, and limits.
+
 ## With an AI agent
 
 Ask for the outcome, for example "add an orders feature with a cancel button". Claude Code uses the project's
-`add-feature`, `add-screen` and `add-endpoint` skills: it runs these commands, then does the "make it yours"
+`add-feature`, `add-screen`, `add-endpoint` and `add-upload` skills: it runs these commands, then does the "make it yours"
 steps. Cursor and Copilot are pointed at the same instructions. Check its work with `pnpm check` and by
 opening the screen.
 
@@ -153,6 +181,6 @@ The generator checks before writing, so when it stops, nothing has changed.
 
 ## Keeping the generators working
 
-`scripts/ci/check-generators.sh` runs `feature`, `screen` and `endpoint` on a scratch copy of the repository
+`scripts/ci/check-generators.sh` runs `feature`, `screen`, `endpoint` and `upload` on a scratch copy of the repository
 and then the full checks, so the generated code keeps up with the project's rules. Run it after changing
 `scripts/generate.ts` or a rule the generated code has to follow.

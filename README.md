@@ -186,8 +186,9 @@ Sign in with Apple and Google? `pnpm remove-social-sign-in` takes it out, librar
 - Settings: theme (light, dark, system), language, notifications, sign-out and account deletion.
 - Permission prompts that explain first, and point to the system settings once denied
   ([permissions](docs/permissions.md)).
-- Photo uploads that work offline: pick or take a photo, see the post at once with its progress, and the
-  upload waits for a connection, survives a restart and never stores a photo twice ([uploads](docs/uploads.md)).
+- Photo uploads that work offline: pick or take a photo, see it at once with its progress, and the upload
+  waits for a connection, survives a restart and never stores a photo twice. Add one to your own screen
+  with `pnpm gen upload expenses receipt-photo --path /expenses/:id/receipt` ([uploads](docs/uploads.md)).
 - Design system on Unistyles 3: tokens, light and dark themes, and about 15 accessible primitives (Button,
   Input, Sheet, Toast, ListItem…), with a component showroom in dev builds.
 - English and Hindi, typed keys, and a lint rule against hard-coded text. Right-to-left languages are one
@@ -237,7 +238,7 @@ Sign in with Apple and Google? `pnpm remove-social-sign-in` takes it out, librar
   `.github/copilot-instructions.md` point to it.
 - [Callstack's agent skills](https://github.com/callstackincubator/agent-skills) are vendored in
   `.claude/skills/` and pinned to a commit. Update them with `pnpm skills:sync`.
-- The template's own skills, `add-feature`, `add-screen` and `add-endpoint`, run the generators and walk
+- The template's own skills, `add-feature`, `add-screen`, `add-endpoint` and `add-upload`, run the generators and walk
   an agent through the rest: fields, offline pattern, strings, tests.
 - Agents drive the app with agent-device and profile it with Argent
   ([ADR 0013](docs/decisions/0013-agent-device-tools.md)).
@@ -298,11 +299,11 @@ independent; the rest of the app keeps working without it.
 | [Environments](docs/environments.md) | dev, staging and prod: ids, `.env` files, flavors and schemes |
 | [Going live](docs/going-live.md) | API, signing, Firebase, push, links, force update |
 | [Packaging](docs/packaging.md) | How the npm template and the GitHub template are built and checked (maintainers) |
-| [Generators](docs/generators.md) | Add features, screens and API calls with `pnpm gen` |
+| [Generators](docs/generators.md) | Add features, screens, API calls and photo uploads with `pnpm gen` |
 | [Languages](docs/languages.md) | English and Hindi, adding a language, and right-to-left |
 | [Apple and Google sign-in](docs/social-sign-in.md) | Setting up the providers, the backend check, and removing it |
 | [Permissions](docs/permissions.md) | Asking with an explanation first, and adding a permission |
-| [Photo uploads](docs/uploads.md) | Offline photo uploads: the building blocks, your backend, limits |
+| [Photo uploads](docs/uploads.md) | Add a photo upload to a screen, connect your backend, and what to do when one fails |
 | [Releasing](docs/releasing.md) | fastlane lanes: release builds, version bump, TestFlight and Play uploads |
 | [Demo build](docs/demo-build.md) | Installing the sample-data APK on an Android phone |
 | [Decisions (ADRs)](docs/decisions/README.md) | Why each library and pattern was chosen |

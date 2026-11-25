@@ -11,6 +11,7 @@
  *       navigator with a deep link (<feature>/<name>[/:param]).
  *
  *   pnpm gen endpoint <feature> <name> [--method get|post|put|patch|delete] [--path /orders/:id]
+ *   pnpm gen upload <feature> <name> [--path /orders/:id/photo]
  *       A response schema, a query (GET) or mutation hook, a mock handler and a test.
  *       --path defaults to /<feature>; ":param" segments become arguments.
  *
@@ -681,6 +682,208 @@ describe('${exported}', () => {
   ];
 }
 
+// ------------------------------------------------------------------------------------------- upload
+
+const QUEUED_WRITES = 'src/app/queued-writes.ts';
+
+/** Imports a feature's api module from src/app/queued-writes.ts, so its queued writes replay after a restart. */
+function registerQueuedWrites(feature: Names) {
+  const line = `import '@/features/${feature.kebab}/api';`;
+  let source = read(QUEUED_WRITES);
+  if (source.includes(line)) return;
+  // A stripped app has an empty registry ending in `export {};`.
+  source = source.replace(/\nexport \{\};\n?$/, '\n');
+  write(
+    QUEUED_WRITES,
+    `${source.trimEnd()}\n// eslint-disable-next-line no-restricted-imports -- side effect: registers the write\n${line}\n`,
+  );
+}
+
+function generateUpload(feature: Names, upload: Names, path: string) {
+  requireFeature(feature);
+  const dir = `src/features/${feature.kebab}`;
+  const { params, url } = pathParams(path);
+  const schema = `${upload.pascal}Schema`;
+  const model = upload.pascal;
+  const hook = `useUpload${upload.pascal}`;
+  const variables =
+    params.length > 0
+      ? `{ ${params.map(param => `${param}: string`).join('; ')} }`
+      : 'Record<string, never>';
+
+  // Response schema, appended to schema.ts.
+  let schemas = existsSync(join(ROOT, `${dir}/schema.ts`))
+    ? read(`${dir}/schema.ts`)
+    : "import { z } from 'zod';\n";
+  if (schemas.includes(`export const ${schema} `)) {
+    throw new Error(`${dir}/schema.ts already has ${schema}. Pick another upload name.`);
+  }
+  schemas = addImport(schemas, ['z'], 'zod');
+  schemas += `
+/** POST ${path}: where the server stored the file. Add the fields your API returns. */
+export const ${upload.pascal}DtoSchema = z.object({
+  id: z.string(),
+  url: z.url(),
+});
+
+export type ${model} = { id: string; url: string };
+
+export const ${schema} = ${upload.pascal}DtoSchema.transform(
+  (dto): ${model} => ({ id: dto.id, url: dto.url }),
+);
+`;
+  write(`${dir}/schema.ts`, schemas);
+
+  // The queued upload, appended to api.ts.
+  let api = existsSync(join(ROOT, `${dir}/api.ts`)) ? read(`${dir}/api.ts`) : '';
+  api = addImport(api, ['defineQueuedUpload'], '@/data/uploads');
+  api = addImport(api, [schema], './schema');
+  api += `
+/**
+ * Uploads a photo to POST ${path}. Works offline: it waits for a connection, survives a restart and
+ * retries with one idempotency key (docs/uploads.md). In a screen:
+ *
+ *   const upload = ${hook}();
+ *   upload.pick('library', ${params.length > 0 ? `{ ${params.map(param => `${param}`).join(', ')} }` : '{}'});
+ *   const item = upload.status(${params.length > 0 ? `{ ${params.map(param => `${param}`).join(', ')} }` : '{}'}); // null when nothing is unfinished
+ *   const progress = useUploadProgress(item?.key); // then <UploadStatus state={item.state} progress={progress} … />
+ */
+export const ${hook} = defineQueuedUpload({
+  mutationKey: ['${feature.kebab}', '${upload.kebab}'],
+  // The item the upload belongs to: the screen passes it to pick() and status().
+  url: (${params.length > 0 ? `{ ${params.join(', ')} }: ${variables}` : `_item: ${variables}`}) => ${url},
+  schema: ${schema},
+});
+`;
+  write(`${dir}/api.ts`, api);
+  exportFrom(feature, hook, './api');
+  registerQueuedWrites(feature);
+
+  // Mock handler: accepts the upload and returns where it was "stored".
+  const mockFile = `src/mocks/${feature.kebab}.ts`;
+  const handler = `  http.post('*${path}', async ({ request${params.length > 0 ? ', params' : ''} }) => {
+    await wait();
+    const user = authenticate(request);
+    if (user instanceof Response) return user;
+    // In the app the file is served from the phone; tests send real multipart data.
+    const part = await mockFilePart(request);
+    return HttpResponse.json(
+      {
+        id: ${params.length > 0 ? `\`\${String(params.${params[0]})}_${upload.kebab}\`` : `'${upload.kebab}_1'`},
+        url: part?.uri ?? 'https://example.com/uploads/${upload.kebab}.jpg',
+      },
+      { status: 201 },
+    );
+  }),
+`;
+  if (existsSync(join(ROOT, mockFile))) {
+    let mocks = read(mockFile);
+    mocks = addImport(mocks, ['mockFilePart'], './helpers');
+    const end = mocks.lastIndexOf('];');
+    if (end === -1) throw new Error(`${mockFile} has no handlers array; add the handler by hand.`);
+    write(mockFile, mocks.slice(0, end) + handler + mocks.slice(end));
+  } else {
+    create(
+      mockFile,
+      `import { http, HttpResponse } from 'msw';
+
+import { authenticate, mockFilePart, wait } from './helpers';
+
+export const ${feature.camel}Handlers = [
+${handler}];
+`,
+    );
+    let handlers = read(HANDLERS);
+    handlers = addImport(handlers, [`${feature.camel}Handlers`], `./${feature.kebab}`);
+    handlers = insertAbove(handlers, HANDLERS_MARKER, `  ...${feature.camel}Handlers,\n`, HANDLERS);
+    write(HANDLERS, handlers);
+  }
+
+  // Tests: online, offline, refused.
+  const item = params.length > 0 ? `{ ${params.map(param => `${param}: '1'`).join(', ')} }` : '{}';
+  const mswPath = `*${path}`;
+  create(
+    `${dir}/${upload.kebab}.test.tsx`,
+    `import { onlineManager } from '@tanstack/react-query';
+import { act, waitFor } from '@testing-library/react-native';
+import { http as mock, HttpResponse } from 'msw';
+
+import { server } from '@/mocks/node';
+import { setServices } from '@/shared/services/services';
+import { signInDemoUser } from '@/test/app';
+import { renderHookWithProviders } from '@/test/render';
+
+import { ${hook} } from './api';
+
+const PHOTO = {
+  uri: 'file:///tmp/photo.jpg',
+  width: 1200,
+  height: 900,
+  size: 200_000,
+  mimeType: 'image/jpeg',
+  fileName: 'photo.jpg',
+};
+
+describe('${hook}', () => {
+  beforeEach(async () => {
+    await signInDemoUser();
+    setServices({
+      photos: { pick: async () => PHOTO },
+      files: {
+        keep: async () => 'kept.jpg',
+        uriOf: id => \`file:///documents/\${id}\`,
+        exists: async () => true,
+        remove: async () => {},
+      },
+    });
+  });
+
+  it('uploads a picked photo', async () => {
+    const { result } = await renderHookWithProviders(() => ${hook}());
+    await act(async () => {
+      await result.current.pick('library', ${item});
+    });
+    await waitFor(() => expect(result.current.status(${item})).toBeNull());
+  });
+
+  it('waits while offline, then uploads on reconnect', async () => {
+    const { result } = await renderHookWithProviders(() => ${hook}());
+    await act(async () => onlineManager.setOnline(false));
+    await act(async () => {
+      await result.current.pick('library', ${item});
+    });
+    expect(result.current.status(${item})?.state).toBe('waiting');
+
+    await act(async () => onlineManager.setOnline(true));
+    await waitFor(() => expect(result.current.status(${item})).toBeNull());
+  });
+
+  it('keeps a refused upload as failed, with retry and remove', async () => {
+    server.use(
+      mock.post('${mswPath.replace(/'/g, "\\'")}', () =>
+        HttpResponse.json({ code: 'too_large', message: 'Too large.' }, { status: 413 }),
+      ),
+    );
+    const { result } = await renderHookWithProviders(() => ${hook}());
+    await act(async () => {
+      await result.current.pick('library', ${item});
+    });
+    await waitFor(() => expect(result.current.status(${item})?.state).toBe('failed'));
+
+    await act(async () => result.current.status(${item})?.remove());
+    expect(result.current.status(${item})).toBeNull();
+  });
+});
+`,
+  );
+
+  return [
+    `Use it: const upload = ${hook}() in a screen of ${feature.kebab}; show upload.status(…) with <UploadStatus> (docs/uploads.md).`,
+    `For the camera, ask first: usePermission('camera', { onGranted: () => upload.pick('camera', …) }).`,
+    `Fill in the response fields in ${dir}/schema.ts and make the mock in ${mockFile} behave like your server.`,
+  ];
+}
+
 // --------------------------------------------------------------------------------------------- main
 
 function format() {
@@ -717,6 +920,8 @@ function main() {
     next = generateFeature(names(first), names(values.item ?? singular(first)));
   } else if (kind === 'screen' && first && second) {
     next = generateScreen(names(first), names(second), values.param);
+  } else if (kind === 'upload' && first && second) {
+    next = generateUpload(names(first), names(second), values.path ?? `/${first}/:id/${second}`);
   } else if (kind === 'endpoint' && first && second) {
     const method = values.method as Method;
     if (!METHODS.includes(method))
@@ -725,7 +930,8 @@ function main() {
   } else {
     console.log(
       'Usage:\n  pnpm gen feature <name> [--item <name>]\n  pnpm gen screen <feature> <name> [--param <name>]\n' +
-        '  pnpm gen endpoint <feature> <name> [--method get|post|put|patch|delete] [--path /x/:id]',
+        '  pnpm gen endpoint <feature> <name> [--method get|post|put|patch|delete] [--path /x/:id]\n' +
+        '  pnpm gen upload <feature> <name> [--path /x/:id/photo]',
     );
     process.exit(kind ? 1 : 0);
   }

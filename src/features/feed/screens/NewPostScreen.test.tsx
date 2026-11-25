@@ -43,12 +43,10 @@ function FeedWithPost({ body, photo = true }: { body: string; photo?: boolean })
         role="button"
         aria-label="Share"
         onPress={() =>
-          createPost.mutate({
+          createPost.start(photo ? PHOTO : null, {
             postId: 'p_local',
             body,
-            photo: photo
-              ? { fileId: 'kept-1.jpg', mimeType: 'image/jpeg', fileName: 'picked.jpg' }
-              : null,
+            createdAt: new Date().toISOString(),
           })
         }
       >

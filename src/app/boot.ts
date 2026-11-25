@@ -58,11 +58,13 @@ export function boot(): Promise<void> {
     });
 
     setupQueryLifecycle();
-    // Queued writes run only for the account that made them (ADR 0006).
-    setQueueAccount(() => useSession.getState().user?.id ?? null);
     // Before the first screen: flags activated on the last launch can already block this version.
     useAppStatus.getState().evaluate();
-    await useSession.getState().hydrate();
+    const hydrated = useSession.getState().hydrate();
+    // Queued writes run only for the account that made them (ADR 0006). A write restored from the
+    // saved queue waits until the session is back before that check.
+    setQueueAccount(() => useSession.getState().user?.id ?? null, hydrated);
+    await hydrated;
   })().catch(error => {
     // Never leave the app on the splash: a failed boot still decides the session (signed out).
     services().crash.recordError(error, { phase: 'boot' });

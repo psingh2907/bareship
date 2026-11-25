@@ -9,15 +9,7 @@ import { useTranslation } from '@/shared/i18n';
 import { EmptyState, ErrorState } from '@/shared/ui/primitives/States';
 import { Text } from '@/shared/ui/primitives/Text';
 
-import {
-  discardLocalPost,
-  feedQueryOptions,
-  localPhotoUri,
-  useCreatePost,
-  useLocalPostStatus,
-  useToggleLike,
-  useWaitingLikes,
-} from '../api';
+import { feedQueryOptions, useToggleLike, useUnsentPosts, useWaitingLikes } from '../api';
 import { PostCard } from '../components/PostCard';
 import { PostCardSkeleton } from '../components/PostCardSkeleton';
 import type { Post } from '../schema';
@@ -29,9 +21,14 @@ export function FeedScreen() {
   const feed = useInfiniteQuery(feedQueryOptions());
   const toggleLike = useToggleLike();
   const waitingLikes = useWaitingLikes();
-  const createPost = useCreatePost();
-  const localStatus = useLocalPostStatus();
-  const posts = useMemo(() => feed.data?.pages.flatMap(page => page.items) ?? [], [feed.data]);
+  // Posts written on this phone that the server doesn't have yet go on top, from their saved uploads.
+  const unsent = useUnsentPosts();
+  const uploads = new Map(unsent.map(({ post, upload }) => [post.id, upload]));
+  const loaded = useMemo(() => feed.data?.pages.flatMap(page => page.items) ?? [], [feed.data]);
+  const posts = [
+    ...unsent.map(({ post }) => post),
+    ...loaded.filter(post => !uploads.has(post.id)),
+  ];
   const list = useRef<FlashListRef<Post>>(null);
 
   // A post you just wrote goes on top: scroll up to it, after FlashList has laid it out.
@@ -79,8 +76,7 @@ export function FeedScreen() {
         // row keeps its layout.
         getItemType={post => (post.local ? 'local' : post.imageUrl ? 'image' : 'text')}
         renderItem={({ item }) => {
-          const status = localStatus(item);
-          const { local } = item;
+          const upload = uploads.get(item.id);
           return (
             <PostCard
               post={item}
@@ -88,12 +84,13 @@ export function FeedScreen() {
               onToggleLike={() => toggleLike.mutate({ postId: item.id, like: !item.likedByMe })}
               likePending={waitingLikes.has(item.id)}
               local={
-                status && local
+                upload
                   ? {
-                      status,
-                      photoUri: localPhotoUri(item),
-                      onRetry: () => createPost.resend(local.write),
-                      onRemove: () => discardLocalPost(item),
+                      status: upload.state,
+                      photoUri: upload.localUri,
+                      progressKey: upload.key,
+                      onRetry: upload.retry,
+                      onRemove: upload.remove,
                     }
                   : undefined
               }

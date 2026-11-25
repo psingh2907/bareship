@@ -184,6 +184,7 @@ beforeAll(() => {
 beforeEach(() => {
   resetDb();
   resetTestApp();
+  require('@/data/uploads').resetUploadRecords();
 });
 
 afterEach(() => {

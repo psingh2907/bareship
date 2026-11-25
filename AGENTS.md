@@ -20,7 +20,7 @@ Never change a recorded decision silently: propose a new ADR.
 | Remove Apple and Google sign-in | `pnpm remove-social-sign-in` ([docs/social-sign-in.md](docs/social-sign-in.md#remove-it)) | <!-- @social -->
 | Icons / splash | `pnpm icons`, `pnpm splash` |
 | Release builds, version bump, uploads | `bundle exec fastlane lanes` ([docs/releasing.md](docs/releasing.md)) |
-| Scaffold code | `pnpm gen feature <name>`, `pnpm gen screen <feature> <name>`, `pnpm gen endpoint <feature> <name>` ([docs/generators.md](docs/generators.md)) |
+| Scaffold code | `pnpm gen feature <name>`, `pnpm gen screen <feature> <name>`, `pnpm gen endpoint <feature> <name>`, `pnpm gen upload <feature> <name>` ([docs/generators.md](docs/generators.md)) |
 
 ## Agent skills
 
@@ -31,7 +31,7 @@ agents should open the `SKILL.md` named below before the matching work.
 
 | Work | Skill |
 | --- | --- |
-| Adding a feature, a screen or an endpoint (this template's own skills) | `add-feature`, `add-screen`, `add-endpoint` |
+| Adding a feature, a screen, an endpoint or a photo upload (this template's own skills) | `add-feature`, `add-screen`, `add-endpoint`, `add-upload` |
 | Any React Native code: screens, lists, state, animations, native modules, bundle size, startup | `react-native-best-practices` |
 | Navigation: stacks, tabs, headers, sheets, safe areas | `react-navigation` |
 | Tests with React Native Testing Library | `react-native-testing` |
@@ -138,10 +138,10 @@ Everything here runs without accounts; docs/going-live.md says what to add and w
   explains before the system prompt and links to the system settings once denied. Never call a prompt
   directly. Only notifications are declared; add another kind with react-native-permissions
   ([docs/permissions.md](docs/permissions.md)).
-- **Photo uploads:** pick with `services().photos`, keep the file with `services().files.keep` (save the
-  id, never a path), and upload inside a queued write with `uploadFile` from `src/data/uploads.ts`, so it
-  waits offline and retries with one idempotency key. Show it with `<UploadStatus>`
-  ([docs/uploads.md](docs/uploads.md)).
+- **Photo uploads:** `pnpm gen upload <feature> <name>` (skill `add-upload`) writes a `defineQueuedUpload`
+  that picks, keeps the file (by id, never a path), waits offline and retries with one idempotency key.
+  Show it with `<UploadStatus>`. When the upload belongs to a record the same write creates, call
+  `uploadFile` inside a `defineQueuedMutation` instead ([docs/uploads.md](docs/uploads.md)).
 - **Deep links:** add `linking: 'path/:param'` to the screen in `RootNavigator.tsx` and the path to
   `LINK_PATHS` in `scripts/links-files.ts`. Links open on top of the tabs, and a link that arrives while signed
   out opens after sign-in (`UNSTABLE_routeNamesChangeBehavior`, covered by `App.test.tsx`).
